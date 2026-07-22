@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IFL-BH · Oficina de Artigos e Resenhas</title>
+<style>
+  :root{
+    --navy:#12263a; --navy-2:#1b3a56; --amber:#c98a2d; --amber-soft:#f3e3c8;
+    --paper:#faf7f1; --ink:#22303c; --muted:#68778a; --line:#e3ddd2;
+    --ok:#2e7d4f; --err:#b3402e;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{font-family:Georgia,'Times New Roman',serif; background:var(--paper); color:var(--ink); line-height:1.6}
+  .sans{font-family:'Segoe UI',system-ui,sans-serif}
+
+  header{background:var(--navy); color:#fff; padding:1.1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem}
+  header .brand{display:flex; align-items:baseline; gap:.75rem}
+  header .logo{font-weight:bold; font-size:1.35rem; letter-spacing:.05em}
+  header .logo span{color:var(--amber)}
+  header .tagline{font-style:italic; color:#c8d3de; font-size:.9rem}
+  header .user{font-size:.85rem; color:#c8d3de; text-align:right}
+  header .user a{color:var(--amber); cursor:pointer; text-decoration:underline}
+
+  main{max-width:900px; margin:0 auto; padding:1.5rem 1rem 4rem}
+
+  /* ---------- Login ---------- */
+  .card{background:#fff; border:1px solid var(--line); border-radius:10px; padding:1.75rem; box-shadow:0 1px 4px rgba(18,38,58,.06)}
+  #telaLogin{max-width:460px; margin:3rem auto}
+  #telaLogin h1{font-size:1.5rem; color:var(--navy); margin-bottom:.35rem}
+  #telaLogin p{color:var(--muted); font-size:.95rem; margin-bottom:1.25rem}
+
+  label{display:block; font-weight:bold; color:var(--navy); margin:1rem 0 .3rem; font-size:.95rem}
+  label .opcional{font-weight:normal; color:var(--muted); font-size:.8rem}
+  .ajuda{font-size:.83rem; color:var(--muted); font-style:italic; margin-bottom:.35rem}
+  input[type=text], input[type=password], textarea, select{
+    width:100%; padding:.65rem .75rem; border:1px solid var(--line); border-radius:6px;
+    font-family:inherit; font-size:1rem; background:#fffdf9; color:var(--ink)
+  }
+  textarea{min-height:88px; resize:vertical}
+  textarea:focus, input:focus, select:focus{outline:2px solid var(--amber); border-color:var(--amber)}
+
+  .btn{display:inline-block; border:none; border-radius:6px; padding:.7rem 1.4rem; font-size:1rem; cursor:pointer; font-family:'Segoe UI',system-ui,sans-serif; font-weight:600}
+  .btn-primario{background:var(--navy); color:#fff}
+  .btn-primario:hover{background:var(--navy-2)}
+  .btn-ouro{background:var(--amber); color:#fff}
+  .btn-ouro:hover{filter:brightness(1.07)}
+  .btn-fantasma{background:transparent; color:var(--navy); border:1px solid var(--line)}
+  .btn-fantasma:hover{border-color:var(--navy)}
+  .btn-perigo{background:transparent; color:var(--err); border:1px solid var(--err)}
+  .btn:disabled{opacity:.45; cursor:not-allowed}
+  .btn + .btn{margin-left:.5rem}
+
+  /* ---------- Abas ---------- */
+  nav.abas{display:flex; gap:.25rem; margin:1.25rem 0; border-bottom:2px solid var(--line); flex-wrap:wrap}
+  nav.abas button{background:none; border:none; padding:.6rem 1rem; font-size:1rem; font-family:inherit; color:var(--muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px}
+  nav.abas button.ativa{color:var(--navy); font-weight:bold; border-bottom-color:var(--amber)}
+
+  .escolha-tipo{display:flex; gap:.75rem; margin-bottom:1.25rem; flex-wrap:wrap}
+  .escolha-tipo button{flex:1; min-width:220px; text-align:left; background:#fff; border:2px solid var(--line); border-radius:10px; padding:1rem 1.1rem; cursor:pointer; font-family:inherit}
+  .escolha-tipo button.sel{border-color:var(--amber); background:var(--amber-soft)}
+  .escolha-tipo b{display:block; color:var(--navy); font-size:1.05rem}
+  .escolha-tipo small{color:var(--muted)}
+
+  .linha-opcoes{display:flex; gap:1rem; flex-wrap:wrap}
+  .linha-opcoes > div{flex:1; min-width:200px}
+
+  .aviso{background:var(--amber-soft); border-left:4px solid var(--amber); padding:.8rem 1rem; border-radius:0 6px 6px 0; font-size:.92rem; margin:1.25rem 0}
+
+  /* ---------- Resultado ---------- */
+  #areaResultado{display:none; margin-top:2rem}
+  #previa{white-space:pre-wrap; background:#fff; border:1px solid var(--line); border-radius:10px; padding:1.5rem; min-height:200px; font-size:1.02rem}
+  #previa.gerando::after{content:'▋'; color:var(--amber); animation:pisca 1s infinite}
+  @keyframes pisca{50%{opacity:0}}
+  #editor{display:none; width:100%; min-height:420px; font-size:1.02rem; line-height:1.6; padding:1.25rem}
+  .contagem{font-size:.83rem; color:var(--muted); text-align:right; margin-top:.3rem}
+
+  .checklist{background:#fff; border:1px solid var(--line); border-radius:10px; padding:1.25rem 1.5rem; margin-top:1.5rem}
+  .checklist h3{color:var(--navy); margin-bottom:.6rem; font-size:1.05rem}
+  .checklist label{display:flex; gap:.6rem; align-items:flex-start; font-weight:normal; margin:.5rem 0; cursor:pointer; font-size:.95rem}
+  .checklist input{width:auto; margin-top:.3rem}
+
+  .acoes{margin-top:1.25rem; display:flex; flex-wrap:wrap; gap:.5rem}
+  .acoes .btn + .btn{margin-left:0}
+
+  /* ---------- Meus textos ---------- */
+  .item-texto{display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:.9rem 0; border-bottom:1px solid var(--line)}
+  .item-texto b{color:var(--navy)}
+  .item-texto small{color:var(--muted); display:block}
+  .item-texto .acs{display:flex; gap:.4rem; flex-shrink:0}
+  .item-texto .acs .btn{padding:.4rem .8rem; font-size:.85rem; margin:0}
+
+  /* ---------- Dicas ---------- */
+  .dicas h2{color:var(--navy); font-size:1.25rem; margin:1.5rem 0 .5rem}
+  .dicas h2:first-child{margin-top:0}
+  .dicas ol{padding-left:1.4rem}
+  .dicas li{margin:.55rem 0}
+  .dicas em{color:var(--amber); font-style:normal; font-weight:bold}
+
+  .toast{position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:.7rem 1.3rem; border-radius:8px; font-size:.9rem; opacity:0; transition:opacity .3s; pointer-events:none; z-index:50}
+  .toast.show{opacity:1}
+  .erro-msg{color:var(--err); font-size:.9rem; margin-top:.6rem; display:none}
+
+  .overlay{display:none; position:fixed; inset:0; background:rgba(18,38,58,.55); align-items:center; justify-content:center; z-index:60; padding:1rem}
+  .overlay.show{display:flex}
+  .modal-card{max-width:440px; width:100%}
+
+  @media (max-width:600px){
+    header{flex-direction:column; text-align:center}
+    header .user{text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">IFL<span>·</span>BH</div>
+    <div class="tagline">Oficina de Artigos &amp; Resenhas</div>
+  </div>
+  <div class="user sans" id="cabecalhoUsuario" style="display:none">
+    <span id="nomeUsuario"></span><br><a onclick="sair()">sair</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= LOGIN ================= -->
+  <section id="telaLogin" class="card">
+    <h1>Bem-vindo, associado</h1>
+    <p>Identifique-se para começar. Seu PIN garante que seus textos fiquem salvos apenas para você — guarde-o bem: sem ele não é possível recuperar seus rascunhos.</p>
+    <label for="inNome">Seu nome</label>
+    <input type="text" id="inNome" placeholder="Ex.: Bruno Lage" autocomplete="name">
+    <label for="inPin">Seu PIN (4 a 8 números)</label>
+    <input type="password" id="inPin" inputmode="numeric" placeholder="••••" maxlength="8">
+    <p class="ajuda" style="margin-top:.4rem">Na primeira vez, o PIN que você digitar será o seu PIN definitivo. Use sempre o mesmo nome e o mesmo PIN.</p>
+    <div class="erro-msg" id="erroLogin"></div>
+    <div style="margin-top:1.25rem">
+      <button class="btn btn-primario" onclick="entrar()">Entrar</button>
+    </div>
+  </section>
+
+  <!-- ================= APP ================= -->
+  <section id="telaApp" style="display:none">
+
+    <nav class="abas sans">
+      <button id="abaBtn-novo" class="ativa" onclick="mostrarAba('novo')">✍️ Novo texto</button>
+      <button id="abaBtn-meus" onclick="mostrarAba('meus')">📁 Meus textos</button>
+      <button id="abaBtn-dicas" onclick="mostrarAba('dicas')">💡 Como escrever bem</button>
+    </nav>
+
+    <!-- ---------- ABA: NOVO ---------- -->
+    <div id="aba-novo">
+
+      <div class="escolha-tipo sans">
+        <button id="tipoBtn-artigo" class="sel" onclick="definirTipo('artigo')">
+          <b>Artigo de opinião</b>
+          <small>Sobre um livro ou tema estudado no IFL-BH</small>
+        </button>
+        <button id="tipoBtn-resenha" onclick="definirTipo('resenha')">
+          <b>Resenha de evento</b>
+          <small>Palestra, imersão, encontro ou debate</small>
+        </button>
+        <button id="tipoBtn-livre" onclick="definirTipo('livre')">
+          <b>Artigo livre</b>
+          <small>Tema à sua escolha, fora da grade do IFL-BH</small>
+        </button>
+      </div>
+
+      <div class="aviso">
+        <b>Como funciona:</b> você responde às perguntas com as <b>suas</b> ideias — pode escrever corrido, sem se preocupar com estilo. A IA apenas organiza e lapida o que você escreveu; ela não inventa opinião por você. Quanto mais você escrever, mais autoral fica o resultado. Depois, <b>a revisão final é sua e é obrigatória</b>.
+      </div>
+
+      <div class="card">
+        <form id="formulario" onsubmit="return false"></form>
+
+        <div class="linha-opcoes" style="margin-top:1rem">
+          <div>
+            <label for="selTom">Tom do texto</label>
+            <select id="selTom">
+              <option>pessoal e direto</option>
+              <option>analítico e sóbrio</option>
+              <option>provocador</option>
+              <option>inspirador, mas sem clichês</option>
+            </select>
+          </div>
+          <div>
+            <label for="selTamanho">Tamanho</label>
+            <select id="selTamanho">
+              <option value="400 a 600 palavras">Curto (400–600 palavras)</option>
+              <option value="600 a 900 palavras" selected>Médio (600–900 palavras)</option>
+              <option value="900 a 1200 palavras">Longo (900–1200 palavras)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="erro-msg" id="erroGerar"></div>
+        <div style="margin-top:1.5rem">
+          <button class="btn btn-ouro" id="btnGerar" onclick="gerar()">Gerar rascunho ✦</button>
+          <button class="btn btn-fantasma" id="btnSalvarRascunho" onclick="salvarRascunhoLocal(false)">💾 Salvar respostas</button>
+        </div>
+        <p class="ajuda" style="margin-top:.5rem">Suas respostas são guardadas automaticamente neste dispositivo enquanto você escreve — e não se perdem ao trocar de tipo de texto. Use "Salvar respostas" para guardar manualmente a qualquer momento.</p>
+      </div>
+
+      <!-- ---------- RESULTADO ---------- -->
+      <div id="areaResultado">
+        <h2 style="color:var(--navy); margin-bottom:.75rem">Seu rascunho</h2>
+        <div id="previa"></div>
+        <textarea id="editor" spellcheck="true"></textarea>
+        <div class="contagem sans" id="contagemPalavras"></div>
+
+        <div class="checklist sans" id="blocoChecklist" style="display:none">
+          <h3>Antes de salvar ou publicar — compromisso de autoria</h3>
+          <label><input type="checkbox" class="chk"> Li o texto inteiro, do título à conclusão.</label>
+          <label><input type="checkbox" class="chk"> Resolvi todas as marcações <b>[REVISAR: ...]</b> e conferi qualquer citação ou dado.</label>
+          <label><input type="checkbox" class="chk"> Editei com as minhas palavras os trechos que não soavam como eu. Este texto expressa a <b>minha</b> opinião e assumo a autoria dele.</label>
+        </div>
+
+        <div class="acoes sans" id="acoesResultado" style="display:none">
+          <button class="btn btn-fantasma" onclick="editarRascunho()" id="btnEditar">✏️ Editar texto</button>
+          <button class="btn btn-primario" id="btnSalvar" onclick="salvar()" disabled>💾 Salvar nos meus textos</button>
+          <button class="btn btn-fantasma" id="btnCopiar" onclick="copiar()" disabled>📋 Copiar</button>
+          <button class="btn btn-fantasma" id="btnBaixar" onclick="baixar()" disabled>⬇️ Baixar .txt</button>
+          <button class="btn btn-fantasma" onclick="regerar()">🔄 Gerar de novo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- ABA: MEUS TEXTOS ---------- -->
+    <div id="aba-meus" style="display:none">
+      <div class="card">
+        <div id="listaTextos"><p style="color:var(--muted)">Carregando…</p></div>
+      </div>
+    </div>
+
+    <!-- ---------- ABA: DICAS ---------- -->
+    <div id="aba-dicas" style="display:none">
+      <div class="card dicas">
+        <h2>O que faz um artigo de sucesso</h2>
+        <ol>
+          <li><em>Tese clara em uma frase.</em> Se você não consegue resumir sua posição em uma frase, o leitor também não vai conseguir. Comece por aí.</li>
+          <li><em>Abra com tensão, não com definição.</em> Nada de "Segundo o dicionário…". Comece pela pergunta incômoda, pela cena, pelo dado que surpreende.</li>
+          <li><em>Um exemplo concreto vale mais que três abstrações.</em> Uma história sua, um caso real do Brasil, um número verificável.</li>
+          <li><em>Enfrente o contraponto de verdade.</em> Apresente a melhor objeção à sua tese — não a mais fraca — e responda a ela. É isso que separa opinião de argumento.</li>
+          <li><em>Proponha, não apenas critique.</em> "Como eu resolveria?" é a pergunta que transforma reclamação em liderança.</li>
+          <li><em>Conclua com posição.</em> O leitor deve terminar sabendo o que você pensa e o que ele deveria fazer ou repensar.</li>
+          <li><em>Corte 10% na revisão.</em> Todo texto melhora quando fica mais enxuto. Leia em voz alta: onde você tropeçar, reescreva.</li>
+        </ol>
+
+        <h2>O que faz uma resenha de evento de sucesso</h2>
+        <ol>
+          <li><em>Situe o leitor em duas linhas:</em> qual evento, quem falou, sobre o quê. Sem ata de reunião.</li>
+          <li><em>Escolha UM fio condutor.</em> Não tente cobrir tudo: escolha a ideia que mais mexeu com você e desenvolva-a.</li>
+          <li><em>Sua reação é o conteúdo.</em> O leitor não estava lá — o valor da resenha é o que o evento provocou em você: concordância, incômodo, virada de chave.</li>
+          <li><em>Do evento para a vida.</em> O que você vai aplicar? O que muda na sua forma de liderar, empreender ou estudar?</li>
+          <li><em>Recomende com critério.</em> Para quem vale a pena? Por quê? Recomendação genérica não convence ninguém.</li>
+        </ol>
+
+        <h2>Sobre o uso da IA nesta oficina</h2>
+        <ol>
+          <li>A IA é sua <em>editora</em>, não sua ghostwriter. Ela organiza o que você pensou — se você não pensou, não há o que organizar.</li>
+          <li>Tudo que estiver marcado como <em>[REVISAR: ...]</em> é lacuna sua para preencher. Nunca publique com essas marcas.</li>
+          <li>Reescreva com as suas palavras qualquer frase que não soe como você. Seu leitor conhece sua voz.</li>
+          <li>Confira toda citação, número e fato antes de publicar. A responsabilidade pelo texto é 100% do autor.</li>
+        </ol>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<footer class="sans" style="text-align:center; padding:2rem 1rem 3rem; color:var(--muted); font-size:.8rem">
+  <a onclick="abrirAdmin()" style="color:var(--muted); text-decoration:underline; cursor:pointer">Administração</a>
+</footer>
+
+<!-- ================= PAINEL ADMINISTRATIVO ================= -->
+<div id="modalAdmin" class="overlay" role="dialog" aria-modal="true">
+  <div class="card modal-card">
+    <div id="adminLogin">
+      <h2 style="color:var(--navy); margin-bottom:.75rem">Painel administrativo</h2>
+      <p style="color:var(--muted); font-size:.92rem; margin-bottom:1rem">Área restrita à coordenação do IFL-BH. Use o PIN de administrador (diferente do PIN dos associados).</p>
+      <label for="inAdminPin">PIN de administrador</label>
+      <input type="password" id="inAdminPin">
+      <div class="erro-msg" id="erroAdmin"></div>
+      <div style="margin-top:1.1rem">
+        <button class="btn btn-primario" onclick="entrarAdmin()">Entrar</button>
+        <button class="btn btn-fantasma" onclick="fecharAdmin()">Cancelar</button>
+      </div>
+    </div>
+    <div id="adminPainel" style="display:none">
+      <h2 style="color:var(--navy); margin-bottom:.75rem">Painel administrativo</h2>
+      <p class="sans">Status da geração de textos: <b id="statusServico">—</b></p>
+      <p class="ajuda">Pausar bloqueia a geração de <b>novos</b> textos para todos os associados imediatamente. Os textos já salvos em "Meus textos" continuam acessíveis normalmente.</p>
+      <div style="margin-top:1.1rem">
+        <button class="btn" id="btnAlternar" onclick="alternarServico()"></button>
+        <button class="btn btn-fantasma" onclick="fecharAdmin()">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast sans" id="toast"></div>
+
+<script>
+/* ============================================================
+   IFL-BH · Oficina de Artigos e Resenhas
+   ============================================================ */
+
+const PERGUNTAS = {
+  artigo: [
+    { id:'obra',  p:'Qual livro ou tema você vai comentar?', a:'Título e autor do livro, ou o tema debatido no IFL-BH.', ph:'Ex.: "As Seis Lições", de Ludwig von Mises', curto:true },
+    { id:'tese',  p:'Qual é a tese central apresentada pelo autor/tema?', a:'Resuma em 2 ou 3 frases, com suas palavras.' },
+    { id:'concorda', p:'Você concordou com a tese apresentada? Por quê?', a:'Concordou, discordou ou concordou em parte — e o motivo.' },
+    { id:'sentimento', p:'Qual seu sentimento sobre o tema?', a:'O que a leitura provocou em você: entusiasmo, incômodo, urgência, esperança…' },
+    { id:'contraponto', p:'Qual seu contraponto ao tema?', a:'A melhor objeção que você faria — ou a que os críticos fariam, e como você responde.' },
+    { id:'solucao', p:'Como você resolveria o problema apresentado?', a:'Sua proposta prática. É aqui que o artigo vira liderança.' },
+    { id:'exemplo', p:'Um exemplo concreto ou experiência pessoal', a:'Uma história sua, um caso do Brasil ou um dado que sustenta sua visão.', opcional:true },
+    { id:'citacao', p:'Uma passagem ou frase marcante', a:'Cite de memória se precisar — você vai conferir na revisão.', opcional:true, curto:true },
+    { id:'brasil', p:'Qual a conexão com o Brasil e com a atualidade?', a:'Por que esse tema importa aqui e agora?', opcional:true },
+    { id:'fecho', p:'Que mensagem o leitor deve levar ao terminar?', a:'Seu chamado à ação ou provocação final.' }
+  ],
+  resenha: [
+    { id:'evento', p:'Qual foi o evento?', a:'Nome, data e local.', ph:'Ex.: Imersão de Liderança IFL-BH — 12/07, Belo Horizonte', curto:true },
+    { id:'quem', p:'Quem conduziu e qual era o tema?', a:'Palestrante(s) e assunto central.', curto:true },
+    { id:'resumo', p:'O que foi apresentado?', a:'Resuma com suas palavras as principais ideias do evento.' },
+    { id:'marcante', p:'Qual foi o momento mais marcante?', a:'A fala, a dinâmica ou a ideia que mais mexeu com você.' },
+    { id:'concorda', p:'Você concordou com o que foi apresentado? Por quê?', a:'Sua avaliação honesta das ideias do evento.' },
+    { id:'contraponto', p:'Qual seu contraponto?', a:'O que você questionaria, aprofundaria ou faria diferente.' },
+    { id:'aplicacao', p:'O que você aprendeu e vai aplicar?', a:'Na sua vida, empresa, estudos ou liderança.' },
+    { id:'recomenda', p:'Para quem você recomenda? Por quê?', a:'O perfil de pessoa que mais ganharia participando.', opcional:true },
+    { id:'fecho', p:'Que mensagem final você quer deixar?', a:'Seu fechamento para o leitor.' }
+  ],
+  livre: [
+    { id:'tema', p:'Qual é o tema do seu artigo?', a:'O assunto que você escolheu livremente para escrever.', ph:'Ex.: O papel do empreendedor na renovação das cidades', curto:true },
+    { id:'motivacao', p:'O que te motivou a escrever sobre isso agora?', a:'A notícia, a inquietação, a conversa ou a experiência que acendeu a vontade de escrever.' },
+    { id:'tese', p:'Qual é a sua tese — sua posição central?', a:'Resuma em uma ou duas frases o que você quer defender.' },
+    { id:'argumentos', p:'Quais argumentos sustentam sua posição?', a:'Liste as razões, na sua ordem de importância. Escreva corrido, depois a IA organiza.' },
+    { id:'contraponto', p:'Qual a melhor objeção à sua posição? Como você responde?', a:'Enfrente o argumento mais forte de quem discorda — é isso que separa opinião de argumento.' },
+    { id:'exemplo', p:'Um exemplo concreto, dado ou experiência pessoal', a:'Uma história, um caso do Brasil ou um número verificável que ancore sua tese.', opcional:true },
+    { id:'solucao', p:'Que proposta, solução ou reflexão prática você oferece?', a:'O que você propõe que se faça ou se repense? É aqui que o artigo vira liderança.' },
+    { id:'publico', p:'Para quem você escreve e o que quer que mude na cabeça dessa pessoa?', a:'O leitor ideal e a virada que você espera provocar nele.', opcional:true },
+    { id:'fecho', p:'Qual a mensagem final?', a:'Seu chamado à ação ou provocação de fechamento.' }
+  ]
+};
+
+let usuario = null;        // {nome, pin}
+let tipoAtual = 'artigo';
+let textoGerado = '';
+let idTextoAtual = null;   // se estiver editando um texto salvo
+let gerando = false;
+// Respostas do formulário guardadas em memória, por tipo — não se perdem
+// ao trocar entre "artigo", "resenha" e "livre".
+let respostas = { artigo:{}, resenha:{}, livre:{} };
+
+/* ---------- sessão ---------- */
+function entrar(){
+  const nome = document.getElementById('inNome').value.trim();
+  const pin  = document.getElementById('inPin').value.trim();
+  const erro = document.getElementById('erroLogin');
+  if(nome.length < 2){ erro.textContent='Digite seu nome.'; erro.style.display='block'; return; }
+  if(!/^\d{4,8}$/.test(pin)){ erro.textContent='O PIN deve ter de 4 a 8 números.'; erro.style.display='block'; return; }
+  usuario = {nome, pin};
+  sessionStorage.setItem('iflUser', JSON.stringify(usuario));
+  iniciarApp();
+}
+function sair(){
+  sessionStorage.removeItem('iflUser');
+  location.reload();
+}
+function iniciarApp(){
+  document.getElementById('telaLogin').style.display='none';
+  document.getElementById('telaApp').style.display='block';
+  document.getElementById('cabecalhoUsuario').style.display='block';
+  document.getElementById('nomeUsuario').textContent = usuario.nome;
+  restaurarRascunhoLocal();
+  montarFormulario();
+}
+
+/* ---------- formulário ---------- */
+const TIPOS = ['artigo','resenha','livre'];
+
+function definirTipo(t){
+  capturarRespostasAtuais();           // guarda o que já foi escrito no tipo atual
+  tipoAtual = t;
+  for(const k of TIPOS)
+    document.getElementById('tipoBtn-'+k).classList.toggle('sel', k===t);
+  montarFormulario();                  // reconstrói já restaurando as respostas de 't'
+}
+
+// Lê o que está nos campos e guarda em memória (store por tipo).
+function capturarRespostasAtuais(){
+  for(const q of PERGUNTAS[tipoAtual]){
+    const el = document.getElementById('campo-'+q.id);
+    if(el) respostas[tipoAtual][q.id] = el.value;
+  }
+}
+
+function montarFormulario(){
+  const form = document.getElementById('formulario');
+  form.innerHTML = '';
+  for(const q of PERGUNTAS[tipoAtual]){
+    const wrap = document.createElement('div');
+    const lbl = document.createElement('label');
+    lbl.htmlFor = 'campo-'+q.id;
+    lbl.innerHTML = q.p + (q.opcional ? ' <span class="opcional">(opcional)</span>' : '');
+    const ajuda = document.createElement('div');
+    ajuda.className = 'ajuda';
+    ajuda.textContent = q.a;
+    let campo;
+    if(q.curto){
+      campo = document.createElement('input');
+      campo.type = 'text';
+    } else {
+      campo = document.createElement('textarea');
+    }
+    campo.id = 'campo-'+q.id;
+    if(q.ph) campo.placeholder = q.ph;
+    // Restaura o que já havia sido escrito neste tipo
+    const salvo = respostas[tipoAtual][q.id];
+    if(salvo) campo.value = salvo;
+    // Guarda em memória a cada digitação e agenda o autosave local
+    campo.addEventListener('input', () => {
+      respostas[tipoAtual][q.id] = campo.value;
+      agendarAutosave();
+    });
+    wrap.append(lbl, ajuda, campo);
+    form.appendChild(wrap);
+  }
+}
+
+function coletarRespostas(){
+  return PERGUNTAS[tipoAtual].map(q => ({
+    pergunta: q.p,
+    resposta: (document.getElementById('campo-'+q.id)?.value || '').trim()
+  }));
+}
+
+/* ---------- rascunho local (por dispositivo) ---------- */
+function chaveRascunho(){
+  return 'iflDraft:' + (usuario ? usuario.nome.trim().toLowerCase() : 'anon');
+}
+let autosaveTimer;
+function agendarAutosave(){
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => salvarRascunhoLocal(true), 800);
+}
+function salvarRascunhoLocal(silencioso){
+  if(!usuario) return;
+  capturarRespostasAtuais();
+  const dados = {
+    respostas,
+    tom: document.getElementById('selTom').value,
+    tamanho: document.getElementById('selTamanho').value
+  };
+  try{ localStorage.setItem(chaveRascunho(), JSON.stringify(dados)); }catch{}
+  if(!silencioso) toast('Respostas guardadas neste dispositivo.');
+}
+function restaurarRascunhoLocal(){
+  if(!usuario) return;
+  try{
+    const raw = localStorage.getItem(chaveRascunho());
+    if(!raw) return;
+    const dados = JSON.parse(raw);
+    if(dados.respostas){
+      respostas = Object.assign({ artigo:{}, resenha:{}, livre:{} }, dados.respostas);
+    }
+    if(dados.tom) document.getElementById('selTom').value = dados.tom;
+    if(dados.tamanho) document.getElementById('selTamanho').value = dados.tamanho;
+  }catch{}
+}
+
+/* ---------- geração (streaming) ---------- */
+async function gerar(){
+  if(gerando) return;
+  const erro = document.getElementById('erroGerar');
+  erro.style.display='none';
+
+  const respostas = coletarRespostas();
+  const preenchidas = respostas.filter(r => r.resposta).length;
+  if(preenchidas < 3){
+    erro.textContent = 'Responda pelo menos 3 perguntas. O texto é feito com as SUAS ideias — sem elas, não há artigo.';
+    erro.style.display='block';
+    return;
+  }
+
+  gerando = true;
+  idTextoAtual = null;
+  const btn = document.getElementById('btnGerar');
+  btn.disabled = true; btn.textContent = 'Escrevendo… (pode levar um minuto)';
+
+  const area = document.getElementById('areaResultado');
+  const previa = document.getElementById('previa');
+  const editor = document.getElementById('editor');
+  area.style.display='block';
+  editor.style.display='none';
+  previa.style.display='block';
+  previa.textContent='';
+  previa.classList.add('gerando');
+  document.getElementById('blocoChecklist').style.display='none';
+  document.getElementById('acoesResultado').style.display='none';
+  area.scrollIntoView({behavior:'smooth'});
+
+  try{
+    const resp = await fetch('/api/gerar', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        tipo: tipoAtual,
+        tom: document.getElementById('selTom').value,
+        tamanho: document.getElementById('selTamanho').value,
+        respostas
+      })
+    });
+    if(!resp.ok){
+      const msg = await resp.text();
+      throw new Error(msg || ('Erro ' + resp.status));
+    }
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    textoGerado = '';
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      textoGerado += decoder.decode(value, {stream:true});
+      previa.textContent = textoGerado;
+    }
+    previa.classList.remove('gerando');
+    finalizarGeracao();
+  }catch(e){
+    previa.classList.remove('gerando');
+    previa.textContent = '';
+    erro.textContent = 'Não foi possível gerar o texto: ' + e.message;
+    erro.style.display='block';
+  }finally{
+    gerando = false;
+    btn.disabled = false; btn.textContent = 'Gerar rascunho ✦';
+  }
+}
+
+function finalizarGeracao(){
+  document.getElementById('blocoChecklist').style.display='block';
+  document.getElementById('acoesResultado').style.display='flex';
+  document.querySelectorAll('.chk').forEach(c => { c.checked=false; c.onchange = atualizarChecklist; });
+  atualizarChecklist();
+  atualizarContagem();
+}
+
+function editarRascunho(){
+  const previa = document.getElementById('previa');
+  const editor = document.getElementById('editor');
+  if(editor.style.display === 'none'){
+    editor.value = textoGerado;
+    editor.style.display='block';
+    previa.style.display='none';
+    document.getElementById('btnEditar').textContent = '👁 Ver como leitor';
+    editor.oninput = () => { textoGerado = editor.value; atualizarContagem(); };
+    editor.focus();
+  } else {
+    textoGerado = editor.value;
+    previa.textContent = textoGerado;
+    previa.style.display='block';
+    editor.style.display='none';
+    document.getElementById('btnEditar').textContent = '✏️ Editar texto';
+  }
+}
+
+function atualizarChecklist(){
+  const todas = [...document.querySelectorAll('.chk')].every(c => c.checked);
+  const pendencias = /\[REVISAR/i.test(textoGerado);
+  const liberado = todas && !pendencias;
+  document.getElementById('btnSalvar').disabled = !liberado;
+  document.getElementById('btnCopiar').disabled = !liberado;
+  document.getElementById('btnBaixar').disabled = !liberado;
+  const bloco = document.getElementById('blocoChecklist');
+  let alerta = bloco.querySelector('.alerta-revisar');
+  if(pendencias && !alerta){
+    alerta = document.createElement('p');
+    alerta.className = 'alerta-revisar';
+    alerta.style.cssText = 'color:var(--err); font-size:.9rem; margin-top:.6rem';
+    alerta.textContent = '⚠ O texto ainda contém marcações [REVISAR: ...]. Edite o texto e resolva cada uma antes de salvar.';
+    bloco.appendChild(alerta);
+  } else if(!pendencias && alerta){
+    alerta.remove();
+  }
+}
+
+function atualizarContagem(){
+  const palavras = textoGerado.trim() ? textoGerado.trim().split(/\s+/).length : 0;
+  document.getElementById('contagemPalavras').textContent = palavras + ' palavras';
+  atualizarChecklist();
+}
+
+function regerar(){
+  if(confirm('Gerar de novo descarta o rascunho atual (incluindo suas edições). Continuar?')) gerar();
+}
+
+/* ---------- título ---------- */
+function extrairTitulo(){
+  const m = textoGerado.match(/^#\s*(.+)$/m);
+  if(m) return m[1].trim();
+  const primeira = textoGerado.split('\n').find(l => l.trim());
+  return (primeira || 'Sem título').slice(0, 120);
+}
+
+/* ---------- API de textos ---------- */
+async function apiArtigos(payload){
+  const resp = await fetch('/api/artigos', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ nome: usuario.nome, pin: usuario.pin, ...payload })
+  });
+  const dados = await resp.json().catch(() => ({}));
+  if(!resp.ok) throw new Error(dados.erro || 'Erro ' + resp.status);
+  return dados;
+}
+
+async function salvar(){
+  try{
+    const r = await apiArtigos({ action:'save', artigo:{
+      id: idTextoAtual, titulo: extrairTitulo(), tipo: tipoAtual, conteudo: textoGerado
+    }});
+    idTextoAtual = r.id;
+    toast('Texto salvo! Ele está em "Meus textos".');
+  }catch(e){ toast('Erro ao salvar: ' + e.message); }
+}
+
+function copiar(){
+  navigator.clipboard.writeText(textoGerado)
+    .then(() => toast('Texto copiado!'))
+    .catch(() => toast('Não foi possível copiar.'));
+}
+
+function baixar(){
+  const blob = new Blob([textoGerado], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = extrairTitulo().replace(/[^\wÀ-ÿ\- ]/g,'').replace(/\s+/g,'-').toLowerCase() + '.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ---------- meus textos ---------- */
+async function carregarMeus(){
+  const el = document.getElementById('listaTextos');
+  el.innerHTML = '<p style="color:var(--muted)">Carregando…</p>';
+  try{
+    const {artigos} = await apiArtigos({action:'list'});
+    if(!artigos.length){
+      el.innerHTML = '<p style="color:var(--muted)">Você ainda não salvou nenhum texto. Escreva o primeiro na aba "Novo texto"!</p>';
+      return;
+    }
+    el.innerHTML = '';
+    for(const a of artigos){
+      const div = document.createElement('div');
+      div.className = 'item-texto';
+      const data = new Date(a.atualizadoEm).toLocaleString('pt-BR', {dateStyle:'short', timeStyle:'short'});
+      div.innerHTML = `<div><b></b><small>${rotuloTipo(a.tipo)} · ${data}</small></div>
+        <div class="acs sans">
+          <button class="btn btn-fantasma" data-acao="abrir">Abrir</button>
+          <button class="btn btn-perigo" data-acao="excluir">Excluir</button>
+        </div>`;
+      div.querySelector('b').textContent = a.titulo;
+      div.querySelector('[data-acao=abrir]').onclick = () => abrirTexto(a.id, a.tipo);
+      div.querySelector('[data-acao=excluir]').onclick = async () => {
+        if(!confirm(`Excluir "${a.titulo}"? Essa ação não tem volta.`)) return;
+        await apiArtigos({action:'delete', id:a.id});
+        carregarMeus();
+      };
+      el.appendChild(div);
+    }
+  }catch(e){
+    el.innerHTML = `<p style="color:var(--err)">Erro ao carregar: ${e.message}</p>`;
+  }
+}
+
+function rotuloTipo(t){
+  return t === 'resenha' ? 'Resenha de evento' : t === 'livre' ? 'Artigo livre' : 'Artigo';
+}
+
+async function abrirTexto(id, tipo){
+  try{
+    const {artigo} = await apiArtigos({action:'get', id});
+    textoGerado = artigo.conteudo;
+    idTextoAtual = artigo.id;
+    tipoAtual = TIPOS.includes(tipo) ? tipo : 'artigo';
+    mostrarAba('novo');
+    const area = document.getElementById('areaResultado');
+    area.style.display='block';
+    document.getElementById('previa').textContent = textoGerado;
+    document.getElementById('previa').style.display='block';
+    document.getElementById('editor').style.display='none';
+    finalizarGeracao();
+    area.scrollIntoView({behavior:'smooth'});
+  }catch(e){ toast('Erro ao abrir: ' + e.message); }
+}
+
+/* ---------- abas / util ---------- */
+function mostrarAba(nome){
+  for(const n of ['novo','meus','dicas']){
+    document.getElementById('aba-'+n).style.display = n===nome ? 'block' : 'none';
+    document.getElementById('abaBtn-'+n).classList.toggle('ativa', n===nome);
+  }
+  if(nome==='meus') carregarMeus();
+}
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ---------- painel administrativo ---------- */
+let adminPinAtual = null;
+
+function abrirAdmin(){
+  document.getElementById('modalAdmin').classList.add('show');
+  document.getElementById('adminLogin').style.display='block';
+  document.getElementById('adminPainel').style.display='none';
+  document.getElementById('inAdminPin').value='';
+  document.getElementById('erroAdmin').style.display='none';
+}
+function fecharAdmin(){
+  document.getElementById('modalAdmin').classList.remove('show');
+  adminPinAtual = null;
+}
+async function entrarAdmin(){
+  const pin = document.getElementById('inAdminPin').value.trim();
+  const erro = document.getElementById('erroAdmin');
+  try{
+    const resp = await fetch('/api/admin', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ adminPin: pin, action:'status' })
+    });
+    const dados = await resp.json();
+    if(!resp.ok) throw new Error(dados.erro || ('Erro ' + resp.status));
+    adminPinAtual = pin;
+    document.getElementById('adminLogin').style.display='none';
+    document.getElementById('adminPainel').style.display='block';
+    atualizarPainelAdmin(dados.ativo);
+  }catch(e){
+    erro.textContent = e.message;
+    erro.style.display='block';
+  }
+}
+function atualizarPainelAdmin(ativo){
+  const status = document.getElementById('statusServico');
+  status.textContent = ativo ? 'Ativo ✅' : 'Pausado ⛔';
+  status.style.color = ativo ? 'var(--ok)' : 'var(--err)';
+  const btn = document.getElementById('btnAlternar');
+  btn.textContent = ativo ? 'Pausar geração de textos' : 'Reativar geração de textos';
+  btn.className = 'btn ' + (ativo ? 'btn-perigo' : 'btn-ouro');
+  btn.dataset.ativo = ativo ? '1' : '0';
+}
+async function alternarServico(){
+  const ativoAtual = document.getElementById('btnAlternar').dataset.ativo === '1';
+  const novoValor = !ativoAtual;
+  if(!novoValor && !confirm('Isso vai IMPEDIR todos os associados de gerar novos textos até você reativar. Continuar?')) return;
+  try{
+    const resp = await fetch('/api/admin', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ adminPin: adminPinAtual, action:'set', ativo: novoValor })
+    });
+    const dados = await resp.json();
+    if(!resp.ok) throw new Error(dados.erro || ('Erro ' + resp.status));
+    atualizarPainelAdmin(dados.ativo);
+    toast(dados.ativo ? 'Geração de textos reativada.' : 'Geração de textos pausada para todos.');
+  }catch(e){ toast('Erro: ' + e.message); }
+}
+
+/* ---------- boot ---------- */
+(function(){
+  const salvo = sessionStorage.getItem('iflUser');
+  if(salvo){
+    try{ usuario = JSON.parse(salvo); iniciarApp(); }catch{}
+  }
+  document.getElementById('inPin').addEventListener('keydown', e => { if(e.key==='Enter') entrar(); });
+  document.getElementById('inAdminPin').addEventListener('keydown', e => { if(e.key==='Enter') entrarAdmin(); });
+  document.getElementById('selTom').addEventListener('change', agendarAutosave);
+  document.getElementById('selTamanho').addEventListener('change', agendarAutosave);
+})();
+</script>
+</body>
+</html>
