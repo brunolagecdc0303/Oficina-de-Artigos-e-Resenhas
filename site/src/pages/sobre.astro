@@ -1,0 +1,53 @@
+---
+import Base from "../layouts/Base.astro";
+import Cta from "../components/Cta.astro";
+import { SITE } from "../lib/site.js";
+---
+<Base titulo="Sobre" descricao={`${SITE.profissional.nome}, ${SITE.profissional.cargo} em ${SITE.profissional.cidade}.`}>
+  <section class="secao">
+    <div class="wrap wrap-estreito">
+      <p class="olho">Sobre</p>
+      <h1>{SITE.profissional.nome}</h1>
+      <p class="lead">{SITE.profissional.bio}</p>
+
+      <div class="cartao" style="margin:2.5rem 0">
+        <h3 style="margin-top:0">Credenciais</h3>
+        <ul class="prosa" style="margin:0">
+          <li>{SITE.profissional.cargo}, vinculado a {SITE.instituicao.nome}</li>
+          {SITE.profissional.certificacoes.map((c) => <li>{c}</li>)}
+          <li>{SITE.profissional.cidade}</li>
+        </ul>
+        <p class="nota" style="margin:1rem 0 0">
+          Certificações só valem quando são verdadeiras e estão em dia. Liste
+          apenas o que você efetivamente detém.
+        </p>
+      </div>
+
+      <h2>No que eu acredito</h2>
+      <p>
+        Que o cliente compra o operador antes de comprar a operação. Assessoria
+        financeira é um bem de credença — você não consegue avaliar hoje se a
+        recomendação estava certa; só vai descobrir daqui a dez anos. O que
+        você avalia agora é outra coisa: preparo, consistência e clareza.
+      </p>
+      <p>
+        Que estudar não é diferencial, é obrigação mínima para ter o direito de
+        opinar sobre o patrimônio de uma família.
+      </p>
+      <p>
+        E que o maior valor que eu posso entregar não é escolher o ativo certo.
+        É estar do lado certo da mesa no dia em que o mercado cair trinta por
+        cento e você quiser vender tudo.
+      </p>
+
+      <h2>Como me encontrar</h2>
+      <ul class="prosa">
+        <li>E-mail: {SITE.contato.email}</li>
+        {SITE.contato.linkedin && <li>LinkedIn: {SITE.contato.linkedin}</li>}
+        {SITE.contato.instagram && <li>Instagram: {SITE.contato.instagram}</li>}
+      </ul>
+    </div>
+  </section>
+
+  <Cta />
+</Base>

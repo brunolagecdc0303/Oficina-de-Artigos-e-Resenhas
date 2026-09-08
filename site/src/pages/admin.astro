@@ -1,0 +1,207 @@
+---
+import Base from "../layouts/Base.astro";
+import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
+---
+<Base titulo="Administração" descricao="Painel de controle do site.">
+  <section class="secao">
+    <div class="wrap wrap-estreito">
+      <p class="olho">Administração</p>
+      <h1>Painel</h1>
+
+      <form id="form-pin" class="cartao" style="margin-top:2rem;max-width:26rem">
+        <label class="campo"><span>PIN de administrador</span>
+          <input id="pin" type="password" autocomplete="current-password" required /></label>
+        <button class="btn btn-primario btn-bloco" type="submit">Entrar</button>
+        <p id="erro-pin" class="pequeno oculto" style="color:var(--alerta);margin:.8rem 0 0" role="alert"></p>
+      </form>
+
+      <div id="painel" class="oculto">
+        <!-- Liberação das calculadoras -->
+        <div class="cartao" style="margin-top:2rem">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap">
+            <h2 style="font-size:1.3rem;margin:0">Calculadoras liberadas</h2>
+            <span style="display:flex;gap:.5rem">
+              <button class="btn btn-secundario pequeno" id="btn-todas">Liberar todas</button>
+              <button class="btn btn-secundario pequeno" id="btn-nenhuma">Bloquear todas</button>
+            </span>
+          </div>
+          <p class="nota" style="margin:.7rem 0 1.5rem">
+            As bloqueadas continuam aparecendo no site, borradas, com convite
+            para o diagnóstico. A mudança vale na hora, sem novo deploy.
+          </p>
+          <div id="lista-calc" class="empilha" style="--gap:.5rem"></div>
+          <p id="status-calc" class="pequeno oculto" style="margin-top:1rem" role="status"></p>
+        </div>
+
+        <!-- Código de cliente -->
+        <div class="cartao" style="margin-top:1.5rem">
+          <h2 style="font-size:1.3rem;margin:0 0 .5rem">Código de acesso dos clientes</h2>
+          <p class="nota" style="margin:0 0 1.2rem">
+            Quem digitar este código na página de calculadoras libera todas, em
+            qualquer navegador. Troque quando quiser: o código antigo para de
+            valer na hora. Deixe em branco para desativar.
+          </p>
+          <form id="form-codigo" style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:flex-end">
+            <label class="campo" style="flex:1;min-width:14rem;margin:0"><span>Código</span>
+              <input id="codigo-cliente" type="text" autocomplete="off" placeholder="ex.: patrimonio2026" /></label>
+            <button class="btn btn-primario" type="submit">Salvar</button>
+          </form>
+          <p id="status-codigo" class="pequeno oculto" style="margin-top:.8rem" role="status"></p>
+        </div>
+
+        <!-- Leads -->
+        <div class="cartao" style="margin-top:1.5rem">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap">
+            <h2 style="font-size:1.3rem;margin:0">Quem chegou pelo diagnóstico</h2>
+            <button class="btn btn-secundario pequeno" id="btn-leads">Atualizar</button>
+          </div>
+          <p class="nota" style="margin:.7rem 0 1.2rem">
+            Ordenados do mais recente para o mais antigo. A pontuação soma
+            patrimônio, perfil, urgência e complexidade.
+          </p>
+          <div id="lista-leads" class="rolagem"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script define:vars={{ catalogo: CALCULADORAS.map((c) => ({ slug: c.slug, nome: c.nome, subtitulo: c.subtitulo, dimensao: c.dimensao })), dimensoes: DIMENSOES }}>
+  let pin = null;
+
+  const api = async (corpo) => {
+    const resposta = await fetch("/api/admin", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ adminPin: pin, ...corpo }),
+    });
+    const dados = await resposta.json();
+    if (!resposta.ok) throw new Error(dados.erro || "Falha na operação.");
+    return dados;
+  };
+
+  const aviso = (id, texto, erro) => {
+    const el = document.getElementById(id);
+    el.textContent = texto;
+    el.style.color = erro ? "var(--alerta)" : "var(--positivo)";
+    el.classList.remove("oculto");
+    setTimeout(() => el.classList.add("oculto"), 4000);
+  };
+
+  function desenharCalculadoras(liberadas) {
+    const lista = document.getElementById("lista-calc");
+    lista.innerHTML = catalogo
+      .map((c) => {
+        const dim = dimensoes[c.dimensao];
+        const ativa = liberadas.includes(c.slug);
+        return `
+          <label class="escolha" style="justify-content:space-between;align-items:center">
+            <span style="display:flex;gap:.7rem;align-items:center">
+              <input type="checkbox" data-slug="${c.slug}" ${ativa ? "checked" : ""} />
+              <span>
+                <b>${c.nome}</b>
+                <small>${c.subtitulo} · ${dim.nome}</small>
+              </span>
+            </span>
+            <span class="pequeno" style="color:${ativa ? "var(--positivo)" : "var(--muted)"}">
+              ${ativa ? "Aberta" : "Borrada"}
+            </span>
+          </label>`;
+      })
+      .join("");
+
+    lista.querySelectorAll("input[data-slug]").forEach((caixa) =>
+      caixa.addEventListener("change", async () => {
+        try {
+          const dados = await api({ action: "liberar", slug: caixa.dataset.slug, liberada: caixa.checked });
+          desenharCalculadoras(dados.liberadas);
+          aviso("status-calc", "Salvo. A mudança já está no ar.", false);
+        } catch (e) {
+          caixa.checked = !caixa.checked;
+          aviso("status-calc", e.message, true);
+        }
+      })
+    );
+  }
+
+  const rotulos = {
+    prioritario: { texto: "Prioritário", cor: "var(--positivo)" },
+    acompanhar: { texto: "Acompanhar", cor: "var(--accent-forte)" },
+    conteudo: { texto: "Conteúdo", cor: "var(--muted)" },
+  };
+
+  function desenharLeads(leads) {
+    const alvo = document.getElementById("lista-leads");
+    if (!leads.length) {
+      alvo.innerHTML = '<p class="pequeno" style="color:var(--muted);margin:0">Ninguém ainda.</p>';
+      return;
+    }
+    alvo.innerHTML = `
+      <table class="prosa" style="width:100%;max-width:none;margin:0">
+        <thead><tr><th>Quando</th><th>Quem</th><th>Perfil</th><th>Patrimônio</th><th>Prazo</th><th>Pontos</th><th>Faixa</th></tr></thead>
+        <tbody>
+          ${leads
+            .map((l) => {
+              const faixa = rotulos[l.faixa] ?? rotulos.conteudo;
+              const data = new Date(l.recebidoEm).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+              return `<tr>
+                <td class="nota">${data}</td>
+                <td><b>${l.nome ?? ""}</b><br><span class="nota">${l.email ?? ""}${l.telefone ? " · " + l.telefone : ""}</span>${l.contexto ? `<br><span class="nota">${l.contexto.slice(0, 160)}</span>` : ""}</td>
+                <td class="nota">${l.perfil ?? ""}</td>
+                <td class="nota">${l.patrimonio ?? ""}</td>
+                <td class="nota">${l.prazo ?? ""}</td>
+                <td class="num">${l.pontuacao ?? 0}</td>
+                <td class="pequeno" style="color:${faixa.cor}"><b>${faixa.texto}</b></td>
+              </tr>`;
+            })
+            .join("")}
+        </tbody>
+      </table>`;
+  }
+
+  document.getElementById("form-pin").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    pin = document.getElementById("pin").value;
+    try {
+      const dados = await api({ action: "status" });
+      document.getElementById("form-pin").classList.add("oculto");
+      document.getElementById("painel").classList.remove("oculto");
+      desenharCalculadoras(dados.liberadas);
+      document.getElementById("codigo-cliente").value = dados.codigoCliente ?? "";
+      const leads = await api({ action: "leads" });
+      desenharLeads(leads.leads ?? []);
+    } catch (erro) {
+      pin = null;
+      const el = document.getElementById("erro-pin");
+      el.textContent = erro.message;
+      el.classList.remove("oculto");
+    }
+  });
+
+  document.getElementById("btn-todas").addEventListener("click", async () => {
+    const d = await api({ action: "liberarTodas", liberada: true });
+    desenharCalculadoras(d.liberadas);
+    aviso("status-calc", "Todas liberadas.", false);
+  });
+
+  document.getElementById("btn-nenhuma").addEventListener("click", async () => {
+    const d = await api({ action: "liberarTodas", liberada: false });
+    desenharCalculadoras(d.liberadas);
+    aviso("status-calc", "Todas bloqueadas. A grade continua visível, borrada.", false);
+  });
+
+  document.getElementById("form-codigo").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      await api({ action: "codigo", codigo: document.getElementById("codigo-cliente").value });
+      aviso("status-codigo", "Código salvo. O anterior parou de valer.", false);
+    } catch (erro) {
+      aviso("status-codigo", erro.message, true);
+    }
+  });
+
+  document.getElementById("btn-leads").addEventListener("click", async () => {
+    const leads = await api({ action: "leads" });
+    desenharLeads(leads.leads ?? []);
+  });
+</script>

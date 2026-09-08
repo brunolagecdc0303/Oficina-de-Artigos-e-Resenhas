@@ -3,12 +3,28 @@
 export const $ = (sel, raiz = document) => raiz.querySelector(sel);
 export const $$ = (sel, raiz = document) => [...raiz.querySelectorAll(sel)];
 
-/** Lê um input numérico, aceitando vírgula decimal e separador de milhar. */
+/**
+ * Converte texto em número.
+ * Em <input type="number"> o ponto é separador DECIMAL ("4.5" são quatro e meio),
+ * então nunca pode ser removido. Só em campo de texto, e só quando existe uma
+ * vírgula decimal, o ponto vira separador de milhar ("1.500.000,50").
+ */
+export function paraNumero(texto, ehCampoNumerico = false) {
+  let bruto = String(texto ?? "").replace(/\s/g, "");
+  if (!bruto) return NaN;
+  if (!ehCampoNumerico && bruto.includes(",")) {
+    bruto = bruto.replace(/\./g, "").replace(",", ".");
+  } else {
+    bruto = bruto.replace(",", ".");
+  }
+  return Number.parseFloat(bruto);
+}
+
+/** Lê um campo numérico da tela, com valor padrão se estiver vazio ou inválido. */
 export function num(id, padrao = 0) {
   const el = document.getElementById(id);
   if (!el) return padrao;
-  const bruto = String(el.value ?? "").replace(/\s/g, "").replace(/\./g, "").replace(",", ".");
-  const v = Number.parseFloat(bruto);
+  const v = paraNumero(el.value, el.type === "number");
   return Number.isFinite(v) ? v : padrao;
 }
 

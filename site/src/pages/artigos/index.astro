@@ -1,0 +1,77 @@
+---
+import Base from "../../layouts/Base.astro";
+import Cta from "../../components/Cta.astro";
+import { DIMENSOES } from "../../lib/calculadoras.js";
+import { getCollection } from "astro:content";
+
+const artigos = (await getCollection("artigos"))
+  .filter((a) => !a.data.rascunho)
+  .sort((a, b) => b.data.data.valueOf() - a.data.data.valueOf());
+
+const usadas = new Set(artigos.map((a) => a.data.dimensao));
+const formata = (d) =>
+  d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+---
+<Base
+  titulo="Artigos"
+  descricao="Artigos sobre planejamento patrimonial, tributação, sucessão, proteção e comportamento — organizados pelas oito dimensões do diagnóstico."
+>
+  <section class="secao">
+    <div class="wrap">
+      <div style="max-width:56ch">
+        <p class="olho">Artigos</p>
+        <h1>Escrevo sobre o que os clientes perguntam</h1>
+        <p class="lead">
+          Organizados pelas mesmas oito dimensões do diagnóstico. Nenhum deles
+          recomenda produto, e todos podem ser conferidos.
+        </p>
+      </div>
+
+      <nav class="nao-imprime" aria-label="Filtrar por dimensão" style="display:flex;gap:.6rem;flex-wrap:wrap;margin:2.5rem 0">
+        <button class="btn btn-secundario pequeno" data-filtro="todas" aria-pressed="true">Todas</button>
+        {Object.entries(DIMENSOES)
+          .filter(([chave]) => usadas.has(chave))
+          .map(([chave, dim]) => (
+            <button class="btn btn-secundario pequeno" data-filtro={chave} aria-pressed="false">{dim.nome}</button>
+          ))}
+      </nav>
+
+      <div class="grade grade-2" id="lista">
+        {artigos.map((a) => {
+          const dim = DIMENSOES[a.data.dimensao];
+          return (
+            <a class="cartao cartao-link" href={`/artigos/${a.id}`} data-dimensao={a.data.dimensao}>
+              <p class="etiqueta" style={`--dim: var(--${dim.cor})`}>{dim.nome}</p>
+              <h2 style="font-size:1.3rem;margin:.7rem 0 .5rem">{a.data.titulo}</h2>
+              <p class="pequeno" style="color:var(--muted);margin:0 0 1rem">{a.data.resumo}</p>
+              <p class="nota" style="margin:0">{formata(a.data.data)}</p>
+            </a>
+          );
+        })}
+      </div>
+      <p id="vazio" class="lead oculto" style="margin-top:2rem">Nenhum artigo nesta dimensão ainda.</p>
+    </div>
+  </section>
+
+  <Cta />
+</Base>
+
+<script>
+  const botoes = [...document.querySelectorAll("[data-filtro]")];
+  const cartoes = [...document.querySelectorAll("[data-dimensao]")];
+  const vazio = document.getElementById("vazio");
+
+  botoes.forEach((b) =>
+    b.addEventListener("click", () => {
+      const alvo = b.dataset.filtro;
+      botoes.forEach((o) => o.setAttribute("aria-pressed", String(o === b)));
+      let visiveis = 0;
+      cartoes.forEach((c) => {
+        const mostra = alvo === "todas" || c.dataset.dimensao === alvo;
+        c.classList.toggle("oculto", !mostra);
+        if (mostra) visiveis++;
+      });
+      vazio.classList.toggle("oculto", visiveis > 0);
+    })
+  );
+</script>

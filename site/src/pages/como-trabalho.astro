@@ -1,0 +1,116 @@
+---
+import Base from "../layouts/Base.astro";
+import Cta from "../components/Cta.astro";
+import { DIMENSOES } from "../lib/calculadoras.js";
+
+const dimensoes = [
+  { chave: "fluxo", analisa: "Renda, despesas, reserva, dependência de distribuição da empresa", alerta: "Padrão de vida ancorado em renda ativa e cíclica" },
+  { chave: "investimentos", analisa: "Alocação, risco, custo, adequação a objetivos e prazos", alerta: "Concentração setorial ou em um único emissor; carteira sem função definida" },
+  { chave: "tributaria", analisa: "Eficiência de veículos, regime de tributação, come-cotas, exterior", alerta: "Ativos tributados no regime errado para o prazo real" },
+  { chave: "protecao", analisa: "Seguros de vida, invalidez, saúde, responsabilidade, D&O, patrimonial", alerta: "Cobertura de vida desalinhada da necessidade de liquidez sucessória" },
+  { chave: "empresarial", analisa: "Estrutura societária, acordo de sócios, pró-labore e dividendos", alerta: "Pessoa física e jurídica misturadas; ausência de acordo de sócios" },
+  { chave: "sucessoria", analisa: "Testamento, regime de bens, holding, doações, ITCMD, herdeiros", alerta: "Nenhum instrumento formalizado; conta só com a boa vontade dos herdeiros" },
+  { chave: "internacional", analisa: "Exposição offshore, estate tax americano, tributação de exterior", alerta: "Ativos nos EUA em conta direta, sem estrutura" },
+  { chave: "humana", analisa: "Preparo dos herdeiros, comunicação, valores, governança", alerta: "Herdeiros sem nenhum preparo; assunto nunca conversado em família" },
+];
+---
+<Base
+  titulo="Como eu trabalho"
+  descricao="O processo em quatro encontros: descoberta, coleta e análise, diagnóstico e plano. Com o entregável e a duração de cada um."
+>
+  <section class="secao">
+    <div class="wrap wrap-estreito">
+      <p class="olho">Método</p>
+      <h1>O processo inteiro, antes de você contratar qualquer coisa</h1>
+      <p class="lead">
+        Publico isto porque acho que você tem o direito de saber exatamente o que
+        vai acontecer, quanto tempo leva e o que sai de cada etapa — antes de
+        marcar a primeira conversa, não depois.
+      </p>
+    </div>
+  </section>
+
+  <section class="secao secao-linha">
+    <div class="wrap">
+      <div style="max-width:56ch;margin-bottom:2.5rem">
+        <h2>Quatro encontros</h2>
+        <p class="lead">Os três primeiros acontecem antes de existir qualquer proposta comercial.</p>
+      </div>
+      <div class="rolagem">
+        <table class="prosa" style="width:100%;max-width:none">
+          <thead>
+            <tr><th>Encontro</th><th>Objetivo</th><th>O que você recebe</th><th>Duração</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>1. Descoberta</strong></td><td>Entender pessoa, família, empresa e objetivos</td><td>Resumo escrito do que eu ouvi, enviado em 48 horas</td><td>90 min</td></tr>
+            <tr><td><strong>2. Coleta e análise</strong></td><td>Reunir documentos e mapear as oito dimensões</td><td>Checklist de documentos e mapa patrimonial consolidado</td><td>Trabalho meu</td></tr>
+            <tr><td><strong>3. Diagnóstico</strong></td><td>Apresentar o retrato atual, sem recomendação ainda</td><td>Documento de diagnóstico com riscos priorizados</td><td>60 min</td></tr>
+            <tr><td><strong>4. Plano</strong></td><td>Apresentar recomendações priorizadas e sequenciadas</td><td>Plano de ação com responsáveis e prazos, em uma página</td><td>90 min</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cartao" style="margin-top:2.5rem;max-width:62ch">
+        <h3 style="margin-top:0">Por que separar diagnóstico de recomendação</h3>
+        <p class="pequeno" style="color:var(--ink-2);margin:0">
+          Quando o diagnóstico chega sem a solução junto, três coisas acontecem.
+          Você sente o problema antes de ouvir o preço da solução. Fica
+          demonstrado que a análise tem valor próprio, independente de qualquer
+          venda. E a recomendação, quando chega, chega sobre um problema que
+          você já reconheceu como seu. É a decisão de processo que mais muda o
+          resultado, e quase ninguém no mercado toma.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao secao-linha">
+    <div class="wrap">
+      <div style="max-width:56ch;margin-bottom:2.5rem">
+        <h2>As oito dimensões do diagnóstico</h2>
+        <p class="lead">
+          Investimento é a segunda da lista, e raramente é onde está o problema
+          mais caro.
+        </p>
+      </div>
+      <div class="grade grade-2">
+        {dimensoes.map((d, i) => {
+          const dim = DIMENSOES[d.chave];
+          return (
+            <div class="cartao">
+              <p class="etiqueta" style={`--dim: var(--${dim.cor})`}>{String(i + 1).padStart(2, "0")} · {dim.nome}</p>
+              <p style="margin:.8rem 0 .6rem;font-size:.95rem">{d.analisa}</p>
+              <p class="nota" style="margin:0;border-top:1px solid var(--line);padding-top:.6rem">
+                <strong style="color:var(--alerta)">Sinal de alerta típico:</strong> {d.alerta}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <section class="secao secao-linha">
+    <div class="wrap wrap-estreito">
+      <h2>O plano de uma página</h2>
+      <p>
+        A prática de elite abandonou o calhamaço de sessenta páginas — não porque
+        a análise ficou mais rasa, mas porque a análise profunda fica no arquivo
+        e o que vai para a sua mão é a decisão. O seu plano tem cinco blocos:
+      </p>
+      <ol class="prosa">
+        <li><strong>O que importa para você</strong>, em três linhas, com as suas palavras — não as minhas.</li>
+        <li><strong>Onde você está hoje</strong>, em quatro números.</li>
+        <li><strong>Os três maiores riscos</strong>, nomeados.</li>
+        <li><strong>As três ações deste ano</strong>, com prazo e responsável.</li>
+        <li><strong>O que não vamos fazer</strong>, e por quê.</li>
+      </ol>
+      <p>
+        O quinto bloco é o mais importante e o que ninguém escreve. É ele que
+        protege você de mim.
+      </p>
+    </div>
+  </section>
+
+  <Cta />
+</Base>

@@ -1,0 +1,63 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE } from "../lib/site.js";
+---
+<Base titulo="Privacidade e LGPD" descricao="Como este site trata dados pessoais.">
+  <section class="secao">
+    <div class="wrap wrap-estreito prosa">
+      <p class="olho">Privacidade</p>
+      <h1>Como este site trata os seus dados</h1>
+
+      <h2>As calculadoras não enviam nada</h2>
+      <p>
+        Todos os cálculos deste site rodam inteiramente no seu navegador. Os
+        valores que você digita — patrimônio, renda, dívidas, custo de vida —
+        não são transmitidos para nenhum servidor, não são armazenados e não
+        chegam a mim. Se você fechar a aba, some tudo.
+      </p>
+
+      <h2>O que é coletado, e só quando você envia</h2>
+      <p>
+        O único momento em que dados saem do seu navegador é quando você preenche
+        e envia o formulário de diagnóstico. Nesse caso são coletados: nome,
+        e-mail, telefone, o perfil e a faixa de patrimônio que você selecionou,
+        as preocupações que marcou, o texto livre que escreveu e a origem
+        informada.
+      </p>
+      <ul>
+        <li><strong>Finalidade:</strong> retornar o seu contato e preparar a conversa.</li>
+        <li><strong>Base legal:</strong> o seu consentimento, dado no envio do formulário.</li>
+        <li><strong>Compartilhamento:</strong> nenhum. Os dados não são vendidos, cedidos nem usados para publicidade de terceiros.</li>
+        <li><strong>Prazo:</strong> mantidos enquanto durar o interesse no contato, ou até você pedir a exclusão.</li>
+      </ul>
+
+      <h2>Seus direitos</h2>
+      <p>
+        A LGPD garante a você confirmar a existência de tratamento, acessar seus
+        dados, corrigi-los, pedir a portabilidade, revogar o consentimento e
+        solicitar a exclusão. Para exercer qualquer um deles, escreva para
+        {" "}{SITE.contato.email} — o pedido é atendido sem custo.
+      </p>
+
+      <h2>Cookies e medição</h2>
+      <p>
+        Este site não usa cookies de publicidade nem rastreadores de terceiros.
+        O navegador guarda localmente apenas a sua preferência de tema (claro ou
+        escuro) e, se você usar um código de acesso às calculadoras, o registro
+        de que esse acesso foi liberado neste navegador. Nada disso é enviado
+        para mim.
+      </p>
+
+      <h2>Responsável</h2>
+      <p>
+        {SITE.instituicao.razaoSocial} — CNPJ {SITE.instituicao.cnpjEscritorio}.
+        Contato para assuntos de proteção de dados: {SITE.contato.email}.
+      </p>
+
+      <p class="nota">
+        [REVISAR] Valide este texto com o jurídico ou o DPO da instituição antes
+        de publicar, e ajuste prazos de retenção conforme a política dela.
+      </p>
+    </div>
+  </section>
+</Base>

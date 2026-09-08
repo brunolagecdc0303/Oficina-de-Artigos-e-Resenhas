@@ -1,0 +1,45 @@
+---
+import Base from "../../layouts/Base.astro";
+import Cta from "../../components/Cta.astro";
+import { NICHOS } from "../../lib/nichos.js";
+---
+<Base
+  titulo="Para quem é"
+  descricao="Empresários, médicos com PJ e executivos com remuneração complexa. Três situações, três conjuntos de problemas diferentes."
+>
+  <section class="secao">
+    <div class="wrap">
+      <div style="max-width:56ch">
+        <p class="olho">Para quem é</p>
+        <h1>Eu não atendo todo mundo, e isso é de propósito</h1>
+        <p class="lead">
+          Profundidade técnica exige repetição. Atendendo três situações
+          parecidas, eu vejo o mesmo problema cem vezes e reconheço padrões que
+          um generalista não reconhece. Se você não está em nenhuma delas, vale
+          mais eu te indicar alguém do que fingir que sirvo.
+        </p>
+      </div>
+
+      <div class="grade grade-3" style="margin-top:3rem">
+        {NICHOS.map((n) => (
+          <a class="cartao cartao-link" href={`/para-quem/${n.slug}`}>
+            <p class="olho" style="margin-bottom:.8rem">{n.nome}</p>
+            <h2 style="font-size:1.2rem;margin:0 0 .7rem">{n.chamada}</h2>
+            <p class="pequeno" style="color:var(--muted);margin:0">{n.resumo}</p>
+          </a>
+        ))}
+      </div>
+
+      <div class="cartao" style="margin-top:2.5rem;max-width:62ch">
+        <h3 style="margin-top:0">E se eu não me encaixo em nenhuma?</h3>
+        <p class="pequeno" style="color:var(--ink-2);margin:0">
+          Escreva assim mesmo. Se eu não for a pessoa certa, eu digo — e, quando
+          conheço alguém melhor para o seu caso, eu indico. Vale mais para nós
+          dois do que uma relação que começa torta.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <Cta />
+</Base>

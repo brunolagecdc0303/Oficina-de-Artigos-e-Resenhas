@@ -1,0 +1,144 @@
+---
+import Base from "../layouts/Base.astro";
+import Cta from "../components/Cta.astro";
+import { SITE } from "../lib/site.js";
+import { CALCULADORAS, DIMENSOES, liberadasPorPadrao } from "../lib/calculadoras.js";
+import { getCollection } from "astro:content";
+
+const padrao = liberadasPorPadrao();
+const destaques = ["inventario", "come-cotas", "aposentadoria"]
+  .map((s) => CALCULADORAS.find((c) => c.slug === s))
+  .filter(Boolean);
+
+const artigos = (await getCollection("artigos"))
+  .filter((a) => !a.data.rascunho)
+  .sort((a, b) => b.data.data.valueOf() - a.data.data.valueOf())
+  .slice(0, 3);
+---
+<Base titulo={null}>
+  <!-- Abertura -->
+  <section class="secao">
+    <div class="wrap">
+      <div style="max-width:22ch">
+        <p class="olho">{SITE.profissional.cargo} · {SITE.profissional.cidade}</p>
+      </div>
+      <h1 style="max-width:17ch">O seu dinheiro tem gestor. O seu patrimônio tem arquiteto?</h1>
+      <p class="lead" style="max-width:58ch">
+        Investimento é uma das oito frentes de um patrimônio, e quase nunca é a
+        mais cara. Tributação, sucessão, proteção e estrutura societária custam
+        mais — só que em silêncio, e a conta chega para a família.
+      </p>
+      <p style="margin-top:2rem;display:flex;gap:.7rem;flex-wrap:wrap">
+        <a class="btn btn-primario" href="/diagnostico">Fazer o diagnóstico</a>
+        <a class="btn btn-secundario" href="/como-trabalho">Ver como eu trabalho</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- As oito dimensões -->
+  <section class="secao secao-linha">
+    <div class="wrap">
+      <div style="max-width:56ch;margin-bottom:2.5rem">
+        <p class="olho">O método</p>
+        <h2>Oito dimensões, não uma</h2>
+        <p class="lead">
+          Um diagnóstico patrimonial completo cobre oito frentes. A maior parte
+          do mercado olha para a segunda e chama isso de assessoria.
+        </p>
+      </div>
+      <div class="grade grade-2 grade-3">
+        {Object.entries(DIMENSOES).map(([chave, dim], i) => (
+          <div class="cartao">
+            <p class="etiqueta" style={`--dim: var(--${dim.cor})`}>{String(i + 1).padStart(2, "0")} · {dim.nome}</p>
+          </div>
+        ))}
+      </div>
+      <p style="margin-top:2rem"><a class="btn-texto" href="/como-trabalho">O que eu analiso em cada uma →</a></p>
+    </div>
+  </section>
+
+  <!-- Prova de método -->
+  <section class="secao secao-linha">
+    <div class="wrap">
+      <div class="grade grade-3">
+        <div>
+          <h3>Diagnóstico antes de recomendação</h3>
+          <p class="pequeno" style="color:var(--ink-2)">
+            Você recebe o retrato dos seus riscos sem nenhuma solução junto. O
+            problema primeiro, o preço da solução depois — e só se houver
+            solução a propor.
+          </p>
+        </div>
+        <div>
+          <h3>Plano de uma página</h3>
+          <p class="pequeno" style="color:var(--ink-2)">
+            A análise profunda fica no arquivo. O que vai para a sua mão é a
+            decisão: onde você está, os três maiores riscos, as três ações do
+            ano — e o que não vamos fazer.
+          </p>
+        </div>
+        <div>
+          <h3>Remuneração aberta</h3>
+          <p class="pequeno" style="color:var(--ink-2)">
+            Quanto eu ganho para te atender está escrito no site, antes de você
+            perguntar. <a href="/remuneracao">Está aqui</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calculadoras -->
+  <section class="secao secao-linha">
+    <div class="wrap">
+      <div style="max-width:56ch;margin-bottom:2.5rem">
+        <p class="olho">Ferramentas</p>
+        <h2>Comece pelos seus próprios números</h2>
+        <p class="lead">
+          Quatorze calculadoras que rodam inteiramente no seu navegador. Nenhuma
+          delas termina recomendando produto.
+        </p>
+      </div>
+      <div class="grade grade-3">
+        {destaques.map((c) => {
+          const dim = DIMENSOES[c.dimensao];
+          const liberada = padrao.includes(c.slug);
+          return (
+            <a class="cartao cartao-link cartao-calc" href={liberada ? `/calculadoras/${c.slug}` : "/calculadoras"}>
+              <p class="etiqueta" style={`--dim: var(--${dim.cor})`}>{dim.nome}</p>
+              <h3 class="pergunta">{c.pergunta}</h3>
+              <p class="resumo">{c.resumo}</p>
+            </a>
+          );
+        })}
+      </div>
+      <p style="margin-top:2rem"><a class="btn-texto" href="/calculadoras">Ver todas as calculadoras →</a></p>
+    </div>
+  </section>
+
+  <!-- Artigos -->
+  {artigos.length > 0 && (
+    <section class="secao secao-linha">
+      <div class="wrap">
+        <div style="max-width:56ch;margin-bottom:2.5rem">
+          <p class="olho">Artigos</p>
+          <h2>O que eu ando escrevendo</h2>
+        </div>
+        <div class="grade grade-3">
+          {artigos.map((a) => (
+            <a class="cartao cartao-link" href={`/artigos/${a.id}`}>
+              <p class="etiqueta" style={`--dim: var(--${DIMENSOES[a.data.dimensao].cor})`}>
+                {DIMENSOES[a.data.dimensao].nome}
+              </p>
+              <h3 style="margin:.6rem 0 .5rem;font-size:1.15rem">{a.data.titulo}</h3>
+              <p class="pequeno" style="color:var(--muted);margin:0">{a.data.resumo}</p>
+            </a>
+          ))}
+        </div>
+        <p style="margin-top:2rem"><a class="btn-texto" href="/artigos">Todos os artigos →</a></p>
+      </div>
+    </section>
+  )}
+
+  <Cta />
+</Base>

@@ -1,0 +1,69 @@
+---
+import Base from "../../layouts/Base.astro";
+import Cta from "../../components/Cta.astro";
+import { NICHOS, nichoPorSlug } from "../../lib/nichos.js";
+import { porSlug, DIMENSOES, liberadasPorPadrao } from "../../lib/calculadoras.js";
+
+export function getStaticPaths() {
+  return NICHOS.map((n) => ({ params: { slug: n.slug } }));
+}
+
+const nicho = nichoPorSlug(Astro.params.slug);
+const padrao = liberadasPorPadrao();
+const calcs = nicho.calculadoras.map(porSlug).filter(Boolean);
+---
+<Base titulo={nicho.nome} descricao={nicho.resumo}>
+  <section class="secao">
+    <div class="wrap wrap-estreito">
+      <p class="pequeno" style="margin-bottom:1.5rem">
+        <a href="/para-quem" style="color:var(--muted);text-decoration:none">← Para quem é</a>
+      </p>
+      <p class="olho">{nicho.nome}</p>
+      <h1>{nicho.chamada}</h1>
+      {nicho.tensao.map((p) => <p class="lead">{p}</p>)}
+    </div>
+  </section>
+
+  <section class="secao secao-linha">
+    <div class="wrap">
+      <div class="grade grade-2">
+        <div>
+          <h2 style="font-size:1.4rem">O que eu costumo encontrar</h2>
+          <ul class="prosa" style="margin-top:1.2rem">
+            {nicho.sinais.map((s) => <li>{s}</li>)}
+          </ul>
+        </div>
+        <div>
+          <h2 style="font-size:1.4rem">O que muda depois do diagnóstico</h2>
+          <ul class="prosa" style="margin-top:1.2rem">
+            {nicho.muda.map((m) => <li>{m}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao secao-linha">
+    <div class="wrap">
+      <div style="max-width:56ch;margin-bottom:2.5rem">
+        <p class="olho">Comece sozinho</p>
+        <h2>As calculadoras que mais importam no seu caso</h2>
+      </div>
+      <div class="grade grade-2">
+        {calcs.map((c) => {
+          const dim = DIMENSOES[c.dimensao];
+          const liberada = padrao.includes(c.slug);
+          return (
+            <a class="cartao cartao-link cartao-calc" href={liberada ? `/calculadoras/${c.slug}` : "/calculadoras"}>
+              <p class="etiqueta" style={`--dim: var(--${dim.cor})`}>{dim.nome}</p>
+              <h3 class="pergunta">{c.pergunta}</h3>
+              <p class="resumo">{c.resumo}</p>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <Cta />
+</Base>

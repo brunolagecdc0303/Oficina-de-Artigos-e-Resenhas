@@ -35,15 +35,15 @@ export default async (req) => {
     return new Response("Método não permitido", { status: 405 });
   }
 
-  let config;
+  let estado;
   try {
-    config = await lerConfig();
+    estado = await lerConfig();
   } catch {
     // Blobs indisponível (ex.: rodando sem contexto Netlify): cai no padrão.
     return Response.json({ liberadas: liberadasPorPadrao(), acesso: false, degradado: true });
   }
 
-  const esperado = config.codigoCliente ? tokenDoCodigo(config.codigoCliente) : null;
+  const esperado = estado.codigoCliente ? tokenDoCodigo(estado.codigoCliente) : null;
 
   if (codigo) {
     const candidato = tokenDoCodigo(codigo);
@@ -55,7 +55,7 @@ export default async (req) => {
 
   const temAcesso = Boolean(esperado && token && token === esperado);
   return Response.json({
-    liberadas: temAcesso ? TODAS : config.liberadas,
+    liberadas: temAcesso ? TODAS : estado.liberadas,
     acesso: temAcesso,
   });
 };

@@ -1,0 +1,93 @@
+---
+import Base from "../layouts/Base.astro";
+import Cta from "../components/Cta.astro";
+import { SITE } from "../lib/site.js";
+---
+<Base
+  titulo="Como sou remunerado"
+  descricao="Transparência sobre arranjos de remuneração, conflitos de interesse e o que eu faço para reduzi-los."
+>
+  <section class="secao">
+    <div class="wrap wrap-estreito">
+      <p class="olho">Transparência</p>
+      <h1>Quanto eu ganho para te atender</h1>
+      <p class="lead">
+        Esta página existe porque a pergunta é legítima e quase nunca é
+        respondida sem rodeio. A Resolução CVM 179 vai obrigar o mercado inteiro
+        a essa transparência. Prefiro chegar antes.
+      </p>
+    </div>
+  </section>
+
+  <section class="secao secao-linha">
+    <div class="wrap wrap-estreito">
+      <h2>De onde vem a minha receita</h2>
+      <p>
+        Sou assessor de investimento vinculado a {SITE.instituicao.nome}. Minha
+        remuneração vem dos arranjos abaixo, e de nenhum outro:
+      </p>
+
+      <div class="cartao" style="margin:1.5rem 0">
+        <p class="nota" style="margin:0 0 1rem;color:var(--alerta)">
+          <strong>[REVISAR]</strong> Preencha esta seção com os seus arranjos reais e
+          submeta ao compliance da instituição antes de publicar. Descreva cada
+          fonte de receita, a faixa de valores e sobre o que ela incide. Não
+          publique esta página com o texto de exemplo abaixo.
+        </p>
+        <ul class="prosa" style="margin:0">
+          <li><strong>[REVISAR: fonte 1]</strong> — sobre o que incide, e em que faixa.</li>
+          <li><strong>[REVISAR: fonte 2]</strong> — sobre o que incide, e em que faixa.</li>
+          <li><strong>[REVISAR: fonte 3]</strong> — sobre o que incide, e em que faixa.</li>
+        </ul>
+      </div>
+
+      <h2>Onde estão os conflitos</h2>
+      <p>
+        Todo modelo de remuneração cria algum conflito. Quem diz que não tem
+        conflito nenhum ou não entendeu o próprio modelo, ou está omitindo.
+        Os meus:
+      </p>
+      <ul class="prosa">
+        <li>
+          <strong>Remuneração ligada a produto cria incentivo a movimentar.</strong>
+          O antídoto é estrutural, não moral: registro por escrito as
+          recomendações de <em>não fazer nada</em>, e elas aparecem no seu plano
+          anual como decisão tomada.
+        </li>
+        <li>
+          <strong>Produtos diferentes remuneram de forma diferente.</strong> Sempre
+          que a recomendação envolver um produto que me remunera mais que a
+          alternativa, eu digo isso na hora da recomendação — não depois, e não
+          só se você perguntar.
+        </li>
+        <li>
+          <strong>Crescer a carteira é do meu interesse.</strong> Por isso o
+          diagnóstico vem antes da proposta, e os três primeiros encontros
+          acontecem sem nada a vender.
+        </li>
+      </ul>
+
+      <h2>O que você pode exigir de mim</h2>
+      <ul class="prosa">
+        <li>O extrato de remuneração, sempre que pedir, sem constrangimento.</li>
+        <li>A comparação com a alternativa, quando houver mais de um caminho.</li>
+        <li>A resposta "não sei, pesquiso e te retorno em 48 horas", quando for o caso.</li>
+      </ul>
+
+      <div class="cartao" style="margin-top:2rem">
+        <h3 style="margin-top:0">As três perguntas que você deveria fazer a qualquer assessor</h3>
+        <ol class="prosa" style="margin:1rem 0 0">
+          <li>Quanto você ganhou para me atender no último ano, em reais?</li>
+          <li>Em qual das nossas últimas reuniões você me recomendou não fazer nada?</li>
+          <li>Que tipo de cliente ou de negócio você recusa?</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <Cta
+    olho="Próximo passo"
+    titulo="Se essa página te pareceu razoável, o resto do método é assim"
+    texto="Diagnóstico antes de recomendação, plano de uma página, e o que não vamos fazer escrito junto com o que vamos."
+  />
+</Base>
