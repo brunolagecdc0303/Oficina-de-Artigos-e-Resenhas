@@ -1,0 +1,8 @@
+---
+import { DISCLAIMER_CALCULADORA } from "../lib/site.js";
+const { vigencia } = Astro.props;
+---
+<p class="aviso">
+  {vigencia && <><strong>Base de cálculo:</strong> {vigencia}. </>}
+  {DISCLAIMER_CALCULADORA}
+</p>

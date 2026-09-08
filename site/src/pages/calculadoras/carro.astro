@@ -1,0 +1,128 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="carro" vigencia="depreciação, IPVA, seguro e manutenção informados por você">
+  <form id="f" class="calc-painel" slot="entradas">
+    <label class="campo"><span>Período de comparação (anos)</span>
+      <input id="anos" type="number" value="4" min="1" max="15" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Comprar</p>
+    <label class="campo"><span>Preço do carro (R$)</span>
+      <input id="preco" type="number" value="220000" min="0" step="5000" /></label>
+    <label class="campo"><span>Depreciação (% ao ano)</span>
+      <input id="depreciacao" type="number" value="12" step="0.5" />
+      <span class="ajuda">Zero-quilômetro costuma perder mais no primeiro ano. Doze por cento ao ano é uma média conservadora.</span></label>
+    <label class="campo"><span>IPVA (% do valor ao ano)</span>
+      <input id="ipva" type="number" value="4" step="0.5" /></label>
+    <label class="campo"><span>Seguro anual (R$)</span>
+      <input id="seguro" type="number" value="7000" min="0" step="500" /></label>
+    <label class="campo"><span>Manutenção e revisões por ano (R$)</span>
+      <input id="manutencao" type="number" value="4500" min="0" step="500" /></label>
+    <label class="campo"><span>Entrada, se financiado (R$)</span>
+      <input id="entrada" type="number" value="220000" min="0" step="5000" />
+      <span class="ajuda">Igual ao preço significa compra à vista.</span></label>
+    <label class="campo"><span>Juros do financiamento (% ao ano)</span>
+      <input id="jurosFin" type="number" value="22" step="0.5" /></label>
+    <label class="campo"><span>Prazo do financiamento (meses)</span>
+      <input id="prazoFin" type="number" value="48" min="1" max="72" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Alugar ou assinar</p>
+    <label class="campo"><span>Mensalidade da assinatura ou locação (R$)</span>
+      <input id="mensalidade" type="number" value="5200" min="0" step="100" />
+      <span class="ajuda">Confirme o que está incluso: IPVA, seguro, manutenção e franquia de quilometragem.</span></label>
+    <label class="campo"><span>Caução ou depósito (R$)</span>
+      <input id="caucao" type="number" value="0" min="0" step="1000" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <label class="campo"><span>Retorno dos investimentos, líquido de IR (% ao ano)</span>
+      <input id="retorno" type="number" value="9" step="0.25" />
+      <span class="ajuda">O dinheiro que você não põe no carro rende. Ignorar isso é o erro clássico da conta.</span></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo">Custo real de possuir, por mês</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { tabelaAmortizacao, anualParaMensal, moeda, percentual } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras } from "../../lib/ui.js";
+
+  function calcular() {
+    const anos = Math.max(1, num("anos", 4));
+    const meses = anos * 12;
+    const preco = num("preco");
+    const dep = pct("depreciacao", 0.12);
+    const retornoMes = anualParaMensal(pct("retorno", 0.09));
+    const entrada = Math.min(num("entrada"), preco);
+    const financiado = Math.max(0, preco - entrada);
+    const jurosMes = anualParaMensal(pct("jurosFin", 0.22));
+    const prazoFin = Math.max(1, num("prazoFin", 48));
+    const mensalidade = num("mensalidade");
+    const caucao = num("caucao");
+
+    const valorFinal = preco * Math.pow(1 - dep, anos);
+    const depreciacaoTotal = preco - valorFinal;
+
+    // IPVA incide sobre o valor que vai caindo ano a ano.
+    let ipvaTotal = 0;
+    for (let a = 0; a < anos; a++) ipvaTotal += preco * Math.pow(1 - dep, a) * pct("ipva", 0.04);
+    const seguroTotal = num("seguro") * anos;
+    const manutTotal = num("manutencao") * anos;
+
+    const { parcelas, totalJuros } = tabelaAmortizacao(financiado, jurosMes, prazoFin, "price");
+    const jurosNoPeriodo = parcelas.slice(0, meses).reduce((s, p) => s + p.juros, 0);
+    const saldoDevedorFinal = meses < prazoFin ? parcelas[meses - 1].saldo : 0;
+
+    // Custo de oportunidade: a entrada deixou de render durante o período.
+    const oportunidade = entrada * (Math.pow(1 + retornoMes, meses) - 1);
+
+    const custoComprar =
+      depreciacaoTotal + ipvaTotal + seguroTotal + manutTotal + jurosNoPeriodo + oportunidade;
+    const custoComprarMes = custoComprar / meses;
+
+    const oportunidadeCaucao = caucao * (Math.pow(1 + retornoMes, meses) - 1);
+    const custoAssinar = mensalidade * meses + oportunidadeCaucao;
+    const custoAssinarMes = custoAssinar / meses;
+    const diferenca = custoComprarMes - custoAssinarMes;
+
+    definir("r-valor", moeda(custoComprarMes));
+    definir(
+      "r-frase",
+      Math.abs(diferenca) < 1
+        ? `Empate técnico com a assinatura de ${moeda(mensalidade)}. A decisão passa a ser sobre o que você prefere: propriedade ou previsibilidade.`
+        : diferenca > 0
+        ? `A assinatura de ${moeda(mensalidade)} sai ${moeda(diferenca)} mais barata por mês — ${moeda(diferenca * meses)} no período. A maior parte do custo de possuir não é a parcela: é a depreciação de ${moeda(depreciacaoTotal)}, que ninguém sente porque não sai da conta.`
+        : `Possuir sai ${moeda(-diferenca)} mais barato por mês que a assinatura de ${moeda(mensalidade)} — ${moeda(-diferenca * meses)} no período.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Comprar", valor: custoComprarMes, texto: `${moeda(custoComprarMes)}/mês`, tom: diferenca > 0 ? "alt" : "ok" },
+      { rotulo: "Assinar ou alugar", valor: custoAssinarMes, texto: `${moeda(custoAssinarMes)}/mês`, tom: diferenca > 0 ? "ok" : "alt" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: `Depreciação em ${anos} ${anos === 1 ? "ano" : "anos"}`, valor: moeda(depreciacaoTotal), destaque: true },
+      { rotulo: "Custo de oportunidade do dinheiro parado no carro", valor: moeda(oportunidade), destaque: true },
+      { rotulo: "Juros do financiamento no período", valor: moeda(jurosNoPeriodo) },
+      { rotulo: "IPVA acumulado", valor: moeda(ipvaTotal) },
+      { rotulo: "Seguro acumulado", valor: moeda(seguroTotal) },
+      { rotulo: "Manutenção acumulada", valor: moeda(manutTotal) },
+      { rotulo: "Valor de revenda estimado", valor: moeda(valorFinal) },
+      saldoDevedorFinal > 0 && { rotulo: "Saldo devedor ao fim do período", valor: moeda(saldoDevedorFinal), destaque: true },
+      { rotulo: "Custo total de possuir no período", valor: moeda(custoComprar), total: true },
+      { rotulo: "Custo total da assinatura no período", valor: moeda(custoAssinar), total: true },
+      { rotulo: "Custo de possuir como % do preço, ao ano", valor: percentual(custoComprar / anos / preco, 1), total: true },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>

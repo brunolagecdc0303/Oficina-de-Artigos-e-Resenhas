@@ -1,0 +1,98 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="quanto-dolarizar" vigencia="premissas de despesa futura em moeda forte informadas por você">
+  <form id="f" class="calc-painel" slot="entradas">
+    <label class="campo"><span>Patrimônio investido total (R$)</span>
+      <input id="patrimonio" type="number" value="5000000" min="0" step="100000" /></label>
+    <label class="campo"><span>Exposição internacional atual (R$)</span>
+      <input id="atual" type="number" value="500000" min="0" step="50000" />
+      <span class="ajuda">Some o que é de fato exposto a moeda forte. Fundo cambial com <em>hedge</em> não conta.</span></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Seus compromissos em moeda forte</p>
+    <label class="campo"><span>Viagens e despesas anuais no exterior (R$)</span>
+      <input id="viagens" type="number" value="80000" min="0" step="10000" /></label>
+    <label class="campo"><span>Educação de filhos fora do país (R$ ao ano)</span>
+      <input id="educacao" type="number" value="0" min="0" step="50000" /></label>
+    <label class="campo"><span>Por quantos anos essa educação vai durar</span>
+      <input id="anosEducacao" type="number" value="0" min="0" max="15" /></label>
+    <label class="campo"><span>Imóvel ou projeto no exterior (R$)</span>
+      <input id="projeto" type="number" value="0" min="0" step="100000" /></label>
+    <label class="campo"><span>Parte do seu consumo atrelada a importados (%)</span>
+      <input id="importados" type="number" value="15" step="1" />
+      <span class="ajuda">Eletrônicos, carro, remédio, insumo da sua empresa. Sobe o dólar, sobe o preço — mesmo comprando no Brasil.</span></label>
+    <label class="campo"><span>Custo de vida anual da família (R$)</span>
+      <input id="custoVida" type="number" value="540000" min="0" step="10000" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <label class="campo"><span>Horizonte de planejamento (anos)</span>
+      <input id="anos" type="number" value="10" min="1" max="30" /></label>
+    <label class="campo"><span>Piso estrutural de diversificação (%)</span>
+      <input id="piso" type="number" value="20" step="1" />
+      <span class="ajuda">Independentemente de despesa futura, há um argumento de risco: o Brasil é menos de 2% do mercado global de capitais.</span></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo">Exposição internacional sugerida</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { moeda, percentual } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras } from "../../lib/ui.js";
+
+  function calcular() {
+    const patrimonio = Math.max(1, num("patrimonio"));
+    const atual = num("atual");
+    const anos = Math.max(1, num("anos", 10));
+
+    const viagens = num("viagens") * anos;
+    const educacao = num("educacao") * num("anosEducacao", 0);
+    const projeto = num("projeto");
+    const consumoImportado = num("custoVida") * pct("importados", 0.15) * anos;
+    const passivoMoedaForte = viagens + educacao + projeto + consumoImportado;
+
+    const porDespesa = passivoMoedaForte / patrimonio;
+    const piso = pct("piso", 0.2);
+    const sugerida = Math.min(0.9, Math.max(piso, porDespesa));
+    const alvoReais = patrimonio * sugerida;
+    const atualPct = atual / patrimonio;
+    const ajuste = alvoReais - atual;
+
+    definir("r-valor", percentual(sugerida, 0));
+    definir(
+      "r-frase",
+      Math.abs(ajuste) < patrimonio * 0.02
+        ? `Sua exposição atual de ${percentual(atualPct, 0)} já está alinhada. Revise quando surgir um compromisso novo em moeda forte — intercâmbio, imóvel, tratamento médico.`
+        : ajuste > 0
+        ? `Você tem ${percentual(atualPct, 0)} e a conta aponta para ${percentual(sugerida, 0)}. São ${moeda(ajuste)} a realocar. O argumento não é palpite de câmbio: é que ${moeda(passivoMoedaForte)} das suas despesas dos próximos ${anos} anos são, na prática, em moeda forte. Casar ativo com passivo é proteção, não aposta.`
+        : `Você tem ${percentual(atualPct, 0)}, acima dos ${percentual(sugerida, 0)} que a conta indica. Exposição em excesso também é risco: se as despesas são em real, o câmbio vira volatilidade sem contrapartida.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Exposição atual", valor: atualPct, texto: percentual(atualPct, 0), tom: ajuste > 0 ? "alt" : "ok" },
+      { rotulo: "Exposição sugerida", valor: sugerida, texto: percentual(sugerida, 0), tom: "ok" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: `Viagens e despesas no exterior em ${anos} anos`, valor: moeda(viagens) },
+      { rotulo: "Educação fora do país", valor: moeda(educacao) },
+      { rotulo: "Imóvel ou projeto no exterior", valor: moeda(projeto) },
+      { rotulo: "Consumo atrelado a importados no período", valor: moeda(consumoImportado) },
+      { rotulo: "Passivo total em moeda forte", valor: moeda(passivoMoedaForte), total: true, destaque: true },
+      { rotulo: "Exposição indicada pelas despesas", valor: percentual(porDespesa, 0) },
+      { rotulo: "Piso estrutural de diversificação", valor: percentual(piso, 0) },
+      { rotulo: "Exposição sugerida", valor: percentual(sugerida, 0), total: true },
+      { rotulo: ajuste > 0 ? "A realocar para o exterior" : "Excesso de exposição", valor: moeda(Math.abs(ajuste)), total: true },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>

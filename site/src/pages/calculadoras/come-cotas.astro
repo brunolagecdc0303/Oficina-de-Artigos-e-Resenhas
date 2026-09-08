@@ -1,0 +1,122 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="come-cotas" vigencia="tabela regressiva da Lei 11.033/2004 e come-cotas semestral de maio e novembro">
+  <form id="f" class="calc-painel" slot="entradas">
+    <label class="campo"><span>Valor aplicado (R$)</span>
+      <input id="principal" type="number" value="1000000" min="0" step="50000" /></label>
+    <label class="campo"><span>Prazo (anos)</span>
+      <input id="anos" type="number" value="20" min="1" max="40" /></label>
+    <label class="campo"><span>Retorno bruto esperado (% ao ano)</span>
+      <input id="retorno" type="number" value="11" step="0.25" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">O fundo com come-cotas</p>
+    <fieldset style="border:0;padding:0;margin:0 0 1.1rem">
+      <legend class="sr">Classificação do fundo</legend>
+      <div class="escolhas" style="grid-template-columns:1fr 1fr">
+        <label class="escolha"><input type="radio" name="prazoFundo" value="longo" checked />
+          <span><b>Longo prazo</b><small>Come-cotas de 15%</small></span></label>
+        <label class="escolha"><input type="radio" name="prazoFundo" value="curto" />
+          <span><b>Curto prazo</b><small>Come-cotas de 20%</small></span></label>
+      </div>
+    </fieldset>
+    <label class="campo"><span>Taxa de administração do fundo (% ao ano)</span>
+      <input id="taxaFundo" type="number" value="1" step="0.1" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">A alternativa sem come-cotas</p>
+    <label class="campo"><span>Taxa do ETF ou custo da carteira direta (% ao ano)</span>
+      <input id="taxaAlt" type="number" value="0.3" step="0.05" />
+      <span class="ajuda">ETFs, ações, e títulos comprados diretamente não têm come-cotas: o imposto só aparece quando você vende.</span></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo" id="r-rotulo">Diferença ao fim do prazo</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="g-evolucao" style="margin:1.25rem 0"></div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+
+  <section class="secao secao-linha" slot="depois">
+    <div class="wrap wrap-estreito">
+      <h2>O que o come-cotas realmente faz</h2>
+      <p>
+        Duas vezes por ano, em maio e novembro, o fundo aberto recolhe imposto
+        sobre o rendimento do semestre — você não vendeu nada, não sacou nada, e
+        mesmo assim tem cotas a menos. A alíquota é a mesma que você pagaria no
+        fim: 15% para fundos de longo prazo.
+      </p>
+      <p>
+        O prejuízo não está na alíquota. Está no <strong>tempo</strong>. Cada
+        real recolhido em maio de um ano é um real que não rende pelos vinte anos
+        seguintes. É juros compostos trabalhando contra você, silenciosamente,
+        sem nunca aparecer no extrato como custo.
+      </p>
+      <p>
+        Isso não torna todo fundo ruim nem todo ETF bom. Torna o come-cotas um
+        fator que precisa entrar na conta antes da decisão — e que quase nunca
+        entra.
+      </p>
+    </div>
+  </section>
+</Calculadora>
+
+<script>
+  import { simularComeCotas, irRegressivoRendaFixa, moeda, percentual } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras, escolhido, grafico } from "../../lib/ui.js";
+
+  function calcular() {
+    const principal = num("principal");
+    const anos = Math.max(1, num("anos", 20));
+    const taxaAnual = pct("retorno", 0.11);
+    const aliquotaComeCotas = escolhido("prazoFundo") === "curto" ? 0.2 : 0.15;
+    const taxaAdmFundo = pct("taxaFundo", 0.01);
+    const taxaAdmAlternativa = pct("taxaAlt", 0.003);
+
+    const base = { principal, taxaAnual, aliquotaComeCotas, taxaAdmFundo, taxaAdmAlternativa };
+    const r = simularComeCotas({ ...base, anos });
+
+    definir("r-rotulo", `Diferença em ${anos} anos`);
+    definir("r-valor", moeda(r.diferenca));
+    definir(
+      "r-frase",
+      `O fundo entrega ${moeda(r.comComeCotas)} líquidos; o veículo sem come-cotas entrega ${moeda(r.semComeCotas)}. ` +
+        `A diferença de ${moeda(r.diferenca)} equivale a ${percentual(r.diferenca / principal, 0)} do que você aplicou — ` +
+        `e ${moeda(r.impostoAntecipado)} disso é imposto que saiu do bolso antes da hora, deixando de render pelo resto do prazo.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Fundo com come-cotas", valor: r.comComeCotas, texto: moeda(r.comComeCotas), tom: "alt" },
+      { rotulo: "ETF ou carteira direta", valor: r.semComeCotas, texto: moeda(r.semComeCotas), tom: "ok" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Alíquota do come-cotas", valor: percentual(aliquotaComeCotas, 0) },
+      { rotulo: "Alíquota final pela tabela regressiva", valor: percentual(irRegressivoRendaFixa(anos * 365), 1) },
+      { rotulo: "Imposto antecipado pelo come-cotas", valor: moeda(r.impostoAntecipado), destaque: true },
+      { rotulo: "Imposto complementar no resgate", valor: moeda(r.impostoFinalFundo) },
+      { rotulo: "Imposto do veículo sem come-cotas", valor: moeda(r.impostoAlternativa) },
+      { rotulo: "Líquido do fundo", valor: moeda(r.comComeCotas), total: true },
+      { rotulo: "Líquido sem come-cotas", valor: moeda(r.semComeCotas), total: true },
+      { rotulo: "Custo do come-cotas no período", valor: moeda(r.diferenca), total: true, destaque: true },
+    ]);
+
+    const serieFundo = [], serieAlt = [];
+    for (let a = 0; a <= anos; a++) {
+      const p = simularComeCotas({ ...base, anos: a });
+      serieFundo.push(a === 0 ? principal : p.comComeCotas);
+      serieAlt.push(a === 0 ? principal : p.semComeCotas);
+    }
+    grafico("g-evolucao", [
+      { nome: "Fundo com come-cotas", cor: "var(--alerta)", pontos: serieFundo },
+      { nome: "ETF ou carteira direta", cor: "var(--sinal)", pontos: serieAlt },
+    ], moeda);
+  }
+
+  ligar("f", calcular);
+</script>

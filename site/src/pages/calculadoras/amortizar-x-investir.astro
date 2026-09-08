@@ -1,0 +1,119 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="amortizar-x-investir" vigencia="tabela regressiva de IR sobre o investimento e juros contratuais informados por você">
+  <form id="f" class="calc-painel" slot="entradas">
+    <label class="campo"><span>Saldo devedor atual (R$)</span>
+      <input id="saldo" type="number" value="400000" min="0" step="10000" /></label>
+    <label class="campo"><span>Juros do financiamento (% ao ano)</span>
+      <input id="juros" type="number" value="11" step="0.25" />
+      <span class="ajuda">A taxa contratual, sem seguros e taxa de administração. Some-os à parte se quiser o custo efetivo total.</span></label>
+    <label class="campo"><span>Parcelas restantes (meses)</span>
+      <input id="prazo" type="number" value="240" min="1" max="420" /></label>
+    <fieldset style="border:0;padding:0;margin:0 0 1.1rem">
+      <legend class="sr">Sistema</legend>
+      <div class="escolhas" style="grid-template-columns:1fr 1fr">
+        <label class="escolha"><input type="radio" name="sistema" value="price" checked /><span><b>Price</b><small>Parcela fixa</small></span></label>
+        <label class="escolha"><input type="radio" name="sistema" value="sac" /><span><b>SAC</b><small>Parcela decrescente</small></span></label>
+      </div>
+    </fieldset>
+
+    <hr style="margin:1.5rem 0" />
+    <label class="campo"><span>Dinheiro disponível para usar (R$)</span>
+      <input id="disponivel" type="number" value="150000" min="0" step="10000" /></label>
+    <label class="campo"><span>Retorno bruto do investimento (% ao ano)</span>
+      <input id="retorno" type="number" value="12" step="0.25" /></label>
+    <label class="campo"><span>Alíquota de IR sobre o investimento (%)</span>
+      <input id="ir" type="number" value="15" step="0.5" />
+      <span class="ajuda">Quinze por cento é a alíquota de renda fixa acima de dois anos. É aqui que a comparação costuma virar.</span></label>
+
+    <fieldset style="border:0;padding:0;margin:1.5rem 0 0">
+      <legend class="olho" style="padding:0">Ao amortizar, você prefere</legend>
+      <div class="escolhas">
+        <label class="escolha"><input type="radio" name="efeito" value="prazo" checked />
+          <span><b>Reduzir o prazo</b><small>Mesma parcela, quita antes. Economiza mais juros.</small></span></label>
+        <label class="escolha"><input type="radio" name="efeito" value="parcela" />
+          <span><b>Reduzir a parcela</b><small>Mesmo prazo, alivia o caixa mensal.</small></span></label>
+      </div>
+    </fieldset>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo" id="r-rotulo">Vantagem de amortizar</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { tabelaAmortizacao, anualParaMensal, moeda, percentual, anosEMeses } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras, escolhido } from "../../lib/ui.js";
+
+  function calcular() {
+    const saldo = num("saldo");
+    const jurosAno = pct("juros", 0.11);
+    const jurosMes = anualParaMensal(jurosAno);
+    const prazo = Math.max(1, num("prazo", 240));
+    const sistema = escolhido("sistema") ?? "price";
+    const disponivel = Math.min(num("disponivel"), saldo);
+    const retornoAno = pct("retorno", 0.12);
+    const ir = pct("ir", 0.15);
+    const retornoLiquido = retornoAno * (1 - ir);
+    const efeito = escolhido("efeito") ?? "prazo";
+
+    const original = tabelaAmortizacao(saldo, jurosMes, prazo, sistema);
+
+    let jurosDepois, prazoDepois, parcelaDepois;
+    if (efeito === "prazo") {
+      // Mantém a parcela e busca o menor prazo que o novo saldo comporta.
+      const parcelaAlvo = original.parcelas[0].parcela;
+      let n = prazo;
+      for (let k = 1; k <= prazo; k++) {
+        const t = tabelaAmortizacao(saldo - disponivel, jurosMes, k, sistema);
+        if (t.parcelas[0].parcela <= parcelaAlvo) { n = k; break; }
+      }
+      const t = tabelaAmortizacao(saldo - disponivel, jurosMes, n, sistema);
+      jurosDepois = t.totalJuros; prazoDepois = n; parcelaDepois = t.parcelas[0].parcela;
+    } else {
+      const t = tabelaAmortizacao(saldo - disponivel, jurosMes, prazo, sistema);
+      jurosDepois = t.totalJuros; prazoDepois = prazo; parcelaDepois = t.parcelas[0].parcela;
+    }
+
+    const jurosEconomizados = original.totalJuros - jurosDepois;
+    const horizonteAnos = prazo / 12;
+    const rendimentoLiquido = disponivel * (Math.pow(1 + retornoLiquido, horizonteAnos) - 1);
+    const vantagem = jurosEconomizados - rendimentoLiquido;
+    const amortizarGanha = vantagem > 0;
+
+    definir("r-rotulo", amortizarGanha ? "Vantagem de amortizar" : "Vantagem de investir");
+    definir("r-valor", moeda(Math.abs(vantagem)));
+    definir(
+      "r-frase",
+      amortizarGanha
+        ? `Amortizar economiza ${moeda(jurosEconomizados)} de juros; investir os mesmos ${moeda(disponivel)} renderia ${moeda(rendimentoLiquido)} líquidos no mesmo prazo. Amortizar ganha por ${moeda(vantagem)}. A regra por trás é simples: seu financiamento custa ${percentual(jurosAno, 2)} e seu investimento rende ${percentual(retornoLiquido, 2)} depois do imposto.`
+        : `Investir rende ${moeda(rendimentoLiquido)} líquidos contra ${moeda(jurosEconomizados)} de juros economizados. Investir ganha por ${moeda(-vantagem)} — mas isso exige que você realmente invista e não gaste, e que o retorno de ${percentual(retornoAno, 2)} se confirme, o que ninguém garante. Os juros do financiamento, esses são certos.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Juros economizados amortizando", valor: jurosEconomizados, texto: moeda(jurosEconomizados), tom: amortizarGanha ? "ok" : "" },
+      { rotulo: "Rendimento líquido investindo", valor: rendimentoLiquido, texto: moeda(rendimentoLiquido), tom: amortizarGanha ? "" : "ok" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Custo do financiamento", valor: percentual(jurosAno, 2), destaque: true },
+      { rotulo: "Retorno do investimento, líquido de IR", valor: percentual(retornoLiquido, 2) },
+      { rotulo: "Juros totais mantendo tudo como está", valor: moeda(original.totalJuros) },
+      { rotulo: "Juros totais depois de amortizar", valor: moeda(jurosDepois) },
+      { rotulo: "Juros economizados", valor: moeda(jurosEconomizados), total: true },
+      { rotulo: "Prazo restante depois de amortizar", valor: anosEMeses(prazoDepois) },
+      { rotulo: "Primeira parcela depois de amortizar", valor: moeda(parcelaDepois) },
+      { rotulo: efeito === "prazo" ? "Meses que você deixa de pagar" : "Alívio na parcela", valor: efeito === "prazo" ? anosEMeses(prazo - prazoDepois) : moeda(original.parcelas[0].parcela - parcelaDepois), total: true },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>

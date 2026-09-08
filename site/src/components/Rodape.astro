@@ -1,0 +1,65 @@
+---
+import { SITE, DISCLAIMER_CURTO } from "../lib/site.js";
+const ano = new Date().getFullYear();
+---
+<footer class="rodape nao-imprime">
+  <div class="wrap">
+    <div class="rodape-grade">
+      <div>
+        <p class="marca" style="font-size:1.1rem;margin-bottom:.6rem">{SITE.marcaCurta}</p>
+        <p class="pequeno" style="color:var(--muted);max-width:34ch">
+          Diagnóstico patrimonial em oito dimensões, plano de uma página e
+          transparência total de remuneração.
+        </p>
+        <p style="margin-top:1.2rem">
+          <a class="btn btn-secundario pequeno" href="/diagnostico">Fazer o diagnóstico</a>
+        </p>
+      </div>
+
+      <div>
+        <h4>Navegar</h4>
+        <ul>
+          <li><a href="/como-trabalho">Como eu trabalho</a></li>
+          <li><a href="/para-quem">Para quem é</a></li>
+          <li><a href="/o-que-nao-faco">O que eu não faço</a></li>
+          <li><a href="/remuneracao">Como sou remunerado</a></li>
+          <li><a href="/sobre">Sobre</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Ferramentas</h4>
+        <ul>
+          <li><a href="/calculadoras">Calculadoras</a></li>
+          <li><a href="/artigos">Artigos</a></li>
+          <li><a href="/rss.xml">RSS</a></li>
+          <li><a href="/privacidade">Privacidade e LGPD</a></li>
+          <li><a href="/admin">Administração</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="legal">
+      <p>
+        <strong>{SITE.instituicao.razaoSocial}</strong> — CNPJ {SITE.instituicao.cnpjEscritorio}.
+        Escritório de assessoria de investimento vinculado a {SITE.instituicao.nome}.
+        {SITE.profissional.nome}, {SITE.profissional.cargo}
+        {SITE.profissional.certificacoes.length > 0 && ` · ${SITE.profissional.certificacoes.join(" · ")}`}.
+      </p>
+      <p>
+        {DISCLAIMER_CURTO} Este site tem finalidade exclusivamente informativa e
+        educacional. Nenhum conteúdo aqui constitui oferta, recomendação
+        individualizada, consultoria de valores mobiliários, análise, planejamento
+        tributário ou parecer jurídico. Investimentos envolvem risco e podem
+        resultar em perdas, inclusive superiores ao capital aplicado. Rentabilidade
+        passada não representa garantia de rentabilidade futura.
+      </p>
+      <p>
+        A atividade de assessor de investimento é regulada pela Resolução CVM 178.
+        Informações sobre arranjos de remuneração estão em
+        <a href="/remuneracao">Como sou remunerado</a>. Ouvidoria: {SITE.instituicao.ouvidoria}.
+      </p>
+      <p>© {ano} {SITE.marcaCurta}. Todos os direitos reservados.</p>
+    </div>
+  </div>
+</footer>

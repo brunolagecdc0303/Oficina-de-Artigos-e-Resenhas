@@ -1,0 +1,178 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="comprar-x-alugar" vigencia="custos de aquisição, manutenção e custo de oportunidade informados por você">
+  <form id="f" class="calc-painel" slot="entradas">
+    <p class="olho">O imóvel</p>
+    <label class="campo"><span>Valor do imóvel (R$)</span>
+      <input id="valor" type="number" value="1200000" min="0" step="10000" /></label>
+    <label class="campo"><span>Aluguel mensal de um imóvel equivalente (R$)</span>
+      <input id="aluguel" type="number" value="4800" min="0" step="100" />
+      <span class="ajuda">Não chute: procure o mesmo padrão, no mesmo bairro, hoje.</span></label>
+    <label class="campo"><span>Horizonte da análise (anos)</span>
+      <input id="anos" type="number" value="10" min="1" max="40" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">O financiamento</p>
+    <label class="campo"><span>Entrada (R$)</span>
+      <input id="entrada" type="number" value="400000" min="0" step="10000" /></label>
+    <label class="campo"><span>Juros do financiamento (% ao ano)</span>
+      <input id="jurosFin" type="number" value="11" step="0.25" /></label>
+    <label class="campo"><span>Prazo do financiamento (anos)</span>
+      <input id="prazoFin" type="number" value="30" min="1" max="35" /></label>
+    <fieldset style="border:0;padding:0;margin:0 0 1.1rem">
+      <legend class="sr">Sistema de amortização</legend>
+      <div class="escolhas" style="grid-template-columns:1fr 1fr">
+        <label class="escolha"><input type="radio" name="sistema" value="price" checked /><span><b>Price</b><small>Parcela fixa</small></span></label>
+        <label class="escolha"><input type="radio" name="sistema" value="sac" /><span><b>SAC</b><small>Parcela decrescente</small></span></label>
+      </div>
+    </fieldset>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Os custos que o anúncio não mostra</p>
+    <label class="campo"><span>ITBI + cartório + registro (% do valor)</span>
+      <input id="aquisicao" type="number" value="4" step="0.1" /></label>
+    <label class="campo"><span>IPTU anual (R$)</span>
+      <input id="iptu" type="number" value="4800" min="0" step="100" /></label>
+    <label class="escolha" style="margin-bottom:1.1rem">
+      <input id="iptuInquilino" type="checkbox" checked />
+      <span><b>No aluguel, o IPTU é por minha conta</b><small>É o mais comum nos contratos residenciais</small></span>
+    </label>
+    <label class="campo"><span>Manutenção anual (% do valor do imóvel)</span>
+      <input id="manutencao" type="number" value="1" step="0.1" />
+      <span class="ajuda">Reforma, pintura, infiltração, eletrodoméstico embutido. Um por cento ao ano é a referência conservadora.</span></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Premissas de mercado</p>
+    <label class="campo"><span>Valorização do imóvel (% ao ano)</span>
+      <input id="valorizacao" type="number" value="5" step="0.25" /></label>
+    <label class="campo"><span>Reajuste do aluguel (% ao ano)</span>
+      <input id="reajuste" type="number" value="4.5" step="0.25" /></label>
+    <label class="campo"><span>Retorno dos investimentos, líquido de IR (% ao ano)</span>
+      <input id="retorno" type="number" value="9" step="0.25" />
+      <span class="ajuda">É aqui que a conta vira. Este é o custo de oportunidade da entrada.</span></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo" id="r-rotulo">Diferença de patrimônio no fim do período</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="g-evolucao" style="margin:1.25rem 0"></div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { tabelaAmortizacao, anualParaMensal, moeda, percentual } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras, escolhido, marcado, grafico } from "../../lib/ui.js";
+
+  function calcular() {
+    const valor = num("valor");
+    const aluguel0 = num("aluguel");
+    const anos = Math.max(1, num("anos", 10));
+    const meses = anos * 12;
+    const entrada = Math.min(num("entrada"), valor);
+    const custoAquisicao = valor * pct("aquisicao", 0.04);
+    const financiado = Math.max(0, valor - entrada);
+    const jurosMes = anualParaMensal(pct("jurosFin", 0.11));
+    const prazoMeses = Math.max(1, num("prazoFin", 30) * 12);
+    const sistema = escolhido("sistema") ?? "price";
+    const iptuMes = num("iptu") / 12;
+    const iptuNoAluguel = marcado("iptuInquilino");
+    const manutMes = (valor * pct("manutencao", 0.01)) / 12;
+    const valorizMes = anualParaMensal(pct("valorizacao", 0.05));
+    const reajusteMes = anualParaMensal(pct("reajuste", 0.045));
+    const retornoMes = anualParaMensal(pct("retorno", 0.09));
+
+    const { parcelas } = tabelaAmortizacao(financiado, jurosMes, prazoMeses, sistema);
+
+    // Quem compra: desembolsa entrada + custos hoje; fica com o imóvel.
+    // Quem aluga: investe esse mesmo dinheiro e a diferença mensal de custo.
+    let carteira = entrada + custoAquisicao;
+    let imovel = valor;
+    let saldoDevedor = financiado;
+    let aluguel = aluguel0;
+    let jurosPagos = 0, aluguelPago = 0, custosPagos = 0;
+    const serieComprar = [entrada + custoAquisicao - custoAquisicao];
+    const serieAlugar = [entrada + custoAquisicao];
+
+    for (let m = 1; m <= meses; m++) {
+      const p = parcelas[m - 1];
+      const parcela = p ? p.parcela : 0;
+      if (p) { jurosPagos += p.juros; saldoDevedor = p.saldo; }
+
+      const custoDono = parcela + iptuMes + manutMes;
+      const custoInquilino = aluguel + (iptuNoAluguel ? iptuMes : 0);
+      custosPagos += iptuMes + manutMes;
+      aluguelPago += aluguel;
+
+      carteira = carteira * (1 + retornoMes) + (custoDono - custoInquilino);
+      imovel *= 1 + valorizMes;
+      aluguel *= 1 + reajusteMes;
+
+      if (m % 12 === 0) {
+        serieComprar.push(imovel - saldoDevedor);
+        serieAlugar.push(Math.max(0, carteira));
+      }
+    }
+
+    const patrimonioComprar = imovel - saldoDevedor;
+    const patrimonioAlugar = carteira;
+    const diferenca = patrimonioComprar - patrimonioAlugar;
+    const comprarGanha = diferenca > 0;
+
+    definir("r-valor", moeda(Math.abs(diferenca)));
+    definir("r-rotulo", `Diferença de patrimônio em ${anos} anos`);
+    definir(
+      "r-frase",
+      comprarGanha
+        ? `Comprar sai na frente por ${moeda(diferenca)}. Vale lembrar que essa vantagem está presa em tijolo: para virar dinheiro, o imóvel precisa ser vendido, com corretagem e imposto sobre o ganho.`
+        : `Alugar sai na frente por ${moeda(-diferenca)}, porque a entrada de ${moeda(entrada)} rendeu mais do que o imóvel valorizou, e ${moeda(jurosPagos)} foram embora só em juros. Se a valorização passar de ${percentual(descobrirEmpate(), 2)} ao ano, a conta inverte.`
+    );
+
+    function descobrirEmpate() {
+      // Busca binária na valorização que iguala os dois patrimônios.
+      let baixo = 0, alto = 0.3;
+      for (let i = 0; i < 40; i++) {
+        const meio = (baixo + alto) / 2;
+        const vm = anualParaMensal(meio);
+        let im = valor, sd = financiado, cart = entrada + custoAquisicao, alg = aluguel0;
+        for (let m = 1; m <= meses; m++) {
+          const p = parcelas[m - 1];
+          const parc = p ? p.parcela : 0;
+          if (p) sd = p.saldo;
+          cart = cart * (1 + retornoMes) + (parc + iptuMes + manutMes - alg - (iptuNoAluguel ? iptuMes : 0));
+          im *= 1 + vm;
+          alg *= 1 + reajusteMes;
+        }
+        if (im - sd - cart > 0) alto = meio; else baixo = meio;
+      }
+      return (baixo + alto) / 2;
+    }
+
+    barras("r-barras", [
+      { rotulo: "Comprando", valor: patrimonioComprar, texto: moeda(patrimonioComprar), tom: comprarGanha ? "ok" : "" },
+      { rotulo: "Alugando e investindo", valor: patrimonioAlugar, texto: moeda(patrimonioAlugar), tom: comprarGanha ? "" : "ok" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Custo de aquisição (ITBI, cartório, registro)", valor: moeda(custoAquisicao), destaque: true },
+      { rotulo: `Juros pagos ao banco em ${anos} anos`, valor: moeda(jurosPagos), destaque: true },
+      { rotulo: "IPTU e manutenção no período", valor: moeda(custosPagos) },
+      { rotulo: "Aluguel pago no período", valor: moeda(aluguelPago) },
+      { rotulo: "Valor do imóvel no fim", valor: moeda(imovel) },
+      { rotulo: "Saldo devedor no fim", valor: moeda(saldoDevedor) },
+      { rotulo: "Valorização anual que empata a disputa", valor: percentual(descobrirEmpate(), 2), total: true },
+    ]);
+
+    grafico("g-evolucao", [
+      { nome: "Comprando", cor: "var(--accent)", pontos: serieComprar },
+      { nome: "Alugando e investindo", cor: "var(--sinal)", pontos: serieAlugar },
+    ], moeda);
+  }
+
+  ligar("f", calcular);
+</script>

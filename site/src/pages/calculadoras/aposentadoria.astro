@@ -1,0 +1,149 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="aposentadoria" vigencia="juro real informado por você, sem imposto sobre a retirada">
+  <form id="f" class="calc-painel" slot="entradas">
+    <fieldset style="border:0;padding:0;margin:0 0 1.5rem">
+      <legend class="olho" style="padding:0">O que você quer saber</legend>
+      <div class="escolhas">
+        <label class="escolha">
+          <input type="radio" name="modo" value="acumular" checked />
+          <span><b>Quanto falta para eu parar</b><small>Fase de acumulação</small></span>
+        </label>
+        <label class="escolha">
+          <input type="radio" name="modo" value="sacar" checked={false} />
+          <span><b>Quanto posso sacar sem quebrar</b><small>Fase de desacumulação — a conta que quase ninguém faz</small></span>
+        </label>
+      </div>
+    </fieldset>
+
+    <label class="campo"><span>Patrimônio investido hoje (R$)</span>
+      <input id="patrimonio" type="number" value="1500000" min="0" step="10000" /></label>
+
+    <div data-quando="acumular" data-grupo="modo">
+      <label class="campo"><span>Aporte mensal (R$)</span>
+        <input id="aporte" type="number" value="15000" min="0" step="500" /></label>
+      <label class="campo"><span>Anos até parar</span>
+        <input id="anosAte" type="number" value="15" min="1" max="60" /></label>
+      <label class="campo"><span>Renda mensal desejada, em valores de hoje (R$)</span>
+        <input id="rendaDesejada" type="number" value="40000" min="0" step="1000" /></label>
+    </div>
+
+    <div data-quando="sacar" data-grupo="modo" class="oculto">
+      <label class="campo"><span>Por quantos anos a renda precisa durar</span>
+        <input id="anosRenda" type="number" value="35" min="1" max="70" />
+        <span class="ajuda">Conte com folga. Planejar até os 90 anos é conservador, não pessimista.</span></label>
+    </div>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Premissas — edite à vontade</p>
+
+    <label class="campo"><span>Retorno nominal esperado (% ao ano)</span>
+      <input id="retorno" type="number" value="10" step="0.25" /></label>
+    <label class="campo"><span>Inflação esperada (% ao ano)</span>
+      <input id="inflacao" type="number" value="4.5" step="0.25" />
+      <span class="ajuda">O cálculo roda em juro real. Sua renda futura já está em poder de compra de hoje.</span></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo" id="r-rotulo">Sua renda vitalícia estimada</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="g-evolucao" style="margin:1.25rem 0"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { valorFuturo, aporteNecessario, retiradaSustentavel, retiradaPerpetua,
+           taxaReal, anualParaMensal, moeda, percentual } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, escolhido, alternar, grafico } from "../../lib/ui.js";
+
+  function calcular() {
+    alternar("modo");
+    const modo = escolhido("modo");
+    const patrimonio = num("patrimonio");
+    const real = taxaReal(pct("retorno", 0.1), pct("inflacao", 0.045));
+    const realMensal = anualParaMensal(real);
+
+    if (modo === "acumular") {
+      const aporte = num("aporte");
+      const anos = Math.max(1, num("anosAte", 15));
+      const meses = anos * 12;
+      const desejada = num("rendaDesejada");
+
+      const projetado = valorFuturo(patrimonio, realMensal, meses, aporte);
+      // Capital necessário para sustentar a renda desejada por 35 anos.
+      const anosRenda = 35;
+      const necessario = desejada / (retiradaSustentavel(1, realMensal, anosRenda * 12));
+      const falta = necessario - projetado;
+      const aporteIdeal = aporteNecessario(patrimonio, necessario, realMensal, meses);
+      const rendaProjetada = retiradaSustentavel(projetado, realMensal, anosRenda * 12);
+
+      definir("r-rotulo", `Seu patrimônio em ${anos} anos, em valores de hoje`);
+      definir("r-valor", moeda(projetado));
+      definir(
+        "r-frase",
+        falta <= 0
+          ? `Isso sustenta ${moeda(rendaProjetada)} por mês durante ${anosRenda} anos — acima dos ${moeda(desejada)} que você quer. Você já está no caminho; a pergunta passa a ser o que fazer com a folga.`
+          : `Isso sustenta ${moeda(rendaProjetada)} por mês durante ${anosRenda} anos. Você quer ${moeda(desejada)}. Faltam ${moeda(falta)} de patrimônio, ou ${moeda(Math.max(0, aporteIdeal))} de aporte mensal no lugar dos ${moeda(aporte)} atuais.`
+      );
+
+      linhas("r-linhas", [
+        { rotulo: "Juro real usado no cálculo", valor: percentual(real, 2) },
+        { rotulo: "Aporte mensal atual", valor: moeda(aporte) },
+        { rotulo: "Aporte mensal para a meta", valor: moeda(Math.max(0, aporteIdeal)), destaque: aporteIdeal > aporte },
+        { rotulo: `Capital para sacar ${moeda(desejada)}/mês por ${anosRenda} anos`, valor: moeda(necessario) },
+        { rotulo: falta > 0 ? "Falta" : "Folga", valor: moeda(Math.abs(falta)), total: true, destaque: falta > 0 },
+      ]);
+
+      const serieAtual = [], serieMeta = [];
+      for (let a = 0; a <= anos; a++) {
+        serieAtual.push(valorFuturo(patrimonio, realMensal, a * 12, aporte));
+        serieMeta.push(valorFuturo(patrimonio, realMensal, a * 12, Math.max(0, aporteIdeal)));
+      }
+      grafico("g-evolucao", [
+        { nome: "No ritmo atual", cor: "var(--accent)", pontos: serieAtual },
+        { nome: "Para bater a meta", cor: "var(--sinal)", pontos: serieMeta },
+      ], moeda);
+    } else {
+      const anosRenda = Math.max(1, num("anosRenda", 35));
+      const sustentavel = retiradaSustentavel(patrimonio, realMensal, anosRenda * 12);
+      const perpetua = retiradaPerpetua(patrimonio, realMensal);
+
+      definir("r-rotulo", `Retirada mensal por ${anosRenda} anos`);
+      definir("r-valor", moeda(sustentavel));
+      definir(
+        "r-frase",
+        `Em valores de hoje, corrigidos pela inflação todo ano. Sacando ${moeda(perpetua)} por mês você nunca toca no principal — o patrimônio atravessa gerações. A diferença entre os dois números é o preço de gastar o principal.`
+      );
+
+      linhas("r-linhas", [
+        { rotulo: "Juro real usado no cálculo", valor: percentual(real, 2) },
+        { rotulo: "Retirada que esgota o patrimônio no prazo", valor: moeda(sustentavel) },
+        { rotulo: "Retirada perpétua (nunca toca no principal)", valor: moeda(perpetua) },
+        { rotulo: "Equivalente anual da retirada sustentável", valor: moeda(sustentavel * 12) },
+        { rotulo: "Taxa de retirada sobre o patrimônio", valor: percentual((sustentavel * 12) / patrimonio, 2), total: true },
+      ]);
+
+      const serie = [], seriePerp = [];
+      let saldo = patrimonio, saldoP = patrimonio;
+      for (let a = 0; a <= anosRenda; a++) {
+        serie.push(Math.max(0, saldo));
+        seriePerp.push(saldoP);
+        for (let m = 0; m < 12; m++) {
+          saldo = saldo * (1 + realMensal) - sustentavel;
+          saldoP = saldoP * (1 + realMensal) - perpetua;
+        }
+      }
+      grafico("g-evolucao", [
+        { nome: "Retirada sustentável", cor: "var(--accent)", pontos: serie },
+        { nome: "Retirada perpétua", cor: "var(--sinal)", pontos: seriePerp },
+      ], moeda);
+    }
+  }
+
+  ligar("f", calcular);
+</script>

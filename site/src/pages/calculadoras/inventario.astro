@@ -1,0 +1,126 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+import { ITCMD_ESTADOS, VIGENCIA } from "../../lib/tabelas.js";
+---
+<Calculadora slug="inventario" vigencia={VIGENCIA.itcmd}>
+  <form id="f" class="calc-painel" slot="entradas">
+    <label class="campo"><span>Patrimônio a inventariar (R$)</span>
+      <input id="patrimonio" type="number" value="8000000" min="0" step="100000" />
+      <span class="ajuda">Imóveis, participações societárias, investimentos, veículos. Tudo que está no seu nome.</span></label>
+
+    <label class="campo"><span>Estado do inventário</span>
+      <select id="uf">
+        {ITCMD_ESTADOS.map((e) => (
+          <option value={e.uf} data-aliquota={e.aliquota} selected={e.uf === "MG"}>{e.nome}</option>
+        ))}
+      </select>
+      <span class="ajuda">O ITCMD é imposto estadual. O estado do imóvel manda sobre os imóveis; o do domicílio, sobre o resto.</span></label>
+
+    <label class="campo"><span>Alíquota de ITCMD (%)</span>
+      <input id="aliquota" type="number" value="5" step="0.5" min="0" max="8" />
+      <span class="ajuda">Preenchida com a referência do estado. A EC 132/2023 tornou a progressividade obrigatória e vários estados estão revendo a própria lei — confirme a vigente.</span></label>
+
+    <fieldset style="border:0;padding:0;margin:0 0 1.1rem">
+      <legend class="olho" style="padding:0">Via do inventário</legend>
+      <div class="escolhas">
+        <label class="escolha"><input type="radio" name="via" value="extrajudicial" checked />
+          <span><b>Extrajudicial, em cartório</b><small>Só com herdeiros maiores, capazes e de acordo, e sem testamento</small></span></label>
+        <label class="escolha"><input type="radio" name="via" value="judicial" />
+          <span><b>Judicial</b><small>Obrigatório se houver menor, incapaz, testamento ou qualquer discordância</small></span></label>
+      </div>
+    </fieldset>
+
+    <label class="campo"><span>Honorários advocatícios (% do espólio)</span>
+      <input id="honorarios" type="number" value="6" step="0.5" />
+      <span class="ajuda">Costuma variar de 4% a 10%, conforme a complexidade e a via.</span></label>
+    <label class="campo"><span>Custas, cartório e certidões (% do espólio)</span>
+      <input id="custas" type="number" value="1.5" step="0.1" /></label>
+    <label class="campo"><span>Prazo estimado até a partilha (meses)</span>
+      <input id="prazo" type="number" value="4" min="1" max="120" /></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo">Custo total do inventário</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+
+  <section class="secao secao-linha" slot="depois">
+    <div class="wrap wrap-estreito">
+      <h2>O que essa conta não mostra</h2>
+      <p>
+        O número acima é o custo. O problema costuma ser outro: o <strong>prazo</strong>.
+        Até a partilha sair, os bens ficam indisponíveis — não se vende o imóvel,
+        não se movimenta a conta, e a empresa segue sem quem assine por ela. O
+        ITCMD, na maioria dos estados, tem prazo curto para ser pago sob pena de
+        multa, e vence <em>antes</em> de a família ter acesso ao dinheiro que está
+        sendo inventariado.
+      </p>
+      <p>
+        Por isso a pergunta que importa não é quanto custa. É de onde sai o
+        dinheiro para pagar. <a href="/calculadoras/liquidez-sucessoria">A calculadora de liquidez sucessória</a>
+        responde essa.
+      </p>
+    </div>
+  </section>
+</Calculadora>
+
+<script>
+  import { moeda, percentual, anosEMeses } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras, escolhido } from "../../lib/ui.js";
+
+  const seletorUf = document.getElementById("uf");
+  const campoAliquota = document.getElementById("aliquota");
+  const campoPrazo = document.getElementById("prazo");
+
+  seletorUf?.addEventListener("change", () => {
+    const op = seletorUf.selectedOptions[0];
+    if (op?.dataset.aliquota) campoAliquota.value = (Number(op.dataset.aliquota) * 100).toString();
+  });
+
+  document.querySelectorAll('input[name="via"]').forEach((r) =>
+    r.addEventListener("change", () => {
+      campoPrazo.value = escolhido("via") === "judicial" ? "30" : "4";
+    })
+  );
+
+  function calcular() {
+    const patrimonio = num("patrimonio");
+    const itcmd = patrimonio * pct("aliquota", 0.05);
+    const honorarios = patrimonio * pct("honorarios", 0.06);
+    const custas = patrimonio * pct("custas", 0.015);
+    const total = itcmd + honorarios + custas;
+    const prazo = num("prazo", 4);
+    const via = escolhido("via") ?? "extrajudicial";
+
+    definir("r-valor", moeda(total));
+    definir(
+      "r-frase",
+      `São ${percentual(total / patrimonio, 1)} do patrimônio, em dinheiro, para a família receber o que já é dela. ` +
+        `Pela via ${via === "judicial" ? "judicial" : "extrajudicial"}, a estimativa é de ${anosEMeses(prazo)} até a partilha — ` +
+        `e nesse intervalo os bens ficam indisponíveis.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "ITCMD", valor: itcmd, texto: moeda(itcmd), tom: "alt" },
+      { rotulo: "Honorários advocatícios", valor: honorarios, texto: moeda(honorarios) },
+      { rotulo: "Custas e cartório", valor: custas, texto: moeda(custas) },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Patrimônio a inventariar", valor: moeda(patrimonio) },
+      { rotulo: "ITCMD", valor: moeda(itcmd), destaque: true },
+      { rotulo: "Honorários advocatícios", valor: moeda(honorarios) },
+      { rotulo: "Custas, cartório e certidões", valor: moeda(custas) },
+      { rotulo: "Custo total", valor: moeda(total), total: true, destaque: true },
+      { rotulo: "Percentual do patrimônio", valor: percentual(total / patrimonio, 2), total: true },
+      { rotulo: "Patrimônio líquido que chega aos herdeiros", valor: moeda(patrimonio - total), total: true },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>

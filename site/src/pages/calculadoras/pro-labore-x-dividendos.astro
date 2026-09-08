@@ -1,0 +1,154 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+import { DIVIDENDOS } from "../../lib/tabelas.js";
+---
+<Calculadora slug="pro-labore-x-dividendos" vigencia="tabelas de referência editáveis nesta tela — confirme com seu contador">
+  <form id="f" class="calc-painel" slot="entradas">
+    <p class="olho">A empresa</p>
+    <label class="campo"><span>Faturamento mensal (R$)</span>
+      <input id="faturamento" type="number" value="200000" min="0" step="5000" /></label>
+    <label class="campo"><span>Despesas mensais da PJ, fora sua remuneração (R$)</span>
+      <input id="despesas" type="number" value="60000" min="0" step="5000" /></label>
+
+    <fieldset style="border:0;padding:0;margin:1.5rem 0 1.1rem">
+      <legend class="olho" style="padding:0">Regime tributário</legend>
+      <div class="escolhas">
+        <label class="escolha"><input type="radio" name="regime" value="presumido" checked />
+          <span><b>Lucro Presumido — serviços</b><small>Presunção de 32%, com IRPJ, CSLL, PIS, COFINS e ISS</small></span></label>
+        <label class="escolha"><input type="radio" name="regime" value="simples" />
+          <span><b>Simples Nacional</b><small>Você informa a alíquota efetiva do seu anexo</small></span></label>
+      </div>
+    </fieldset>
+
+    <div data-quando="simples" data-grupo="regime" class="oculto">
+      <label class="campo"><span>Alíquota efetiva do Simples (%)</span>
+        <input id="aliqSimples" type="number" value="15.5" step="0.1" />
+        <span class="ajuda">Sai do seu PGDAS. Varia com o anexo, o faturamento dos últimos 12 meses e o fator R.</span></label>
+    </div>
+    <div data-quando="presumido" data-grupo="regime">
+      <label class="campo"><span>ISS do seu município (%)</span>
+        <input id="iss" type="number" value="5" step="0.5" /></label>
+    </div>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Sua retirada</p>
+    <label class="campo"><span>Pró-labore mensal (R$)</span>
+      <input id="proLabore" type="number" value="10000" min="0" step="1000" />
+      <span class="ajuda">Zero não é opção: a lei exige pró-labore compatível quando há trabalho do sócio. Além disso é ele que gera INSS, e sem INSS não há aposentadoria nem auxílio.</span></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Tributação de dividendos</p>
+    <label class="campo"><span>Alíquota sobre dividendos (%)</span>
+      <input id="aliqDiv" type="number" value="10" step="0.5" /></label>
+    <label class="campo"><span>Isenção mensal de dividendos (R$)</span>
+      <input id="isencaoDiv" type="number" value="50000" min="0" step="5000" />
+      <span class="ajuda">{DIVIDENDOS.nota}</span></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo">Quanto sobra no seu bolso, por mês</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="g-curva" style="margin:1.25rem 0"></div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { irpfMensal, moeda, percentual } from "../../lib/financas.js";
+  import { IRPF_MENSAL, INSS, PJ_PRESUMIDO } from "../../lib/tabelas.js";
+  import { num, pct, ligar, definir, linhas, barras, escolhido, alternar, grafico } from "../../lib/ui.js";
+
+  /** Devolve a foto completa dos tributos para um dado pró-labore. */
+  function cenario(proLabore) {
+    const faturamento = num("faturamento");
+    const despesas = num("despesas");
+    const regime = escolhido("regime") ?? "presumido";
+
+    let tributosPj;
+    if (regime === "simples") {
+      tributosPj = faturamento * pct("aliqSimples", 0.155);
+    } else {
+      const basePresumida = faturamento * PJ_PRESUMIDO.presuncaoServicos;
+      const irpj =
+        basePresumida * PJ_PRESUMIDO.irpj +
+        Math.max(0, basePresumida - PJ_PRESUMIDO.limiteAdicionalMensal) * PJ_PRESUMIDO.adicionalIrpj;
+      const csll = basePresumida * PJ_PRESUMIDO.csll;
+      const pisCofins = faturamento * (PJ_PRESUMIDO.pis + PJ_PRESUMIDO.cofins);
+      const iss = faturamento * pct("iss", 0.05);
+      tributosPj = irpj + csll + pisCofins + iss;
+    }
+
+    // No Simples (anexos com fator R) a CPP já está na alíquota efetiva.
+    const inssPatronal = regime === "simples" ? 0 : proLabore * 0.2;
+    const inssEmpregado = Math.min(proLabore, INSS.teto) * INSS.aliquotaProLabore;
+    const irpf = irpfMensal(Math.max(0, proLabore - inssEmpregado), IRPF_MENSAL);
+
+    const lucroDistribuivel = Math.max(
+      0,
+      faturamento - despesas - tributosPj - proLabore - inssPatronal
+    );
+    const baseDiv = Math.max(0, lucroDistribuivel - num("isencaoDiv", 50000));
+    const irDividendos = baseDiv * pct("aliqDiv", 0.1);
+
+    const liquido = proLabore - inssEmpregado - irpf + lucroDistribuivel - irDividendos;
+    const cargaTotal = tributosPj + inssPatronal + inssEmpregado + irpf + irDividendos;
+
+    return {
+      proLabore, tributosPj, inssPatronal, inssEmpregado, irpf,
+      lucroDistribuivel, irDividendos, liquido, cargaTotal,
+    };
+  }
+
+  function calcular() {
+    alternar("regime");
+    const atual = cenario(num("proLabore"));
+    const faturamento = num("faturamento");
+
+    // Varre o pró-labore em passos de R$ 500 e acha o que deixa mais no bolso.
+    const passo = 500;
+    const teto = Math.max(passo, Math.floor((faturamento - num("despesas")) / passo) * passo);
+    let melhor = atual;
+    const curvaLiquido = [];
+    for (let p = 0; p <= teto; p += passo) {
+      const c = cenario(p);
+      if (p % (passo * 4) === 0) curvaLiquido.push(c.liquido);
+      if (c.liquido > melhor.liquido) melhor = c;
+    }
+    const ganho = melhor.liquido - atual.liquido;
+
+    definir("r-valor", moeda(atual.liquido));
+    definir(
+      "r-frase",
+      ganho > 50
+        ? `Com pró-labore de ${moeda(melhor.proLabore)} no lugar de ${moeda(atual.proLabore)}, sobrariam ${moeda(melhor.liquido)} — ${moeda(ganho)} a mais por mês, ${moeda(ganho * 12)} por ano. Antes de mudar, converse com seu contador: pró-labore menor significa INSS menor, e INSS menor significa benefício previdenciário menor.`
+        : `Seu pró-labore já está perto do ponto ótimo desta configuração. A carga tributária total é de ${percentual(atual.cargaTotal / faturamento, 1)} do faturamento.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Sobra no seu bolso", valor: atual.liquido, texto: moeda(atual.liquido), tom: "ok" },
+      { rotulo: "Tributos totais", valor: atual.cargaTotal, texto: moeda(atual.cargaTotal), tom: "alt" },
+      { rotulo: "Despesas da empresa", valor: num("despesas"), texto: moeda(num("despesas")) },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Tributos da PJ sobre o faturamento", valor: moeda(atual.tributosPj), destaque: true },
+      { rotulo: "INSS patronal sobre o pró-labore", valor: moeda(atual.inssPatronal) },
+      { rotulo: "INSS do sócio", valor: moeda(atual.inssEmpregado) },
+      { rotulo: "IRPF sobre o pró-labore", valor: moeda(atual.irpf) },
+      { rotulo: "Lucro distribuível", valor: moeda(atual.lucroDistribuivel) },
+      { rotulo: "IR sobre dividendos", valor: moeda(atual.irDividendos), destaque: atual.irDividendos > 0 },
+      { rotulo: "Carga tributária total", valor: moeda(atual.cargaTotal), total: true, destaque: true },
+      { rotulo: "Carga sobre o faturamento", valor: percentual(atual.cargaTotal / faturamento, 1), total: true },
+      { rotulo: "Pró-labore que maximiza o líquido", valor: moeda(melhor.proLabore), total: true },
+      { rotulo: "Ganho anual de mudar para ele", valor: moeda(Math.max(0, ganho) * 12), total: true },
+    ]);
+
+    grafico("g-curva", [{ nome: "Líquido no seu bolso por pró-labore", cor: "var(--accent)", pontos: curvaLiquido }], moeda);
+  }
+
+  ligar("f", calcular);
+</script>

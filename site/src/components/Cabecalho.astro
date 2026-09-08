@@ -1,0 +1,72 @@
+---
+import { SITE } from "../lib/site.js";
+
+const rota = Astro.url.pathname.replace(/\/$/, "") || "/";
+const links = [
+  { href: "/como-trabalho", texto: "Como eu trabalho" },
+  { href: "/para-quem", texto: "Para quem" },
+  { href: "/calculadoras", texto: "Calculadoras" },
+  { href: "/artigos", texto: "Artigos" },
+  { href: "/remuneracao", texto: "Remuneração" },
+];
+const ativo = (href) => (rota === href || rota.startsWith(href + "/") ? "page" : undefined);
+---
+<header class="cabecalho">
+  <div class="wrap cabecalho-int">
+    <a class="marca" href="/">
+      {SITE.marcaCurta}
+      <small>Assessor de Investimento</small>
+    </a>
+
+    <nav class="nav" aria-label="Principal">
+      {links.map((l) => <a href={l.href} aria-current={ativo(l.href)}>{l.texto}</a>)}
+    </nav>
+
+    <div class="cabecalho-acoes">
+      <a class="btn btn-primario pequeno nao-imprime" href="/diagnostico">Fazer o diagnóstico</a>
+      <button class="icone-btn" id="btn-tema" type="button" aria-label="Alternar tema claro e escuro">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+        </svg>
+      </button>
+      <button class="icone-btn" id="btn-menu" type="button" aria-label="Abrir menu" aria-expanded="false" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M3 6h18M3 12h18M3 18h18" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="menu-movel" id="menu-movel">
+    <div class="wrap">
+      {links.map((l) => <a href={l.href}>{l.texto}</a>)}
+      <a href="/diagnostico">Fazer o diagnóstico</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const btnTema = document.getElementById("btn-tema");
+  btnTema?.addEventListener("click", () => {
+    const atual = document.documentElement.dataset.tema === "escuro" ? "claro" : "escuro";
+    document.documentElement.dataset.tema = atual;
+    try { localStorage.setItem("tema", atual); } catch {}
+  });
+
+  const btnMenu = document.getElementById("btn-menu");
+  const menu = document.getElementById("menu-movel");
+  if (btnMenu && menu) {
+    const mq = window.matchMedia("(max-width: 999px)");
+    const sincroniza = () => {
+      btnMenu.style.display = mq.matches ? "grid" : "none";
+      if (!mq.matches) { delete menu.dataset.aberto; btnMenu.setAttribute("aria-expanded", "false"); }
+    };
+    sincroniza();
+    mq.addEventListener("change", sincroniza);
+    btnMenu.addEventListener("click", () => {
+      const aberto = menu.hasAttribute("data-aberto");
+      if (aberto) menu.removeAttribute("data-aberto"); else menu.setAttribute("data-aberto", "");
+      btnMenu.setAttribute("aria-expanded", String(!aberto));
+    });
+  }
+</script>

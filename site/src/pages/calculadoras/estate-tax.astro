@@ -1,0 +1,100 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+import { VIGENCIA } from "../../lib/tabelas.js";
+---
+<Calculadora slug="estate-tax" vigencia={VIGENCIA.estateTax}>
+  <form id="f" class="calc-painel" slot="entradas">
+    <label class="campo"><span>Ações e ETFs americanos, em conta direta (US$)</span>
+      <input id="acoes" type="number" value="900000" min="0" step="10000" />
+      <span class="ajuda">Papéis de empresas dos EUA e ETFs domiciliados nos EUA são <em>US situs assets</em>, mesmo que a corretora seja estrangeira.</span></label>
+    <label class="campo"><span>Imóveis nos Estados Unidos (US$)</span>
+      <input id="imoveis" type="number" value="0" min="0" step="10000" /></label>
+    <label class="campo"><span>Outros ativos americanos (US$)</span>
+      <input id="outros" type="number" value="0" min="0" step="10000" />
+      <span class="ajuda">Participações em empresas americanas, por exemplo.</span></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">O que normalmente fica fora</p>
+    <label class="campo"><span>Ativos que você acredita estarem fora do alcance (US$)</span>
+      <input id="fora" type="number" value="0" min="0" step="10000" />
+      <span class="ajuda">Depósitos bancários não vinculados a negócio nos EUA, títulos com <em>portfolio interest</em>, ETFs domiciliados na Irlanda e estruturas offshore costumam ficar fora — mas isso depende de análise caso a caso.</span></label>
+
+    <hr style="margin:1.5rem 0" />
+    <label class="campo"><span>Câmbio para conversão (R$/US$)</span>
+      <input id="cambio" type="number" value="5.40" step="0.05" /></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo">Imposto estimado nos Estados Unidos</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+
+  <section class="secao secao-linha" slot="depois">
+    <div class="wrap wrap-estreito">
+      <h2>Por que quase ninguém sabe disso</h2>
+      <p>
+        Um residente americano tem uma isenção de estate tax na casa dos milhões
+        de dólares. Um não residente — você — tem <strong>US$ 60 mil</strong>. O
+        que passa disso entra numa tabela progressiva que chega a 40%.
+      </p>
+      <p>
+        O Brasil não tem tratado com os Estados Unidos para evitar bitributação
+        sobre herança, e o imposto americano é devido antes de a corretora
+        liberar os ativos para os herdeiros. Na prática, a família descobre a
+        conta no pior momento — e descobre pela corretora, não pelo assessor.
+      </p>
+      <p>
+        Existem caminhos conhecidos para reduzir ou eliminar essa exposição, e
+        todos exigem decisão em vida, não depois. Nenhum deles é assunto de
+        calculadora: é assunto de estrutura, e envolve advogado.
+      </p>
+    </div>
+  </section>
+</Calculadora>
+
+<script>
+  import { impostoProgressivo, dolar, moeda, percentual } from "../../lib/financas.js";
+  import { ESTATE_TAX_EUA } from "../../lib/tabelas.js";
+  import { num, ligar, definir, linhas, barras } from "../../lib/ui.js";
+
+  function calcular() {
+    const expostos = num("acoes") + num("imoveis") + num("outros");
+    const fora = num("fora");
+    const cambio = num("cambio", 5.4);
+
+    const bruto = impostoProgressivo(expostos, ESTATE_TAX_EUA.faixas);
+    const imposto = Math.max(0, bruto - ESTATE_TAX_EUA.creditoUnificado);
+    const efetiva = expostos > 0 ? imposto / expostos : 0;
+
+    definir("r-valor", dolar(imposto));
+    definir(
+      "r-frase",
+      expostos <= ESTATE_TAX_EUA.isencaoNaoResidente
+        ? `Abaixo da isenção de US$ 60 mil para não residentes, não há imposto a pagar. Revise esta conta a cada aporte — a isenção não sobe com o tempo.`
+        : `Equivale a ${moeda(imposto * cambio)} pelo câmbio de ${cambio.toFixed(2).replace(".", ",")}, ou ${percentual(efetiva, 1)} de tudo que você tem nos Estados Unidos. É devido nos EUA, em dólar, antes de a corretora liberar os ativos para os herdeiros — e além do ITCMD que o estado brasileiro vai cobrar sobre o mesmo patrimônio.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Fica com os herdeiros", valor: expostos - imposto, texto: dolar(expostos - imposto), tom: "ok" },
+      { rotulo: "Vai para o fisco americano", valor: imposto, texto: dolar(imposto), tom: "alt" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Ativos americanos expostos", valor: dolar(expostos) },
+      { rotulo: "Isenção para não residentes", valor: dolar(ESTATE_TAX_EUA.isencaoNaoResidente) },
+      { rotulo: "Imposto pela tabela progressiva", valor: dolar(bruto) },
+      { rotulo: "Crédito unificado do não residente", valor: `− ${dolar(ESTATE_TAX_EUA.creditoUnificado)}` },
+      { rotulo: "Imposto devido nos EUA", valor: dolar(imposto), total: true, destaque: true },
+      { rotulo: "Alíquota efetiva sobre os ativos expostos", valor: percentual(efetiva, 1), total: true },
+      { rotulo: "Equivalente em reais", valor: moeda(imposto * cambio), total: true },
+      fora > 0 && { rotulo: "Ativos que você marcou como fora do alcance", valor: dolar(fora), total: true },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>

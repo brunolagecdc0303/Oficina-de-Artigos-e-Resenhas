@@ -1,0 +1,109 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="caixa-parado" vigencia="CDI, inflação e alíquota de IR informados por você">
+  <form id="f" class="calc-painel" slot="entradas">
+    <p class="olho">Onde o dinheiro está</p>
+    <label class="campo"><span>Conta corrente, sem render nada (R$)</span>
+      <input id="contaCorrente" type="number" value="250000" min="0" step="10000" /></label>
+    <label class="campo"><span>Poupança (R$)</span>
+      <input id="poupanca" type="number" value="150000" min="0" step="10000" /></label>
+    <label class="campo"><span>Aplicações rendendo abaixo do CDI (R$)</span>
+      <input id="subCdi" type="number" value="400000" min="0" step="10000" /></label>
+    <label class="campo"><span>Quanto essas aplicações rendem (% do CDI)</span>
+      <input id="percCdi" type="number" value="80" step="1" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Quanto disso é reserva legítima</p>
+    <label class="campo"><span>Custo de vida mensal (R$)</span>
+      <input id="custoVida" type="number" value="45000" min="0" step="1000" /></label>
+    <label class="campo"><span>Meses de reserva que você quer manter</span>
+      <input id="mesesReserva" type="number" value="6" min="0" max="36" />
+      <span class="ajuda">Reserva de emergência não é caixa parado: é seguro. O que passa dela é que precisa de justificativa.</span></label>
+
+    <hr style="margin:1.5rem 0" />
+    <label class="campo"><span>CDI esperado (% ao ano)</span>
+      <input id="cdi" type="number" value="11" step="0.25" /></label>
+    <label class="campo"><span>Inflação esperada (% ao ano)</span>
+      <input id="inflacao" type="number" value="4.5" step="0.25" /></label>
+    <label class="campo"><span>Alíquota de IR aplicável (%)</span>
+      <input id="ir" type="number" value="17.5" step="0.5" /></label>
+    <label class="campo"><span>Horizonte (anos)</span>
+      <input id="anos" type="number" value="1" min="1" max="20" /></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo" id="r-rotulo">Custo do caixa parado</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { taxaReal, moeda, percentual } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras } from "../../lib/ui.js";
+
+  function calcular() {
+    const contaCorrente = num("contaCorrente");
+    const poupanca = num("poupanca");
+    const subCdi = num("subCdi");
+    const total = contaCorrente + poupanca + subCdi;
+    const anos = Math.max(1, num("anos", 1));
+
+    const cdi = pct("cdi", 0.11);
+    const ir = pct("ir", 0.175);
+    const inflacao = pct("inflacao", 0.045);
+    const cdiLiquido = cdi * (1 - ir);
+    const percCdi = pct("percCdi", 0.8);
+
+    const reserva = num("custoVida") * num("mesesReserva", 6);
+    const ocioso = Math.max(0, total - reserva);
+
+    // Poupança: aproximação de 70% da Selic quando a taxa está acima de 8,5% a.a.
+    const rendaPoupanca = 0.7 * cdi;
+    const parteCorrente = total > 0 ? contaCorrente / total : 0;
+    const partePoupanca = total > 0 ? poupanca / total : 0;
+    const parteSub = total > 0 ? subCdi / total : 0;
+    const rendimentoAtualPct =
+      parteCorrente * 0 + partePoupanca * rendaPoupanca + parteSub * (cdi * percCdi * (1 - ir));
+
+    const ganhoAtual = ocioso * (Math.pow(1 + rendimentoAtualPct, anos) - 1);
+    const ganhoPotencial = ocioso * (Math.pow(1 + cdiLiquido, anos) - 1);
+    const custo = ganhoPotencial - ganhoAtual;
+    const perdaInflacao = ocioso * (Math.pow(1 + inflacao, anos) - 1) - ganhoAtual;
+    const real = taxaReal(rendimentoAtualPct, inflacao);
+
+    definir("r-rotulo", `Custo em ${anos} ${anos === 1 ? "ano" : "anos"}`);
+    definir("r-valor", moeda(custo));
+    definir(
+      "r-frase",
+      ocioso <= 0
+        ? `Todo o caixa que você tem cabe dentro da reserva de ${moeda(reserva)} que você definiu. Não há dinheiro ocioso aqui — há seguro, e seguro tem preço.`
+        : `São ${moeda(ocioso)} acima da sua reserva de ${moeda(reserva)}. Rendendo ${percentual(rendimentoAtualPct, 2)} ao ano em vez dos ${percentual(cdiLiquido, 2)} do CDI líquido, você abre mão de ${moeda(custo)} no período. E, contra uma inflação de ${percentual(inflacao, 1)}, esse dinheiro perde ${moeda(perdaInflacao)} de poder de compra — o rendimento real é de ${percentual(real, 2)} ao ano.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Reserva justificada", valor: Math.min(total, reserva), texto: moeda(Math.min(total, reserva)), tom: "ok" },
+      { rotulo: "Caixa sem função definida", valor: ocioso, texto: moeda(ocioso), tom: "alt" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Total em caixa e baixo rendimento", valor: moeda(total) },
+      { rotulo: "Reserva de emergência definida", valor: moeda(reserva) },
+      { rotulo: "Caixa acima da reserva", valor: moeda(ocioso), destaque: ocioso > 0 },
+      { rotulo: "Rendimento médio atual", valor: percentual(rendimentoAtualPct, 2) },
+      { rotulo: "CDI líquido de IR", valor: percentual(cdiLiquido, 2) },
+      { rotulo: "Rendimento real, descontada a inflação", valor: percentual(real, 2), destaque: real < 0 },
+      { rotulo: `Rendimento no período, como está`, valor: moeda(ganhoAtual) },
+      { rotulo: "Rendimento no período, no CDI", valor: moeda(ganhoPotencial) },
+      { rotulo: "Custo de oportunidade", valor: moeda(custo), total: true, destaque: true },
+      { rotulo: "Perda de poder de compra", valor: moeda(perdaInflacao), total: true, destaque: perdaInflacao > 0 },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>

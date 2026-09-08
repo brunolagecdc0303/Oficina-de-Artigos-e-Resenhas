@@ -1,0 +1,89 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="reserva-empresario" vigencia="premissas de custo de vida e liquidez informadas por você">
+  <form id="f" class="calc-painel" slot="entradas">
+    <label class="campo"><span>Custo de vida mensal da família (R$)</span>
+      <input id="custoVida" type="number" value="45000" min="0" step="1000" />
+      <span class="ajuda">O real, não o que você acha. Some doze meses do extrato e divida por doze.</span></label>
+    <label class="campo"><span>Compromissos fixos mensais (R$)</span>
+      <input id="fixos" type="number" value="12000" min="0" step="1000" />
+      <span class="ajuda">Escola, financiamentos, plano de saúde, pensão. O que não dá para cortar em trinta dias.</span></label>
+    <label class="campo"><span>Renda mensal que não depende da empresa (R$)</span>
+      <input id="rendaIndep" type="number" value="8000" min="0" step="1000" />
+      <span class="ajuda">Aluguéis, salário do cônjuge, rendimentos de carteira. Distribuição de lucros não entra.</span></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">O que dá para acessar</p>
+    <label class="campo"><span>Liquidez imediata, em D+0 ou D+1 (R$)</span>
+      <input id="liquidez" type="number" value="300000" min="0" step="25000" /></label>
+    <label class="campo"><span>Investimentos resgatáveis em até 30 dias (R$)</span>
+      <input id="curtoPrazo" type="number" value="450000" min="0" step="25000" /></label>
+    <label class="campo"><span>Investimentos com carência ou baixa liquidez (R$)</span>
+      <input id="ilíquidos" type="number" value="2000000" min="0" step="100000" />
+      <span class="ajuda">Fundos fechados, previdência, imóveis, participações. Não contam na autonomia — contam no que você perderia vendendo às pressas.</span></label>
+    <label class="campo"><span>Deságio ao liquidar às pressas (%)</span>
+      <input id="desagio" type="number" value="20" step="1" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <label class="campo"><span>Meses de autonomia que você considera aceitável</span>
+      <input id="meta" type="number" value="12" min="1" max="60" /></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo">Sua autonomia sem a empresa</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { moeda, anosEMeses } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras } from "../../lib/ui.js";
+
+  function calcular() {
+    const queima = Math.max(0, num("custoVida") + num("fixos") - num("rendaIndep"));
+    const liquidez = num("liquidez");
+    const curtoPrazo = num("curtoPrazo");
+    const iliquidos = num("ilíquidos");
+    const desagio = pct("desagio", 0.2);
+    const meta = Math.max(1, num("meta", 12));
+
+    const disponivel = liquidez + curtoPrazo;
+    const meses = queima > 0 ? disponivel / queima : Infinity;
+    const necessario = queima * meta;
+    const falta = Math.max(0, necessario - disponivel);
+    const perdaSeVender = falta > 0 ? Math.min(iliquidos, falta / (1 - desagio)) * desagio : 0;
+
+    definir("r-valor", anosEMeses(meses));
+    definir(
+      "r-frase",
+      queima <= 0
+        ? "Sua renda independente já cobre o custo de vida da família. A empresa deixou de ser o único sustento — que é exatamente o objetivo."
+        : meses >= meta
+        ? `Queimando ${moeda(queima)} por mês, você atravessa ${anosEMeses(meses)} sem depender de um centavo da empresa. Está acima da sua própria meta de ${meta} meses.`
+        : `Queimando ${moeda(queima)} por mês, o dinheiro acessível acaba em ${anosEMeses(meses)} — antes da sua meta de ${meta} meses. Para chegar lá faltam ${moeda(falta)}, e cobrir esse buraco vendendo ativos ilíquidos às pressas custaria cerca de ${moeda(perdaSeVender)} só de deságio.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Liquidez imediata", valor: liquidez, texto: moeda(liquidez), tom: "ok" },
+      { rotulo: "Resgatável em 30 dias", valor: curtoPrazo, texto: moeda(curtoPrazo) },
+      { rotulo: "Ilíquido", valor: iliquidos, texto: moeda(iliquidos), tom: "alt" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Queima mensal líquida", valor: moeda(queima), destaque: true },
+      { rotulo: "Capital acessível em até 30 dias", valor: moeda(disponivel) },
+      { rotulo: "Autonomia atual", valor: anosEMeses(meses), total: true },
+      { rotulo: `Capital para ${meta} meses de autonomia`, valor: moeda(necessario) },
+      { rotulo: falta > 0 ? "Falta" : "Folga", valor: moeda(Math.abs(necessario - disponivel)), total: true, destaque: falta > 0 },
+      { rotulo: "Custo de liquidar ilíquidos às pressas", valor: moeda(perdaSeVender), total: true, destaque: perdaSeVender > 0 },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>

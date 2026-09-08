@@ -1,0 +1,19 @@
+# Configuração do SITE NOVO (pasta site/).
+# No Netlify, crie um site separado apontando para este repositório com
+# "Base directory" = site  — assim o projeto do IFL-BH na raiz continua intacto.
+
+[build]
+  base = "site"
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

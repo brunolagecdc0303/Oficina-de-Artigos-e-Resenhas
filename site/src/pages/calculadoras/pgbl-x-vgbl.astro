@@ -1,0 +1,122 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+---
+<Calculadora slug="pgbl-x-vgbl" vigencia="benefício fiscal de 12% da renda tributável e tabela regressiva da Lei 11.053/2004">
+  <form id="f" class="calc-painel" slot="entradas">
+    <label class="campo"><span>Aporte anual (R$)</span>
+      <input id="aporte" type="number" value="60000" min="0" step="5000" /></label>
+    <label class="campo"><span>Renda anual tributável (R$)</span>
+      <input id="renda" type="number" value="500000" min="0" step="10000" />
+      <span class="ajuda">O PGBL só compensa se você declara no modelo completo e tem renda tributável — o abatimento é limitado a 12% dela.</span></label>
+    <label class="campo"><span>Prazo até o resgate (anos)</span>
+      <input id="anos" type="number" value="20" min="1" max="45" /></label>
+    <label class="campo"><span>Retorno bruto esperado (% ao ano)</span>
+      <input id="retorno" type="number" value="10" step="0.25" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Custos</p>
+    <label class="campo"><span>Taxa de administração da previdência (% ao ano)</span>
+      <input id="taxaPrev" type="number" value="1" step="0.1" /></label>
+    <label class="campo"><span>Taxa de carregamento na entrada (%)</span>
+      <input id="carregamento" type="number" value="0" step="0.1" /></label>
+    <label class="campo"><span>Taxa do fundo comum comparável (% ao ano)</span>
+      <input id="taxaFundo" type="number" value="1" step="0.1" /></label>
+
+    <label class="escolha" style="margin-top:1.1rem">
+      <input id="reinveste" type="checkbox" checked />
+      <span><b>Reinvisto a restituição do PGBL</b><small>Se o dinheiro economizado no IR for gasto, o PGBL perde boa parte da vantagem</small></span>
+    </label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo" id="r-rotulo">Vantagem líquida do PGBL</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { valorFuturo, simularComeCotas, irRegressivoPrevidencia, moeda, percentual } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras, marcado } from "../../lib/ui.js";
+
+  function calcular() {
+    const aporte = num("aporte");
+    const renda = num("renda");
+    const anos = Math.max(1, num("anos", 20));
+    const bruto = pct("retorno", 0.1);
+    const carregamento = pct("carregamento", 0);
+    const liquidaPrev = (1 + bruto) / (1 + pct("taxaPrev", 0.01)) - 1;
+    const aliquotaFinal = irRegressivoPrevidencia(anos);
+
+    // Limite do benefício: 12% da renda tributável do ano.
+    const limite = renda * 0.12;
+    const aporteDedutivel = Math.min(aporte, limite);
+    const restituicaoAnual = aporteDedutivel * 0.275;
+
+    const aporteLiquido = aporte * (1 - carregamento);
+
+    // PGBL: IR na saída incide sobre TODO o montante, não só sobre o ganho.
+    const montantePgbl = valorFuturo(0, liquidaPrev, anos, aporteLiquido);
+    const liquidoPgbl = montantePgbl * (1 - aliquotaFinal);
+    const restituicaoAcumulada = marcado("reinveste")
+      ? valorFuturo(0, liquidaPrev, anos, restituicaoAnual)
+      : restituicaoAnual * anos;
+    const totalPgbl = liquidoPgbl + (marcado("reinveste") ? restituicaoAcumulada * (1 - aliquotaFinal) : restituicaoAcumulada);
+
+    // VGBL: IR só sobre o rendimento.
+    const montanteVgbl = valorFuturo(0, liquidaPrev, anos, aporteLiquido);
+    const aportadoTotal = aporteLiquido * anos;
+    const liquidoVgbl = montanteVgbl - Math.max(0, montanteVgbl - aportadoTotal) * aliquotaFinal;
+
+    // Fundo comum: come-cotas semestral, sem benefício fiscal.
+    let saldoFundo = 0;
+    for (let a = 0; a < anos; a++) {
+      saldoFundo += aporte;
+      const passo = simularComeCotas({
+        principal: saldoFundo, taxaAnual: bruto, anos: 1,
+        taxaAdmFundo: pct("taxaFundo", 0.01),
+      });
+      saldoFundo = passo.comComeCotas;
+    }
+    const liquidoFundo = saldoFundo;
+
+    const melhor = Math.max(totalPgbl, liquidoVgbl, liquidoFundo);
+    const vantagem = totalPgbl - Math.max(liquidoVgbl, liquidoFundo);
+    const nomeMelhor = melhor === totalPgbl ? "PGBL" : melhor === liquidoVgbl ? "VGBL" : "fundo comum";
+
+    definir("r-rotulo", vantagem > 0 ? "Vantagem líquida do PGBL" : `Vantagem do ${nomeMelhor}`);
+    definir("r-valor", moeda(Math.abs(vantagem)));
+    definir(
+      "r-frase",
+      aporteDedutivel < aporte
+        ? `Atenção: só ${moeda(aporteDedutivel)} do seu aporte anual são dedutíveis — o teto é 12% da renda tributável. O que passa disso está em PGBL sem benefício algum e vai ser tributado na saída sobre o valor total, o pior dos dois mundos. Nesta configuração, o ${nomeMelhor} entrega mais.`
+        : vantagem > 0
+        ? `Com ${anos} anos e alíquota final de ${percentual(aliquotaFinal, 0)}, o PGBL entrega ${moeda(totalPgbl)} líquidos — ${moeda(vantagem)} a mais que a melhor alternativa. Isso depende inteiramente de você declarar no modelo completo e reinvestir a restituição.`
+        : `Nesta configuração o ${nomeMelhor} entrega mais: ${moeda(melhor)} contra ${moeda(totalPgbl)} do PGBL.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "PGBL, com restituição", valor: totalPgbl, texto: moeda(totalPgbl), tom: melhor === totalPgbl ? "ok" : "" },
+      { rotulo: "VGBL", valor: liquidoVgbl, texto: moeda(liquidoVgbl), tom: melhor === liquidoVgbl ? "ok" : "" },
+      { rotulo: "Fundo comum", valor: liquidoFundo, texto: moeda(liquidoFundo), tom: melhor === liquidoFundo ? "ok" : "" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Limite dedutível (12% da renda)", valor: moeda(limite) },
+      { rotulo: "Aporte efetivamente dedutível", valor: moeda(aporteDedutivel), destaque: aporteDedutivel < aporte },
+      { rotulo: "Restituição anual de IR gerada", valor: moeda(restituicaoAnual) },
+      { rotulo: "Alíquota final da tabela regressiva", valor: percentual(aliquotaFinal, 0) },
+      { rotulo: "PGBL: montante bruto", valor: moeda(montantePgbl) },
+      { rotulo: "PGBL: IR sobre o total resgatado", valor: moeda(montantePgbl * aliquotaFinal), destaque: true },
+      { rotulo: "PGBL líquido, com a restituição", valor: moeda(totalPgbl), total: true },
+      { rotulo: "VGBL líquido", valor: moeda(liquidoVgbl), total: true },
+      { rotulo: "Fundo comum líquido", valor: moeda(liquidoFundo), total: true },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>

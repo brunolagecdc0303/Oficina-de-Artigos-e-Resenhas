@@ -1,0 +1,34 @@
+---
+import { DIMENSOES } from "../lib/calculadoras.js";
+const { calc, liberada } = Astro.props;
+const dim = DIMENSOES[calc.dimensao];
+---
+<article
+  class="cartao cartao-calc"
+  data-calc={calc.slug}
+  data-bloqueada={liberada ? undefined : ""}
+>
+  <p class="etiqueta" style={`--dim: var(--${dim.cor})`}>{dim.nome}</p>
+  <h3 class="pergunta">{calc.pergunta}</h3>
+  <p class="resumo">{calc.resumo}</p>
+
+  <div class="amostra" aria-hidden={liberada ? undefined : "true"}>
+    <div class="rotulo">{calc.amostra.rotulo}</div>
+    <div class="valor">{calc.amostra.valor}</div>
+  </div>
+
+  <div class="rodape">
+    <span class="pequeno" style="color:var(--muted)">{calc.nome} · {calc.subtitulo}</span>
+    <span class="acao-liberada">
+      <a class="btn btn-secundario pequeno" href={`/calculadoras/${calc.slug}`}>Abrir</a>
+    </span>
+    <span class="acao-bloqueada">
+      <span class="selo-bloqueada">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="4" y="10" width="16" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" />
+        </svg>
+        Para clientes
+      </span>
+    </span>
+  </div>
+</article>

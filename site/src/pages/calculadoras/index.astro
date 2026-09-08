@@ -1,0 +1,139 @@
+---
+import Base from "../../layouts/Base.astro";
+import CartaoCalculadora from "../../components/CartaoCalculadora.astro";
+import { CALCULADORAS, DIMENSOES, liberadasPorPadrao } from "../../lib/calculadoras.js";
+
+const padrao = liberadasPorPadrao();
+const grupos = Object.entries(DIMENSOES)
+  .map(([chave, dim]) => ({
+    chave,
+    ...dim,
+    itens: CALCULADORAS.filter((c) => c.dimensao === chave),
+  }))
+  .filter((g) => g.itens.length > 0);
+---
+<Base
+  titulo="Calculadoras"
+  descricao="Quatorze calculadoras patrimoniais: aposentadoria, comprar x alugar, custo do inventário, come-cotas, estate tax americano e mais. Rodam no seu navegador, sem enviar nada."
+>
+  <section class="secao">
+    <div class="wrap">
+      <div style="max-width:62ch">
+        <p class="olho">Ferramentas</p>
+        <h1>Números seus, na sua tela</h1>
+        <p class="lead">
+          Todas rodam inteiramente no seu navegador. Nada do que você digitar sai
+          do seu computador, e nenhuma delas termina recomendando produto — o
+          objetivo é você enxergar o problema, não comprar a solução.
+        </p>
+      </div>
+
+      <div
+        id="aviso-acesso"
+        class="cartao"
+        style="margin-top:2.5rem;display:flex;gap:1rem;align-items:center;justify-content:space-between;flex-wrap:wrap"
+      >
+        <div>
+          <p style="margin:0;font-weight:560" id="acesso-titulo">Algumas calculadoras são exclusivas para clientes</p>
+          <p class="pequeno" style="margin:.25rem 0 0;color:var(--muted)" id="acesso-texto">
+            Elas aparecem aqui borradas, de propósito. Se você já é cliente, use seu código de acesso.
+          </p>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <form id="form-codigo" style="display:flex;gap:.5rem">
+            <label class="sr" for="codigo">Código de acesso</label>
+            <input id="codigo" name="codigo" type="text" placeholder="Código de acesso" autocomplete="off" style="width:11rem" />
+            <button class="btn btn-secundario pequeno" type="submit">Liberar</button>
+          </form>
+          <button class="btn btn-texto pequeno oculto" id="btn-sair" type="button">Sair</button>
+        </div>
+      </div>
+      <p class="pequeno oculto" id="msg-codigo" style="margin-top:.6rem" role="status"></p>
+
+      {grupos.map((g) => (
+        <div style="margin-top:3.5rem">
+          <p class="etiqueta" style={`--dim: var(--${g.cor});margin-bottom:1rem`}>{g.nome}</p>
+          <div class="grade grade-2 grade-3">
+            {g.itens.map((c) => (
+              <CartaoCalculadora calc={c} liberada={padrao.includes(c.slug)} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { carregarLiberadas, usarCodigo, esquecerAcesso, tokenSalvo, cacheLiberadas } from "../../lib/acesso.js";
+  import { liberadasPorPadrao } from "../../lib/calculadoras.js";
+
+  const cartoes = [...document.querySelectorAll("[data-calc]")];
+  const aplicar = ({ liberadas, acesso }) => {
+    for (const cartao of cartoes) {
+      const liberada = liberadas.includes(cartao.dataset.calc);
+      const amostra = cartao.querySelector(".amostra");
+      if (liberada) {
+        cartao.removeAttribute("data-bloqueada");
+        amostra?.removeAttribute("aria-hidden");
+      } else {
+        cartao.setAttribute("data-bloqueada", "");
+        amostra?.setAttribute("aria-hidden", "true");
+      }
+    }
+    const bloqueadas = cartoes.length - cartoes.filter((c) => liberadas.includes(c.dataset.calc)).length;
+    const titulo = document.getElementById("acesso-titulo");
+    const texto = document.getElementById("acesso-texto");
+    const form = document.getElementById("form-codigo");
+    const sair = document.getElementById("btn-sair");
+    if (acesso) {
+      titulo.textContent = "Acesso de cliente liberado";
+      texto.textContent = "Todas as calculadoras estão abertas neste navegador.";
+      form.classList.add("oculto");
+      sair.classList.remove("oculto");
+    } else if (bloqueadas === 0) {
+      titulo.textContent = "Todas as calculadoras estão abertas";
+      texto.textContent = "Nenhuma exige código de acesso no momento.";
+      form.classList.add("oculto");
+    } else {
+      titulo.textContent = `${bloqueadas} ${bloqueadas === 1 ? "calculadora é exclusiva" : "calculadoras são exclusivas"} para clientes`;
+      texto.textContent = "Elas aparecem aqui borradas, de propósito. Se você já é cliente, use seu código de acesso.";
+      form.classList.remove("oculto");
+      sair.classList.toggle("oculto", !tokenSalvo());
+    }
+  };
+
+  const cache = cacheLiberadas();
+  if (cache) aplicar(cache);
+  carregarLiberadas(liberadasPorPadrao()).then(aplicar);
+
+  const msg = document.getElementById("msg-codigo");
+  const mostra = (texto, erro) => {
+    msg.textContent = texto;
+    msg.style.color = erro ? "var(--alerta)" : "var(--positivo)";
+    msg.classList.remove("oculto");
+  };
+
+  document.getElementById("form-codigo").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const campo = document.getElementById("codigo");
+    const valor = campo.value.trim();
+    if (!valor) return;
+    try {
+      const dados = await usarCodigo(valor);
+      aplicar({ liberadas: dados.liberadas, acesso: true });
+      mostra("Acesso liberado. Todas as calculadoras estão abertas.", false);
+      campo.value = "";
+    } catch (erro) {
+      mostra(erro.message, true);
+    }
+  });
+
+  document.getElementById("btn-sair").addEventListener("click", () => {
+    esquecerAcesso();
+    carregarLiberadas(liberadasPorPadrao()).then((d) => {
+      aplicar(d);
+      mostra("Acesso removido deste navegador.", false);
+    });
+  });
+</script>

@@ -1,0 +1,99 @@
+---
+import Calculadora from "../../layouts/Calculadora.astro";
+import { VIGENCIA } from "../../lib/tabelas.js";
+---
+<Calculadora slug="liquidez-sucessoria" vigencia={VIGENCIA.itcmd}>
+  <form id="f" class="calc-painel" slot="entradas">
+    <p class="olho">Do que a família vai precisar</p>
+    <label class="campo"><span>Patrimônio total a inventariar (R$)</span>
+      <input id="patrimonio" type="number" value="8000000" min="0" step="100000" /></label>
+    <label class="campo"><span>Custo do inventário (% do patrimônio)</span>
+      <input id="custoInventario" type="number" value="12.5" step="0.5" />
+      <span class="ajuda">ITCMD, honorários e custas somados. Use a <a href="/calculadoras/inventario">calculadora de inventário</a> para achar o seu.</span></label>
+    <label class="campo"><span>Padrão de vida mensal da família (R$)</span>
+      <input id="padraoVida" type="number" value="45000" min="0" step="1000" /></label>
+    <label class="campo"><span>Meses de padrão de vida a cobrir</span>
+      <input id="mesesCobrir" type="number" value="24" min="1" max="120" />
+      <span class="ajuda">Até a partilha sair e os bens voltarem a ser negociáveis. Vinte e quatro meses é prudente.</span></label>
+    <label class="campo"><span>Dívidas e financiamentos em aberto (R$)</span>
+      <input id="dividas" type="number" value="900000" min="0" step="50000" />
+      <span class="ajuda">Verifique se há seguro prestamista. Se houver, desconte aqui.</span></label>
+    <label class="campo"><span>Imposto de renda e obrigações do espólio (R$)</span>
+      <input id="obrigacoes" type="number" value="0" min="0" step="10000" /></label>
+
+    <hr style="margin:1.5rem 0" />
+    <p class="olho">Do que a família dispõe hoje</p>
+    <label class="campo"><span>Caixa e investimentos de liquidez imediata (R$)</span>
+      <input id="caixa" type="number" value="350000" min="0" step="50000" />
+      <span class="ajuda">Só o que resgata em D+0 ou D+1. Fundo com carência longa não conta aqui — e, uma vez aberto o inventário, mesmo esse dinheiro pode ficar bloqueado.</span></label>
+    <label class="campo"><span>Capital segurado de vida (R$)</span>
+      <input id="seguro" type="number" value="500000" min="0" step="100000" />
+      <span class="ajuda">O seguro de vida não entra em inventário e costuma ser pago em semanas. É a única fonte de liquidez que chega antes do problema.</span></label>
+    <label class="campo"><span>Renda da família que continua entrando (R$/mês)</span>
+      <input id="rendaContinua" type="number" value="0" min="0" step="1000" />
+      <span class="ajuda">Aluguéis, salário do cônjuge, pró-labore de quem fica. Não inclua distribuição de lucros que dependa de você.</span></label>
+  </form>
+
+  <div slot="saida">
+    <div class="resultado">
+      <div class="rotulo" id="r-rotulo">Buraco de liquidez</div>
+      <div class="valor num" id="r-valor">—</div>
+      <p class="frase" id="r-frase"></p>
+    </div>
+    <div id="r-barras" class="barras"></div>
+    <dl id="r-linhas" class="linhas" style="margin:0"></dl>
+  </div>
+</Calculadora>
+
+<script>
+  import { moeda, anosEMeses } from "../../lib/financas.js";
+  import { num, pct, ligar, definir, linhas, barras } from "../../lib/ui.js";
+
+  function calcular() {
+    const patrimonio = num("patrimonio");
+    const custoInventario = patrimonio * pct("custoInventario", 0.125);
+    const padraoVida = num("padraoVida");
+    const mesesCobrir = Math.max(1, num("mesesCobrir", 24));
+    const rendaContinua = num("rendaContinua");
+    const custeio = Math.max(0, (padraoVida - rendaContinua) * mesesCobrir);
+    const dividas = num("dividas");
+    const obrigacoes = num("obrigacoes");
+    const precisa = custoInventario + custeio + dividas + obrigacoes;
+
+    const caixa = num("caixa");
+    const seguro = num("seguro");
+    const dispoe = caixa + seguro;
+    const buraco = precisa - dispoe;
+
+    const autonomia = padraoVida - rendaContinua > 0
+      ? Math.max(0, dispoe - custoInventario - dividas - obrigacoes) / (padraoVida - rendaContinua)
+      : Infinity;
+
+    definir("r-rotulo", buraco > 0 ? "Buraco de liquidez" : "Folga de liquidez");
+    definir("r-valor", moeda(Math.abs(buraco)));
+    definir(
+      "r-frase",
+      buraco > 0
+        ? `É o que faltaria em dinheiro, e a única saída seria vender algum bem às pressas — no pior momento possível e para o primeiro que aparecer. Descontado o inventário e as dívidas, o que sobra sustenta a família por ${anosEMeses(autonomia)}.`
+        : `A família atravessaria o inventário sem vender nada às pressas, com ${moeda(-buraco)} de margem. Revise essa conta sempre que o patrimônio ou o padrão de vida mudar.`
+    );
+
+    barras("r-barras", [
+      { rotulo: "Precisa", valor: precisa, texto: moeda(precisa), tom: "alt" },
+      { rotulo: "Dispõe", valor: dispoe, texto: moeda(dispoe), tom: buraco > 0 ? "" : "ok" },
+    ]);
+
+    linhas("r-linhas", [
+      { rotulo: "Custo do inventário", valor: moeda(custoInventario), destaque: true },
+      { rotulo: `Padrão de vida por ${mesesCobrir} meses`, valor: moeda(custeio) },
+      { rotulo: "Dívidas e financiamentos", valor: moeda(dividas) },
+      { rotulo: "Obrigações do espólio", valor: moeda(obrigacoes) },
+      { rotulo: "Necessidade total de caixa", valor: moeda(precisa), total: true },
+      { rotulo: "Caixa e liquidez imediata", valor: moeda(caixa) },
+      { rotulo: "Capital segurado de vida", valor: moeda(seguro) },
+      { rotulo: buraco > 0 ? "Falta" : "Sobra", valor: moeda(Math.abs(buraco)), total: true, destaque: buraco > 0 },
+    ]);
+  }
+
+  ligar("f", calcular);
+</script>
