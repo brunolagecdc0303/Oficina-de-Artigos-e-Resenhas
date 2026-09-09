@@ -5,6 +5,9 @@
 // ---------------------------------------------------------------------------
 
 export const SITE = {
+  // Troque para "https://lageinvestimentos.com.br" SOMENTE depois que o domínio
+  // estiver respondendo na Netlify. Antes disso, canônicas, sitemap e RSS
+  // apontariam para um endereço que ainda não existe.
   url: "https://assessoria-patrimonial-site.netlify.app",
 
   // Res. CVM 178: a expressão "Assessor de Investimento" acompanha o nome.
@@ -30,10 +33,11 @@ export const SITE = {
   },
 
   contato: {
-    email: "[REVISAR: e-mail público de contato]",
+    email: "bruno.lage@investsmart.com.br",
     linkedin: "",
     instagram: "",
-    // Link de agendamento (Cal.com, Calendly...). Vazio faz o CTA cair no formulário.
+    // Link de agendamento (Cal.com, Calendly...). Vazio faz o lead prioritário
+    // receber o convite para responder por e-mail, e você agenda no um-a-um.
     agenda: "",
   },
 

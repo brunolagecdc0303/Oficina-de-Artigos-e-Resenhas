@@ -2,6 +2,10 @@
 import Base from "../layouts/Base.astro";
 import { SITE } from "../lib/site.js";
 import { DIMENSOES } from "../lib/calculadoras.js";
+import { getCollection } from "astro:content";
+
+// O bloco de agradecimento só oferece o blog quando há artigo publicado.
+const temArtigos = (await getCollection("artigos")).some((a) => !a.data.rascunho);
 
 const dimensoes = Object.entries(DIMENSOES);
 const sinais = {
@@ -199,7 +203,7 @@ const sinais = {
   </section>
 </Base>
 
-<script define:vars={{ agenda: SITE.contato.agenda }}>
+<script define:vars={{ agenda: SITE.contato.agenda, email: SITE.contato.email, temArtigos }}>
   const form = document.getElementById("form-lead");
   const erro = document.getElementById("erro-form");
   const botao = document.getElementById("btn-enviar");
@@ -246,11 +250,17 @@ const sinais = {
 
       const acoes = document.getElementById("obrigado-acoes");
       const botoes = [];
-      if (corpo.proximoPasso === "agenda" && agenda) {
-        botoes.push(`<a class="btn btn-primario" href="${agenda}" target="_blank" rel="noopener">Escolher um horário</a>`);
+      if (corpo.proximoPasso === "agenda") {
+        if (agenda) {
+          botoes.push(`<a class="btn btn-primario" href="${agenda}" target="_blank" rel="noopener">Escolher um horário</a>`);
+        } else if (email) {
+          // Sem agenda pública, o lead prioritário ainda sai daqui com um caminho.
+          const assunto = encodeURIComponent("Diagnóstico patrimonial — " + dados.nome);
+          botoes.push(`<a class="btn btn-primario" href="mailto:${email}?subject=${assunto}">Falar por e-mail agora</a>`);
+        }
       }
       botoes.push('<a class="btn btn-secundario" href="/calculadoras">Ver as calculadoras</a>');
-      botoes.push('<a class="btn btn-secundario" href="/artigos">Ler os artigos</a>');
+      if (temArtigos) botoes.push('<a class="btn btn-secundario" href="/artigos">Ler os artigos</a>');
       acoes.innerHTML = botoes.join("");
       painel.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (erroEnvio) {
