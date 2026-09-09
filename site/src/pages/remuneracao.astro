@@ -5,12 +5,12 @@ import { SITE } from "../lib/site.js";
 ---
 <Base
   titulo="Como sou remunerado"
-  descricao="Transparência sobre arranjos de remuneração, conflitos de interesse e o que eu faço para reduzi-los."
+  descricao="De onde vem minha receita, onde estão os conflitos de interesse e o que você pode exigir de mim."
 >
   <section class="secao">
     <div class="wrap wrap-estreito">
       <p class="olho">Transparência</p>
-      <h1>Quanto eu ganho para te atender</h1>
+      <h1>Como eu sou remunerado</h1>
       <p class="lead">
         Esta página existe porque a pergunta é legítima e quase nunca é
         respondida sem rodeio. A Resolução CVM 179 vai obrigar o mercado inteiro
@@ -23,42 +23,47 @@ import { SITE } from "../lib/site.js";
     <div class="wrap wrap-estreito">
       <h2>De onde vem a minha receita</h2>
       <p>
-        Sou assessor de investimento vinculado a {SITE.instituicao.nome}. Minha
-        remuneração vem dos arranjos abaixo, e de nenhum outro:
+        Sou assessor de investimento vinculado à {SITE.instituicao.razaoSocial},
+        que mantém contrato de distribuição de produtos financeiros com a
+        {" "}{SITE.instituicao.nomeCurto}. <strong>A minha remuneração vem de
+        comissão sobre os produtos distribuídos</strong> — é assim que este
+        modelo funciona, e é assim que eu ganho a vida.
+      </p>
+      <p>
+        Não publico os percentuais aqui, e vou ser direto sobre o motivo: número
+        solto, fora do contexto da sua carteira, informa mal. Comissão sobre um
+        produto de dois anos não se compara com a de um produto de vinte, e a
+        tabela sem a conversa vira ruído. <strong>Os valores que se aplicam ao
+        seu caso eu abro na reunião</strong>, com o seu patrimônio na mesa — e
+        depois, sempre que você pedir.
       </p>
 
-      <div class="cartao" style="margin:1.5rem 0">
-        <p class="nota" style="margin:0 0 1rem;color:var(--alerta)">
-          <strong>[REVISAR]</strong> Preencha esta seção com os seus arranjos reais e
-          submeta ao compliance da instituição antes de publicar. Descreva cada
-          fonte de receita, a faixa de valores e sobre o que ela incide. Não
-          publique esta página com o texto de exemplo abaixo.
+      <div class="cartao" style="border-left:3px solid var(--accent);margin:2rem 0">
+        <p style="margin:0;font-weight:560">O compromisso que vale mais que a tabela</p>
+        <p class="pequeno" style="color:var(--ink-2);margin:.5rem 0 0">
+          Sempre que uma recomendação envolver um produto que me remunera mais
+          que a alternativa razoável, eu digo isso <em>na hora da recomendação</em>.
+          Não depois, não só se você perguntar, e não em letra miúda.
         </p>
-        <ul class="prosa" style="margin:0">
-          <li><strong>[REVISAR: fonte 1]</strong> — sobre o que incide, e em que faixa.</li>
-          <li><strong>[REVISAR: fonte 2]</strong> — sobre o que incide, e em que faixa.</li>
-          <li><strong>[REVISAR: fonte 3]</strong> — sobre o que incide, e em que faixa.</li>
-        </ul>
       </div>
 
       <h2>Onde estão os conflitos</h2>
       <p>
         Todo modelo de remuneração cria algum conflito. Quem diz que não tem
-        conflito nenhum ou não entendeu o próprio modelo, ou está omitindo.
-        Os meus:
+        conflito nenhum ou não entendeu o próprio modelo, ou está omitindo. Os
+        meus são estes:
       </p>
       <ul class="prosa">
         <li>
           <strong>Remuneração ligada a produto cria incentivo a movimentar.</strong>
-          O antídoto é estrutural, não moral: registro por escrito as
+          O antídoto é estrutural, não moral: eu registro por escrito as
           recomendações de <em>não fazer nada</em>, e elas aparecem no seu plano
-          anual como decisão tomada.
+          anual como decisão tomada. Uma reunião que termina sem mudança nenhuma
+          é um resultado legítimo — e frequente.
         </li>
         <li>
-          <strong>Produtos diferentes remuneram de forma diferente.</strong> Sempre
-          que a recomendação envolver um produto que me remunera mais que a
-          alternativa, eu digo isso na hora da recomendação — não depois, e não
-          só se você perguntar.
+          <strong>Produtos diferentes remuneram de forma diferente.</strong> É o
+          conflito central deste modelo, e a razão do compromisso acima.
         </li>
         <li>
           <strong>Crescer a carteira é do meu interesse.</strong> Por isso o
@@ -69,7 +74,7 @@ import { SITE } from "../lib/site.js";
 
       <h2>O que você pode exigir de mim</h2>
       <ul class="prosa">
-        <li>O extrato de remuneração, sempre que pedir, sem constrangimento.</li>
+        <li>O detalhamento da minha remuneração, sempre que pedir, sem constrangimento.</li>
         <li>A comparação com a alternativa, quando houver mais de um caminho.</li>
         <li>A resposta "não sei, pesquiso e te retorno em 48 horas", quando for o caso.</li>
       </ul>
@@ -83,17 +88,21 @@ import { SITE } from "../lib/site.js";
       <div class="cartao" style="margin-top:2rem">
         <h3 style="margin-top:0">As três perguntas que você deveria fazer a qualquer assessor</h3>
         <ol class="prosa" style="margin:1rem 0 0">
-          <li>Quanto você ganhou para me atender no último ano, em reais?</li>
+          <li>Quanto você ganhou para me atender no último ano?</li>
           <li>Em qual das nossas últimas reuniões você me recomendou não fazer nada?</li>
           <li>Que tipo de cliente ou de negócio você recusa?</li>
         </ol>
+        <p class="nota" style="margin:1rem 0 0">
+          São as mesmas que eu acho que deveriam ser feitas para mim. A terceira
+          está respondida em <a href="/o-que-nao-faco">O que eu não faço</a>.
+        </p>
       </div>
     </div>
   </section>
 
   <Cta
     olho="Próximo passo"
-    titulo="Se essa página te pareceu razoável, o resto do método é assim"
-    texto="Diagnóstico antes de recomendação, plano de uma página, e o que não vamos fazer escrito junto com o que vamos."
+    titulo="Os números do seu caso, na reunião"
+    texto="O diagnóstico vem primeiro: oito dimensões, riscos priorizados, nenhuma recomendação junto. A conversa sobre remuneração acontece quando houver o que recomendar."
   />
 </Base>

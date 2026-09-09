@@ -4,6 +4,7 @@ resumo: "A pergunta que separa quem tem patrimônio de quem tem patrimônio orga
 data: 2026-08-12
 dimensao: protecao
 calculadora: liquidez-sucessoria
+rascunho: true
 ---
 
 Faça o teste agora, de cabeça. Você não está mais aqui. Amanhã de manhã, sua família precisa pagar a escola, o condomínio, o plano de saúde, a parcela do financiamento e o salário de quem trabalha na sua casa.

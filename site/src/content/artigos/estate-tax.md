@@ -4,6 +4,7 @@ resumo: "Não residentes têm isenção de US$ 60 mil no estate tax americano. O
 data: 2026-09-02
 dimensao: internacional
 calculadora: estate-tax
+rascunho: true
 ---
 
 Nos últimos anos ficou fácil investir nos Estados Unidos. Abre-se conta em uma corretora internacional pelo celular, envia-se o câmbio, compra-se ação americana ou ETF. Milhares de brasileiros fizeram exatamente isso, e a maioria fez a coisa certa: diversificar moeda e mercado é bom.

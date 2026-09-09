@@ -1,51 +1,67 @@
 // ---------------------------------------------------------------------------
 // IDENTIDADE E COMPLIANCE
-// Este é o único arquivo que você precisa editar para o site sair do ar de
-// "modelo" e virar o seu. Tudo marcado com [REVISAR] é obrigatório preencher
-// antes de publicar — são exigências de Res. CVM 178/179 e dos códigos ANBIMA.
+// Este é o único arquivo que você precisa editar para mudar quem o site diz
+// que você é. O que ainda está marcado com [REVISAR] é o que falta preencher.
 // ---------------------------------------------------------------------------
 
 export const SITE = {
-  url: "https://exemplo.netlify.app", // [REVISAR] domínio final
+  url: "https://assessoria-patrimonial-site.netlify.app",
 
-  // Nome fantasia. A Res. CVM 178 exige a expressão "Assessor de Investimento"
-  // ou "AI" na denominação social / nome fantasia e veda expressões que induzam
-  // o investidor a erro quanto ao objeto social.
-  marca: "[REVISAR: Nome] — Assessor de Investimento",
-  marcaCurta: "[REVISAR: Nome]",
+  // Res. CVM 178: a expressão "Assessor de Investimento" acompanha o nome.
+  marca: "Bruno Lage — Assessor de Investimento",
+  marcaCurta: "Bruno Lage",
 
   profissional: {
-    nome: "[REVISAR: seu nome completo]",
+    nome: "Bruno Lage",
     cargo: "Assessor de Investimento",
-    // Liste SOMENTE certificações que você efetivamente detém e que o
-    // compliance já validou. Não invente título profissional.
-    certificacoes: ["[REVISAR: ex. CEA]", "[REVISAR: ex. CFP]"],
+    // Somente o que é efetivamente detido e validado pelo compliance.
+    certificacoes: ["Certificação ANCORD"],
     cidade: "Belo Horizonte, MG",
-    foto: "/img/perfil.jpg", // [REVISAR] coloque o arquivo em site/public/img/
     bio: "[REVISAR: 2 a 3 frases. Quem você atende, há quanto tempo, e a decisão que te trouxe até aqui.]",
   },
 
-  // Vínculo institucional — obrigatório estar visível no site.
+  // Vínculo institucional — dados do rodapé oficial da InvestSmart.
   instituicao: {
-    nome: "[REVISAR: corretora / distribuidora à qual você é vinculado]",
-    cnpjEscritorio: "[REVISAR: CNPJ do escritório de assessoria]",
-    razaoSocial: "[REVISAR: razão social do escritório]",
-    ouvidoria: "[REVISAR: canal de ouvidoria da instituição]",
-    enderecoCompliance: "[REVISAR: e-mail do compliance da instituição]",
+    razaoSocial: "Invest Smart Assessor de Investimento Ltda.",
+    cnpjEscritorio: "19.438.577/0001-08",
+    nome: "XP Investimentos Corretora de Câmbio, Títulos e Valores Mobiliários S.A.",
+    nomeCurto: "XP",
+    ouvidoria: "Ouvidoria da XP — 0800 722 3730",
   },
 
   contato: {
-    email: "[REVISAR: e-mail público]",
-    whatsapp: "", // [REVISAR] só dígitos, ex. "5531999999999". Vazio esconde o botão.
+    email: "[REVISAR: e-mail público de contato]",
     linkedin: "",
     instagram: "",
     // Link de agendamento (Cal.com, Calendly...). Vazio faz o CTA cair no formulário.
     agenda: "",
   },
 
-  // Data da última revisão de conteúdo tributário. Aparece nas calculadoras.
   revisadoEm: "2026-09",
 };
+
+/**
+ * Texto regulatório institucional, reproduzido do rodapé oficial da
+ * InvestSmart. Qualquer alteração aqui precisa passar pelo compliance do
+ * escritório — não reescreva por conta própria.
+ */
+export const DISCLAIMER_INSTITUCIONAL =
+  `A ${SITE.instituicao.razaoSocial}, inscrita sob o CNPJ nº ${SITE.instituicao.cnpjEscritorio}, ` +
+  `é uma empresa de Assessoria de Investimento devidamente registrada na Comissão de Valores ` +
+  `Mobiliários na forma da Resolução CVM 178/23 ("Sociedade"), que mantém contrato de distribuição ` +
+  `de produtos financeiros com a ${SITE.instituicao.nome} ("XP") e pode, por conta e ordem dos seus ` +
+  `clientes, operar no mercado de capitais segundo a legislação vigente. Na forma da legislação da ` +
+  `CVM, o Assessor de Investimento não pode administrar ou gerir o patrimônio de investidores. ` +
+  `O investimento em ações é um investimento de risco e rentabilidade passada não é garantia de ` +
+  `rentabilidade futura. Na realização de operações com derivativos existe a possibilidade de perdas ` +
+  `superiores aos valores investidos, podendo resultar em significativas perdas patrimoniais. ` +
+  `A Sociedade poderá exercer atividades complementares relacionadas aos mercados financeiro, ` +
+  `securitário, de previdência e capitalização, desde que não conflitem com a atividade de assessoria ` +
+  `de investimentos, podendo ser realizada por meio da pessoa jurídica acima descrita ou por meio de ` +
+  `pessoa jurídica terceira. Todas as atividades são prestadas mantendo a devida segregação e em ` +
+  `cumprimento ao quanto previsto nas regras da CVM ou de outros órgãos reguladores e ` +
+  `autorreguladores. Para informações e dúvidas sobre produtos, contate seu assessor de ` +
+  `investimentos. Para reclamações, contate a ${SITE.instituicao.ouvidoria}.`;
 
 export const DISCLAIMER_CURTO =
   "Conteúdo educacional. Não é recomendação de investimento, nem promessa ou " +

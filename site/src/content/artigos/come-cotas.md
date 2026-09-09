@@ -4,6 +4,7 @@ resumo: "Duas vezes por ano seu fundo recolhe imposto sobre um ganho que você n
 data: 2026-08-26
 dimensao: tributaria
 calculadora: come-cotas
+rascunho: true
 ---
 
 Todo maio e todo novembro, sem aviso e sem linha destacada no extrato, o seu fundo aberto entrega uma parte do rendimento do semestre à Receita. Você não vendeu, não sacou, não decidiu nada. Simplesmente tem menos cotas do que tinha ontem.

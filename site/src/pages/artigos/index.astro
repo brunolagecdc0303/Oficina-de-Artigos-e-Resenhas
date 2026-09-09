@@ -22,19 +22,42 @@ const formata = (d) =>
         <p class="olho">Artigos</p>
         <h1>Escrevo sobre o que os clientes perguntam</h1>
         <p class="lead">
-          Organizados pelas mesmas oito dimensões do diagnóstico. Nenhum deles
-          recomenda produto, e todos podem ser conferidos.
+          {artigos.length > 0
+            ? "Organizados pelas mesmas oito dimensões do diagnóstico. Nenhum deles recomenda produto, e todos podem ser conferidos."
+            : "Escrevo sobre o que os clientes perguntam — tributação, sucessão, proteção e as decisões que ninguém explica na hora certa."}
         </p>
       </div>
 
-      <nav class="nao-imprime" aria-label="Filtrar por dimensão" style="display:flex;gap:.6rem;flex-wrap:wrap;margin:2.5rem 0">
-        <button class="btn btn-secundario pequeno" data-filtro="todas" aria-pressed="true">Todas</button>
-        {Object.entries(DIMENSOES)
-          .filter(([chave]) => usadas.has(chave))
-          .map(([chave, dim]) => (
-            <button class="btn btn-secundario pequeno" data-filtro={chave} aria-pressed="false">{dim.nome}</button>
-          ))}
-      </nav>
+      {artigos.length === 0 && (
+        <div class="cartao" style="margin-top:2.5rem;max-width:60ch">
+          <h2 style="font-size:1.25rem;margin-top:0">Ainda não publiquei nada aqui</h2>
+          <p class="pequeno" style="color:var(--ink-2)">
+            Prefiro não encher esta página para ela parecer cheia. Quando houver
+            texto meu, ele vem organizado pelas mesmas oito dimensões do
+            diagnóstico — fluxo e liquidez, investimentos, tributária, proteção,
+            empresarial, sucessória, internacional, e a humana e familiar.
+          </p>
+          <p class="pequeno" style="color:var(--ink-2);margin-bottom:1.5rem">
+            Enquanto isso, o que já está de pé e resolve dúvida de verdade são as
+            calculadoras.
+          </p>
+          <p style="display:flex;gap:.6rem;flex-wrap:wrap;margin:0">
+            <a class="btn btn-primario pequeno" href="/calculadoras">Ver as calculadoras</a>
+            <a class="btn btn-secundario pequeno" href="/como-trabalho">Como eu trabalho</a>
+          </p>
+        </div>
+      )}
+
+      {artigos.length > 0 && (
+        <nav class="nao-imprime" aria-label="Filtrar por dimensão" style="display:flex;gap:.6rem;flex-wrap:wrap;margin:2.5rem 0">
+          <button class="btn btn-secundario pequeno" data-filtro="todas" aria-pressed="true">Todas</button>
+          {Object.entries(DIMENSOES)
+            .filter(([chave]) => usadas.has(chave))
+            .map(([chave, dim]) => (
+              <button class="btn btn-secundario pequeno" data-filtro={chave} aria-pressed="false">{dim.nome}</button>
+            ))}
+        </nav>
+      )}
 
       <div class="grade grade-2" id="lista">
         {artigos.map((a) => {

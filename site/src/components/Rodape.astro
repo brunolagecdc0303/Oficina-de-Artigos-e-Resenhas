@@ -1,5 +1,5 @@
 ---
-import { SITE, DISCLAIMER_CURTO } from "../lib/site.js";
+import { SITE, DISCLAIMER_CURTO, DISCLAIMER_INSTITUCIONAL } from "../lib/site.js";
 const ano = new Date().getFullYear();
 ---
 <footer class="rodape nao-imprime">
@@ -42,23 +42,18 @@ const ano = new Date().getFullYear();
 
     <div class="legal">
       <p>
-        <strong>{SITE.instituicao.razaoSocial}</strong> — CNPJ {SITE.instituicao.cnpjEscritorio}.
-        Escritório de assessoria de investimento vinculado a {SITE.instituicao.nome}.
-        {SITE.profissional.nome}, {SITE.profissional.cargo}
-        {SITE.profissional.certificacoes.length > 0 && ` · ${SITE.profissional.certificacoes.join(" · ")}`}.
+        <strong>{SITE.profissional.nome}</strong> — {SITE.profissional.cargo}
+        {SITE.profissional.certificacoes.length > 0 && ` · ${SITE.profissional.certificacoes.join(" · ")}`}
+        {" "}· {SITE.profissional.cidade}.
       </p>
+      <p>{DISCLAIMER_INSTITUCIONAL}</p>
       <p>
         {DISCLAIMER_CURTO} Este site tem finalidade exclusivamente informativa e
-        educacional. Nenhum conteúdo aqui constitui oferta, recomendação
-        individualizada, consultoria de valores mobiliários, análise, planejamento
-        tributário ou parecer jurídico. Investimentos envolvem risco e podem
-        resultar em perdas, inclusive superiores ao capital aplicado. Rentabilidade
-        passada não representa garantia de rentabilidade futura.
-      </p>
-      <p>
-        A atividade de assessor de investimento é regulada pela Resolução CVM 178.
-        Informações sobre arranjos de remuneração estão em
-        <a href="/remuneracao">Como sou remunerado</a>. Ouvidoria: {SITE.instituicao.ouvidoria}.
+        educacional. Nenhum conteúdo aqui constitui oferta ou recomendação
+        individualizada. As calculadoras são simulações ilustrativas a partir de
+        premissas do próprio usuário e não representam promessa ou sugestão de
+        rentabilidade. Sobre arranjos de remuneração, veja
+        <a href="/remuneracao">Como sou remunerado</a>.
       </p>
       <p>© {ano} {SITE.marcaCurta}. Todos os direitos reservados.</p>
     </div>

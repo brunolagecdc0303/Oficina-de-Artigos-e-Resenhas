@@ -3,6 +3,7 @@ titulo: "Recomendar não fazer nada também é uma recomendação"
 resumo: "A conversa mais difícil desta profissão não é convencer alguém a investir. É dizer que a melhor decisão do trimestre é não mexer em nada."
 data: 2026-09-05
 dimensao: humana
+rascunho: true
 ---
 
 Existe um teste simples para avaliar quem cuida do seu dinheiro. Olhe as últimas cinco reuniões que vocês tiveram e conte: em quantas delas a conclusão foi mudar alguma coisa?
