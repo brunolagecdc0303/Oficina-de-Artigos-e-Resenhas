@@ -49,6 +49,16 @@ export const SITE = {
 
   revisadoEm: "2026-09",
 
+  // ---------------------------------------------------------------------
+  // VISIBILIDADE NOS BUSCADORES
+  // false = o site funciona normalmente para quem tem o link, mas pede aos
+  //         buscadores que não o indexem. É o estado certo enquanto o site
+  //         está em revisão pelo compliance.
+  // true  = libera a indexação. VIRE PARA true no dia do lançamento de
+  //         verdade, senão o site nunca aparece na busca do Google.
+  // ---------------------------------------------------------------------
+  indexavel: false,
+
   // Descrição padrão do site: aparece na busca do Google e ao compartilhar link.
   descricao:
     "Transformo faturamento em patrimônio organizado e global. Diagnóstico " +

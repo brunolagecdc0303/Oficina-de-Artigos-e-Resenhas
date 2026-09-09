@@ -23,6 +23,7 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? "http://localhost");
     <title>{tituloCompleto}</title>
     <meta name="description" content={descricao} />
     <link rel="canonical" href={canonica} />
+    {!SITE.indexavel && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:type" content={tipo} />
     <meta property="og:title" content={tituloCompleto} />
     <meta property="og:description" content={descricao} />
