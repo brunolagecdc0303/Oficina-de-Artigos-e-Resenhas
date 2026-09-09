@@ -1,9 +1,10 @@
 # Configuração do SITE NOVO (pasta site/).
-# No Netlify, crie um site separado apontando para este repositório com
-# "Base directory" = site  — assim o projeto do IFL-BH na raiz continua intacto.
+# No Netlify, este projeto aponta para o repositório com
+# "Base directory" = site — assim o projeto do IFL-BH na raiz continua intacto.
+# Não declare "base" aqui: o Netlify já resolve tudo a partir do base directory,
+# e repetir a pasta faria o build procurar por site/site.
 
 [build]
-  base = "site"
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
