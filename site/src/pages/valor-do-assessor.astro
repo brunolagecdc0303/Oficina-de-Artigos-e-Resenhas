@@ -1,0 +1,281 @@
+---
+import Base from "../layouts/Base.astro";
+import Cta from "../components/Cta.astro";
+
+// A escada de valor mapeada pela indústria americana de wealth management,
+// da base ao topo. É uma ordenação qualitativa: não há retorno associado a
+// nenhum degrau, e de propósito.
+const escada = [
+  {
+    n: 6,
+    titulo: "Governança familiar e continuidade entre gerações",
+    peso: "O topo",
+    forca: 100,
+    texto:
+      "Preparar herdeiros, escrever as regras da família antes do conflito, fazer o patrimônio sobreviver a uma sucessão. Poucos chegam aqui.",
+  },
+  {
+    n: 5,
+    titulo: "Coaching comportamental e arquitetura de decisão",
+    peso: "Altíssimo",
+    forca: 88,
+    texto:
+      "Impedir que o plano seja destruído no pior dia. É a parcela que os quatro estudos apontam como a maior — e a única que software nenhum substitui.",
+    destaque: true,
+  },
+  {
+    n: 4,
+    titulo: "Eficiência tributária e estrutural",
+    peso: "Alto",
+    forca: 68,
+    texto:
+      "Veículo certo para o prazo real, estrutura societária, sucessão, exterior. Exige técnica rara e some do extrato.",
+  },
+  {
+    n: 3,
+    titulo: "Planejamento financeiro",
+    peso: "Médio-alto",
+    forca: 48,
+    texto: "Exige método e processo. É o que transforma dinheiro em decisão.",
+  },
+  {
+    n: 2,
+    titulo: "Construção de portfólio",
+    peso: "Baixo e caindo",
+    forca: 24,
+    texto: "Carteiras modelo e ETFs resolvem boa parte. Virou infraestrutura barata.",
+  },
+  {
+    n: 1,
+    titulo: "Seleção de produto",
+    peso: "Quase zero",
+    forca: 8,
+    texto: "Automatizado, comoditizado. E é exatamente aqui que a maior parte do mercado ainda concentra a conversa.",
+  },
+];
+
+const estudos = [
+  {
+    nome: "Vanguard Advisor's Alpha",
+    valor: "cerca de 3% a.a. líquidos",
+    origem:
+      "Rebalanceamento, alocação de custo baixo, localização de ativos, sequência de saques e — a maior parcela isolada — coaching comportamental.",
+  },
+  {
+    nome: "Russell Investments Value of an Advisor",
+    valor: "faixa de 4% a 5%+ a.a.",
+    origem:
+      "Coaching comportamental, planejamento, gestão tributária, custo do portfólio e a própria expertise do assessor.",
+  },
+  {
+    nome: "Morningstar Gamma",
+    valor: "cerca de 1,6% a.a. equivalente",
+    origem:
+      "Decisões de planejamento que aumentam a renda ajustada ao risco na aposentadoria, sem mudar o retorno do portfólio.",
+  },
+  {
+    nome: "Envestnet Capital Sigma",
+    valor: "cerca de 3% a.a.",
+    origem:
+      "Decomposição entre planejamento, alocação, implementação tributária e disciplina de rebalanceamento.",
+  },
+];
+---
+<Base
+  titulo="De onde vem o valor de um assessor"
+  descricao="Quatro instituições independentes tentaram medir o valor de um assessor financeiro. Chegaram a números diferentes e à mesma conclusão sobre de onde ele vem."
+  tipo="article"
+>
+  <section class="secao" style="padding-bottom:0">
+    <div class="wrap wrap-estreito">
+      <p class="olho">O valor do assessor</p>
+      <h1>Quatro instituições tentaram medir isso. Chegaram à mesma conclusão.</h1>
+      <p class="lead">
+        Vanguard, Russell, Morningstar e Envestnet estudaram, com metodologias
+        diferentes, quanto vale ter um assessor. Os números não batem entre si —
+        e isso importa menos do que parece. O que importa é que os quatro apontam
+        para o mesmo lugar quando explicam <em>de onde</em> o valor vem.
+      </p>
+      <p class="lead">
+        E não é da escolha dos ativos.
+      </p>
+    </div>
+  </section>
+
+  <!-- A ressalva vem antes da evidência, de propósito. -->
+  <section class="secao">
+    <div class="wrap wrap-estreito">
+      <div class="cartao" style="border-left:3px solid var(--accent)">
+        <h2 style="font-size:1.15rem;margin:0 0 .6rem">Antes dos números, o aviso que vem junto com eles</h2>
+        <p class="pequeno" style="color:var(--ink-2);margin:0 0 .7rem">
+          As quatro estimativas usam metodologias distintas, populações distintas
+          e definições distintas de "valor". Elas <strong>não são comparáveis
+          entre si</strong> e <strong>não podem ser somadas</strong>.
+        </p>
+        <p class="pequeno" style="color:var(--ink-2);margin:0">
+          Também não são promessa nem sugestão de rentabilidade: nenhuma delas
+          diz o que a sua carteira vai render, e nenhuma se aplica
+          automaticamente ao seu caso. O uso correto é conceitual — mostrar de
+          onde vem o valor, não prometer quanto ele será. É assim que eu uso
+          esses estudos com cliente, e é assim que eles aparecem aqui.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- A escada -->
+  <section class="secao secao-linha">
+    <div class="wrap wrap-estreito">
+      <h2>A escada de valor</h2>
+      <p>
+        A indústria americana de wealth management mapeou essa hierarquia com
+        clareza. Da base ao topo, o valor do assessor sobe assim — e a ordenação
+        é qualitativa, sem retorno associado a nenhum degrau:
+      </p>
+
+      <ol class="escada" role="list">
+        {escada.map((d) => (
+          <li class="degrau" data-destaque={d.destaque ? "" : undefined}>
+            <div class="degrau-topo">
+              <span class="degrau-n num">{String(d.n).padStart(2, "0")}</span>
+              <span class="degrau-titulo">{d.titulo}</span>
+              <span class="degrau-peso">{d.peso}</span>
+            </div>
+            <div class="degrau-trilho" aria-hidden="true">
+              <div class="degrau-barra" style={`width:${d.forca}%`}></div>
+            </div>
+            <p class="degrau-texto">{d.texto}</p>
+          </li>
+        ))}
+      </ol>
+
+      <p style="margin-top:2rem">
+        Repare no degrau 1. É onde a automação já chegou, é onde o valor é quase
+        nulo — e é exatamente ali que a maior parte das conversas do mercado
+        ainda acontece. Se as suas reuniões são sobre qual produto comprar, você
+        está pagando pelo degrau mais barato da escada.
+      </p>
+    </div>
+  </section>
+
+  <!-- Os estudos -->
+  <section class="secao secao-linha">
+    <div class="wrap wrap-estreito">
+      <h2>Os quatro estudos</h2>
+      <p>
+        Leia a coluna da direita antes da do meio. É ela que sustenta a página.
+      </p>
+      <div class="rolagem">
+        <table class="prosa" style="width:100%;max-width:none">
+          <thead>
+            <tr><th>Estudo</th><th>Valor estimado</th><th>De onde vem o valor</th></tr>
+          </thead>
+          <tbody>
+            {estudos.map((e) => (
+              <tr>
+                <td><strong>{e.nome}</strong></td>
+                <td class="num" style="white-space:nowrap;color:var(--muted)">{e.valor}</td>
+                <td>{e.origem}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="nota">
+        Estimativas de metodologias distintas, não comparáveis entre si e não
+        somáveis. Não constituem promessa ou sugestão de rentabilidade.
+      </p>
+    </div>
+  </section>
+
+  <!-- O ponto -->
+  <section class="secao secao-linha">
+    <div class="wrap wrap-estreito">
+      <h2>O ponto que muda tudo</h2>
+      <p>
+        Nos quatro estudos, a maior parcela isolada de valor não vem de escolher
+        o ativo certo. Vem de impedir que o investidor destrua o próprio plano.
+      </p>
+      <blockquote>
+        A coisa mais valiosa que alguém pode fazer pelo seu patrimônio é te
+        impedir de fazer besteira no dia em que você mais quer fazer.
+      </blockquote>
+      <p>
+        Isso é uma afirmação sobre comportamento, não sobre finanças. E tem uma
+        consequência incômoda para quem vende assessoria: significa que o valor
+        aparece em anos ruins, não em anos bons. Em ano de alta, qualquer um
+        parece competente. O trabalho é em fevereiro de 2020, em março de 2008,
+        na semana em que o cliente liga às onze da noite querendo vender tudo.
+      </p>
+
+      <h2>O que isso não quer dizer</h2>
+      <ul class="prosa">
+        <li>
+          <strong>Não quer dizer que você vai render 3% a mais por ano.</strong>
+          Nenhum dos estudos afirma isso sobre um caso individual, e eu também não.
+        </li>
+        <li>
+          <strong>Não quer dizer que os números se somam.</strong> Quem apresenta
+          "3% + 5% + 1,6%" está fazendo uma conta que os próprios autores
+          desautorizam.
+        </li>
+        <li>
+          <strong>Não quer dizer que todo assessor entrega isso.</strong> Os estudos
+          medem o que um bom processo produz, não o que qualquer pessoa com
+          certificação produz. A pergunta útil não é quanto vale um assessor —
+          é quanto vale <em>este</em>, e por qual método.
+        </li>
+      </ul>
+
+      <p>
+        É por isso que este site mostra <a href="/como-trabalho">o processo inteiro</a>
+        antes de você contratar qualquer coisa, e por isso
+        <a href="/remuneracao">quanto eu ganho</a> está escrito aqui antes de você
+        perguntar. O valor de um assessor não se prova com número prometido. Se
+        prova com método verificável.
+      </p>
+    </div>
+  </section>
+
+  <Cta
+    olho="Próximo passo"
+    titulo="O diagnóstico é o método aplicado ao seu caso"
+    texto="Oito dimensões, riscos priorizados, nenhuma recomendação junto. Se ao fim você concluir que não precisa de mim, leva o retrato do mesmo jeito."
+  />
+</Base>
+
+<style>
+  .escada { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; gap: .9rem; }
+  .degrau {
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 1.1rem 1.25rem;
+    background: var(--surface);
+  }
+  .degrau[data-destaque] {
+    border-color: var(--accent);
+    background: var(--accent-suave);
+  }
+  .degrau-topo {
+    display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap;
+    margin-bottom: .7rem;
+  }
+  .degrau-n { color: var(--muted); font-size: .8rem; font-weight: 600; }
+  .degrau-titulo {
+    font-family: var(--serif); font-size: 1.1rem; font-weight: 600;
+    line-height: 1.2; flex: 1 1 14rem;
+  }
+  .degrau-peso {
+    font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); white-space: nowrap;
+  }
+  .degrau[data-destaque] .degrau-peso { color: var(--accent-forte); }
+  .degrau-trilho {
+    height: 4px; background: var(--surface-2); border-radius: 99px;
+    overflow: hidden; margin-bottom: .7rem;
+  }
+  .degrau[data-destaque] .degrau-trilho { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+  .degrau-barra { height: 100%; background: var(--accent); border-radius: 99px; opacity: .55; }
+  .degrau[data-destaque] .degrau-barra { opacity: 1; }
+  .degrau-texto { font-size: .9rem; color: var(--ink-2); margin: 0; line-height: 1.55; }
+</style>
