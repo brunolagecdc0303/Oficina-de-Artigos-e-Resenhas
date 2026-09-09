@@ -20,7 +20,13 @@ export const SITE = {
     // Somente o que é efetivamente detido e validado pelo compliance.
     certificacoes: ["Certificação ANCORD"],
     cidade: "Belo Horizonte, MG",
-    bio: "[REVISAR: 2 a 3 frases. Quem você atende, há quanto tempo, e a decisão que te trouxe até aqui.]",
+    bio:
+      "Sete anos de mercado e mais de 500 famílias atendidas depois, o padrão se " +
+      "repete em quase todas: o faturamento cresce e a estrutura não acompanha. " +
+      "Meu trabalho é transformar faturamento em patrimônio organizado e global — " +
+      "com estrutura tributária, sucessória e internacional do tamanho que o " +
+      "dinheiro já tem. O que o cliente sente não aparece no extrato do mês " +
+      "seguinte: é a lista de coisas que param de tirar o sono dele.",
   },
 
   // Vínculo institucional — dados do rodapé oficial da InvestSmart.
@@ -42,6 +48,12 @@ export const SITE = {
   },
 
   revisadoEm: "2026-09",
+
+  // Descrição padrão do site: aparece na busca do Google e ao compartilhar link.
+  descricao:
+    "Transformo faturamento em patrimônio organizado e global. Diagnóstico " +
+    "patrimonial em oito dimensões, plano de uma página e transparência sobre " +
+    "como sou remunerado.",
 };
 
 /**
