@@ -138,6 +138,7 @@ export default async (req) => {
   return Response.json({
     ok: true,
     faixa: resultado.faixa,
+    pontuacao: resultado.total,
     titulo: resultado.titulo,
     mensagem: resultado.mensagem,
     proximoPasso: resultado.proximoPasso,

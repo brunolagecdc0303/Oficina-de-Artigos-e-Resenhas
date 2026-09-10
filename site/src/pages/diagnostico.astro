@@ -133,6 +133,26 @@ const sinais = {
         de pergunta genérica.
       </p>
 
+      <!--
+        Formulário fantasma: a Netlify precisa enxergar um <form> com estes
+        campos no HTML gerado para criar o canal de notificação. O envio real
+        é feito por JavaScript, e este aqui nunca aparece para ninguém.
+      -->
+      <form name="diagnostico" data-netlify="true" netlify-honeypot="website" hidden>
+        <input type="text" name="nome" />
+        <input type="email" name="email" />
+        <input type="tel" name="telefone" />
+        <input type="text" name="perfil" />
+        <input type="text" name="patrimonio" />
+        <input type="text" name="prazo" />
+        <input type="text" name="preocupacoes" />
+        <textarea name="contexto"></textarea>
+        <input type="text" name="origem" />
+        <input type="text" name="faixa" />
+        <input type="text" name="pontuacao" />
+        <input type="text" name="website" />
+      </form>
+
       <form id="form-lead" class="cartao" style="margin-top:2rem;padding:1.75rem">
         <div style="position:absolute;left:-9999px" aria-hidden="true">
           <label>Deixe em branco<input id="website" type="text" tabindex="-1" autocomplete="off" /></label>
@@ -289,6 +309,36 @@ const sinais = {
       consentimento: document.getElementById("consentimento").checked,
     };
 
+    /**
+     * Avisa por e-mail via Netlify Forms. É canal paralelo, não o principal:
+     * roda sem travar a tela e uma falha aqui nunca quebra o envio do lead.
+     */
+    const notificar = (faixa, pontuacao) => {
+      try {
+        const corpo = new URLSearchParams({
+          "form-name": "diagnostico",
+          nome: dados.nome,
+          email: dados.email,
+          telefone: dados.telefone,
+          perfil: dados.perfil,
+          patrimonio: dados.patrimonio,
+          prazo: dados.prazo,
+          preocupacoes: dados.dimensoes.map((d) => nomesFrentes[d] ?? d).join(", "),
+          contexto: dados.contexto,
+          origem: [dados.origem, rastreio.utmSource, rastreio.referrer].filter(Boolean).join(" | "),
+          faixa: faixa ?? "",
+          pontuacao: String(pontuacao ?? ""),
+        });
+        fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: corpo.toString(),
+        }).catch(() => {});
+      } catch {
+        // Notificação é conveniência. O lead já está gravado.
+      }
+    };
+
     try {
       const resposta = await fetch("/api/leads", {
         method: "POST",
@@ -297,6 +347,8 @@ const sinais = {
       });
       const corpo = await resposta.json();
       if (!resposta.ok) throw new Error(corpo.erro || "Não foi possível enviar agora.");
+
+      notificar(corpo.faixa, corpo.pontuacao);
 
       form.classList.add("oculto");
       const painel = document.getElementById("obrigado");
