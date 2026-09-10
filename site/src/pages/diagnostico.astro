@@ -7,17 +7,19 @@ import { getCollection } from "astro:content";
 // O bloco de agradecimento só oferece o blog quando há artigo publicado.
 const temArtigos = (await getCollection("artigos")).some((a) => !a.data.rascunho);
 
-const dimensoes = Object.entries(DIMENSOES);
+// A landing trabalha com as frentes que o visitante reconhece sozinho.
+// O método completo, com as oito dimensões, está em /como-trabalho.
+const FRENTES = ["fluxo", "investimentos", "tributaria", "protecao", "sucessoria", "internacional"];
+const dimensoes = FRENTES.map((chave) => [chave, DIMENSOES[chave]]);
 const sinais = {
-  fluxo: "Padrão de vida ancorado em renda ativa e cíclica",
-  investimentos: "Concentração setorial, ou carteira sem função definida",
-  tributaria: "Ativos no regime errado para o prazo real",
-  protecao: "Cobertura desalinhada da necessidade de liquidez sucessória",
-  empresarial: "Pessoa física e jurídica misturadas, sem acordo de sócios",
-  sucessoria: "Nenhum instrumento formalizado, contando com a boa vontade",
-  internacional: "Ativos nos EUA em conta direta, sem estrutura",
-  humana: "Herdeiros sem preparo e assunto nunca conversado em família",
+  fluxo: "A renda sobe, o padrão sobe junto. Organizar é o que faz gastar certo.",
+  investimentos: "A famosa carteira colcha de retalhos: vários ativos, nenhum com objetivo definido.",
+  tributaria: "Não aproveita as poucas concessões que o governo dá.",
+  protecao: "Quase ninguém pensa nisso. É uma ponta solta barata demais para ficar solta.",
+  sucessoria: "Sem organização e sem instrumento formal, vira briga de família.",
+  internacional: "Ou não tem, ou está feito errado: sem estrutura fiscal e sem proteção.",
 };
+
 ---
 <Landing
   titulo="Diagnóstico patrimonial"
@@ -30,7 +32,7 @@ const sinais = {
       <h1>Se algo acontecesse com você esta noite, quem ligaria para quem?</h1>
       <p class="lead">
         A maioria das pessoas com patrimônio relevante consegue responder quanto
-        tem. Quase nenhuma consegue responder o que acontece depois — quem assina
+        tem. Quase nenhuma consegue responder o que acontece depois: quem assina
         pela empresa, de onde sai o dinheiro do imposto, quanto tempo a família
         atravessa sem vender nada às pressas.
       </p>
@@ -39,7 +41,7 @@ const sinais = {
       </p>
       <p style="margin-top:2rem;display:flex;gap:.7rem;flex-wrap:wrap;align-items:center">
         <a class="btn btn-primario" href="#formulario">Fazer o diagnóstico</a>
-        <span class="nota" style="margin:0">Sete perguntas. Sem proposta e sem compromisso.</span>
+        <span class="nota" style="margin:0">Leva três minutos.</span>
       </p>
     </div>
   </section>
@@ -49,9 +51,9 @@ const sinais = {
     <div class="wrap wrap-estreito">
       <h2>O que costuma estar caro sem aparecer</h2>
       <p>
-        Investimento é uma das oito frentes de um patrimônio — e raramente é a
-        que mais custa. As outras sete não aparecem em extrato, não têm
-        rentabilidade mensal e ninguém liga para te avisar sobre elas.
+        Investimento é só uma das frentes de um patrimônio, e raramente é a que
+        mais custa. As outras não aparecem em extrato, não têm rentabilidade
+        mensal e ninguém liga para te avisar sobre elas.
       </p>
       <div class="grade grade-2" style="margin-top:2rem">
         {dimensoes.map(([chave, dim]) => (
@@ -68,19 +70,19 @@ const sinais = {
   <section class="secao secao-linha">
     <div class="wrap wrap-estreito">
       <p class="olho">Como funciona</p>
-      <h2>Diagnóstico primeiro. Recomendação depois — se houver.</h2>
+      <h2>Diagnóstico primeiro</h2>
       <p>
         Quase todo mundo no mercado inverte essa ordem: chega com a solução antes
-        de você ter sentido o problema. Eu separo as duas coisas de propósito, e
-        essa é a decisão de método que mais muda o resultado.
+        de você ter entendido o problema. Eu separo as duas coisas de propósito,
+        e essa é a decisão de método que mais muda o resultado.
       </p>
 
       <ol class="empilha" style="--gap:1rem;list-style:none;padding:0;margin:2rem 0 0;counter-reset:passo">
         {[
-          { t: "Descoberta", d: "Noventa minutos. Eu pergunto e escuto — sobre a família, a empresa, o que te tira o sono. Em 48 horas você recebe por escrito o resumo do que eu entendi. Sem proposta, sem produto." },
-          { t: "Coleta e análise", d: "Você me manda os documentos de uma lista objetiva. Eu mapeio as oito dimensões e consolido tudo em um mapa patrimonial único." },
-          { t: "Diagnóstico", d: "Sessenta minutos. Eu apresento o retrato atual, com os riscos priorizados — e nenhuma recomendação. Você sai sabendo exatamente onde está." },
-          { t: "Plano", d: "Noventa minutos. Aí sim: recomendações priorizadas e sequenciadas, com responsável e prazo, em uma página. Inclusive o que não vamos fazer, e por quê." },
+          { t: "Descoberta", d: "Noventa minutos. Eu pergunto e escuto, sobre a família, a empresa e o que te tira o sono. Em 48 horas você recebe por escrito o resumo do que eu entendi." },
+          { t: "Coleta e análise", d: "Você me manda os documentos de uma lista objetiva. Eu mapeio cada frente e consolido tudo em um mapa patrimonial único." },
+          { t: "Diagnóstico", d: "Sessenta minutos. Eu apresento o retrato atual com os riscos priorizados. Você sai sabendo exatamente onde está." },
+          { t: "Plano", d: "Noventa minutos. Recomendações priorizadas e sequenciadas, com responsável e prazo, em uma página. Inclusive o que não vamos fazer, e por quê." },
         ].map((p, i) => (
           <li class="cartao" style="display:flex;gap:1rem;align-items:flex-start">
             <span class="serif" style="font-size:1.6rem;color:var(--accent);line-height:1;min-width:1.5rem">{i + 1}</span>
@@ -93,9 +95,8 @@ const sinais = {
       </ol>
 
       <p style="margin-top:2rem">
-        Os três primeiros encontros acontecem antes de existir qualquer proposta
-        comercial. Se ao fim do diagnóstico você concluir que não precisa de mim,
-        leva o retrato do mesmo jeito.
+        É esse o trabalho, e é assim que ele começa. Do primeiro encontro ao
+        plano na sua mão costumam ser três a quatro semanas.
       </p>
     </div>
   </section>
@@ -106,8 +107,8 @@ const sinais = {
       <p class="olho">Começar</p>
       <h2>Sete perguntas antes da conversa</h2>
       <p class="lead">
-        Servem para eu chegar preparado — e para nós dois sabermos, antes de
-        marcar qualquer coisa, se faz sentido conversar.
+        Servem para eu chegar na nossa conversa já preparado, com hipótese em vez
+        de pergunta genérica.
       </p>
 
       <form id="form-lead" class="cartao" style="margin-top:2rem;padding:1.75rem">
@@ -138,7 +139,7 @@ const sinais = {
             <label class="escolha"><input type="radio" name="perfil" value="aposentado" />
               <span><b>Já parei de trabalhar</b><small>Vivo de renda e a prioridade é não errar</small></span></label>
             <label class="escolha"><input type="radio" name="perfil" value="outro" />
-              <span><b>Outra situação</b><small>Conte abaixo</small></span></label>
+              <span><b>Outra situação</b></span></label>
           </div>
         </fieldset>
 
@@ -152,7 +153,7 @@ const sinais = {
             <option value="acima-20mi">Acima de R$ 20 milhões</option>
             <option value="prefiro-nao-dizer">Prefiro não dizer agora</option>
           </select>
-          <span class="ajuda">Pergunto porque parte do que eu faço só se paga a partir de certa complexidade. Se não fizer sentido para você, eu prefiro dizer isso logo.</span></label>
+</label>
 
         <fieldset style="border:0;padding:0;margin:1.5rem 0 1.1rem">
           <legend class="olho" style="padding:0">O que mais te preocupa hoje</legend>
@@ -170,7 +171,7 @@ const sinais = {
         <label class="campo"><span>Quando você pretende resolver isso *</span>
           <select id="prazo" required>
             <option value="">Selecione</option>
-            <option value="agora">Agora — já é um problema</option>
+            <option value="agora">Agora, já é um problema</option>
             <option value="3-meses">Nos próximos três meses</option>
             <option value="este-ano">Ainda este ano</option>
             <option value="pesquisando">Só estou me informando</option>
@@ -191,7 +192,7 @@ const sinais = {
 
         <button class="btn btn-primario btn-bloco" type="submit" id="btn-enviar">Enviar</button>
         <p class="nota" style="margin-top:.8rem;text-align:center">
-          Respondo pessoalmente em até dois dias úteis. Não existe lista de disparo aqui.
+          Respondo pessoalmente em até dois dias úteis. Sem robôs por aqui.
         </p>
         <p id="erro-form" class="pequeno oculto" style="color:var(--alerta);margin-top:.8rem" role="alert"></p>
       </form>
@@ -270,7 +271,7 @@ const sinais = {
           botoes.push(`<a class="btn btn-primario" href="${agenda}" target="_blank" rel="noopener">Escolher um horário</a>`);
         } else if (email) {
           // Sem agenda pública, o lead prioritário ainda sai daqui com um caminho.
-          const assunto = encodeURIComponent("Diagnóstico patrimonial — " + dados.nome);
+          const assunto = encodeURIComponent("Diagnóstico patrimonial: " + dados.nome);
           botoes.push(`<a class="btn btn-primario" href="mailto:${email}?subject=${assunto}">Falar por e-mail agora</a>`);
         }
       }

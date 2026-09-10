@@ -12,7 +12,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
         </label>
         <label class="escolha">
           <input type="radio" name="modo" value="sacar" checked={false} />
-          <span><b>Quanto posso sacar sem quebrar</b><small>Fase de desacumulação — a conta que quase ninguém faz</small></span>
+          <span><b>Quanto posso sacar sem quebrar</b><small>Fase de desacumulação, a conta que quase ninguém faz</small></span>
         </label>
       </div>
     </fieldset>
@@ -36,7 +36,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
     </div>
 
     <hr style="margin:1.5rem 0" />
-    <p class="olho">Premissas — edite à vontade</p>
+    <p class="olho">Premissas (edite à vontade)</p>
 
     <label class="campo"><span>Retorno nominal esperado (% ao ano)</span>
       <input id="retorno" type="number" value="10" step="0.25" /></label>
@@ -87,7 +87,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
       definir(
         "r-frase",
         falta <= 0
-          ? `Isso sustenta ${moeda(rendaProjetada)} por mês durante ${anosRenda} anos — acima dos ${moeda(desejada)} que você quer. Você já está no caminho; a pergunta passa a ser o que fazer com a folga.`
+          ? `Isso sustenta ${moeda(rendaProjetada)} por mês durante ${anosRenda} anos, acima dos ${moeda(desejada)} que você quer. Você já está no caminho; a pergunta passa a ser o que fazer com a folga.`
           : `Isso sustenta ${moeda(rendaProjetada)} por mês durante ${anosRenda} anos. Você quer ${moeda(desejada)}. Faltam ${moeda(falta)} de patrimônio, ou ${moeda(Math.max(0, aporteIdeal))} de aporte mensal no lugar dos ${moeda(aporte)} atuais.`
       );
 
@@ -117,7 +117,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
       definir("r-valor", moeda(sustentavel));
       definir(
         "r-frase",
-        `Em valores de hoje, corrigidos pela inflação todo ano. Sacando ${moeda(perpetua)} por mês você nunca toca no principal — o patrimônio atravessa gerações. A diferença entre os dois números é o preço de gastar o principal.`
+        `Em valores de hoje, corrigidos pela inflação todo ano. Sacando ${moeda(perpetua)} por mês você nunca toca no principal, o patrimônio atravessa gerações. A diferença entre os dois números é o preço de gastar o principal.`
       );
 
       linhas("r-linhas", [

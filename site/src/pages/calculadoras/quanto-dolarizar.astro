@@ -21,7 +21,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
       <input id="projeto" type="number" value="0" min="0" step="100000" /></label>
     <label class="campo"><span>Parte do seu consumo atrelada a importados (%)</span>
       <input id="importados" type="number" value="15" step="1" />
-      <span class="ajuda">Eletrônicos, carro, remédio, insumo da sua empresa. Sobe o dólar, sobe o preço — mesmo comprando no Brasil.</span></label>
+      <span class="ajuda">Eletrônicos, carro, remédio, insumo da sua empresa. Sobe o dólar, sobe o preço, mesmo comprando no Brasil.</span></label>
     <label class="campo"><span>Custo de vida anual da família (R$)</span>
       <input id="custoVida" type="number" value="540000" min="0" step="10000" /></label>
 
@@ -70,7 +70,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
     definir(
       "r-frase",
       Math.abs(ajuste) < patrimonio * 0.02
-        ? `Sua exposição atual de ${percentual(atualPct, 0)} já está alinhada. Revise quando surgir um compromisso novo em moeda forte — intercâmbio, imóvel, tratamento médico.`
+        ? `Sua exposição atual de ${percentual(atualPct, 0)} já está alinhada. Revise quando surgir um compromisso novo em moeda forte, intercâmbio, imóvel, tratamento médico.`
         : ajuste > 0
         ? `Você tem ${percentual(atualPct, 0)} e a conta aponta para ${percentual(sugerida, 0)}. São ${moeda(ajuste)} a realocar. O argumento não é palpite de câmbio: é que ${moeda(passivoMoedaForte)} das suas despesas dos próximos ${anos} anos são, na prática, em moeda forte. Casar ativo com passivo é proteção, não aposta.`
         : `Você tem ${percentual(atualPct, 0)}, acima dos ${percentual(sugerida, 0)} que a conta indica. Exposição em excesso também é risco: se as despesas são em real, o câmbio vira volatilidade sem contrapartida.`

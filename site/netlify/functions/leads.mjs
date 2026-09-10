@@ -34,9 +34,8 @@ const FAIXAS = [
     mensagem:
       "Pelo que você descreveu, faz sentido conversarmos. Eu respondo " +
       "pessoalmente em até dois dias úteis para combinarmos o melhor horário. " +
-      "São noventa minutos, sem proposta e sem apresentação de produto: eu ouço, " +
-      "e em 48 horas depois da conversa você recebe por escrito o resumo do que " +
-      "eu entendi.",
+      "São noventa minutos em que eu pergunto e escuto, e em 48 horas depois " +
+      "da conversa você recebe por escrito o resumo do que eu entendi.",
     proximoPasso: "agenda",
   },
   {
@@ -54,7 +53,7 @@ const FAIXAS = [
     faixa: "conteudo",
     titulo: "Recebido",
     mensagem:
-      "Obrigado — anotei. Enquanto isso, as calculadoras são abertas e resolvem " +
+      "Obrigado, anotei. Enquanto isso, as calculadoras são abertas e resolvem " +
       "boa parte das dúvidas que chegam aqui.",
     proximoPasso: "conteudo",
   },

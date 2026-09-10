@@ -11,7 +11,7 @@ export const SITE = {
   url: "https://assessoria-patrimonial-site.netlify.app",
 
   // Res. CVM 178: a expressão "Assessor de Investimento" acompanha o nome.
-  marca: "Bruno Lage — Assessor de Investimento",
+  marca: "Bruno Lage, Assessor de Investimento",
   marcaCurta: "Bruno Lage",
 
   profissional: {
@@ -23,19 +23,19 @@ export const SITE = {
     bio:
       "Sete anos de mercado e mais de 500 famílias atendidas depois, o padrão se " +
       "repete em quase todas: o faturamento cresce e a estrutura não acompanha. " +
-      "Meu trabalho é transformar faturamento em patrimônio organizado e global — " +
+      "Meu trabalho é transformar faturamento em patrimônio organizado e global, " +
       "com estrutura tributária, sucessória e internacional do tamanho que o " +
       "dinheiro já tem. O que o cliente sente não aparece no extrato do mês " +
       "seguinte: é a lista de coisas que param de tirar o sono dele.",
   },
 
-  // Vínculo institucional — dados do rodapé oficial da InvestSmart.
+  // Vínculo institucional. Dados do rodapé oficial da InvestSmart.
   instituicao: {
     razaoSocial: "Invest Smart Assessor de Investimento Ltda.",
     cnpjEscritorio: "19.438.577/0001-08",
     nome: "XP Investimentos Corretora de Câmbio, Títulos e Valores Mobiliários S.A.",
     nomeCurto: "XP",
-    ouvidoria: "Ouvidoria da XP — 0800 722 3730",
+    ouvidoria: "Ouvidoria da XP, 0800 722 3730",
   },
 
   contato: {
@@ -69,7 +69,7 @@ export const SITE = {
 /**
  * Texto regulatório institucional, reproduzido do rodapé oficial da
  * InvestSmart. Qualquer alteração aqui precisa passar pelo compliance do
- * escritório — não reescreva por conta própria.
+ * escritório. Não reescreva por conta própria.
  */
 export const DISCLAIMER_INSTITUCIONAL =
   `A ${SITE.instituicao.razaoSocial}, inscrita sob o CNPJ nº ${SITE.instituicao.cnpjEscritorio}, ` +
@@ -97,7 +97,7 @@ export const DISCLAIMER_CALCULADORA =
   "Simulação ilustrativa construída a partir de premissas informadas por você e " +
   "editáveis nesta tela. Não constitui recomendação de investimento, consultoria, " +
   "análise, planejamento tributário ou parecer jurídico, e não representa promessa " +
-  "ou sugestão de rentabilidade. Alíquotas, tabelas e regras mudam — confirme a " +
+  "ou sugestão de rentabilidade. Alíquotas, tabelas e regras mudam, então confirme a " +
   "legislação vigente e converse com seu contador e seu advogado antes de decidir. " +
   "Nenhum dado digitado aqui é enviado para servidor: o cálculo roda inteiramente " +
   "no seu navegador.";

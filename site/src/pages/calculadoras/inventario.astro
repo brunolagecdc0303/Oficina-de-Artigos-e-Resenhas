@@ -18,7 +18,7 @@ import { ITCMD_ESTADOS, VIGENCIA } from "../../lib/tabelas.js";
 
     <label class="campo"><span>Alíquota de ITCMD (%)</span>
       <input id="aliquota" type="number" value="5" step="0.5" min="0" max="8" />
-      <span class="ajuda">Preenchida com a referência do estado. A EC 132/2023 tornou a progressividade obrigatória e vários estados estão revendo a própria lei — confirme a vigente.</span></label>
+      <span class="ajuda">Preenchida com a referência do estado. A EC 132/2023 tornou a progressividade obrigatória e vários estados estão revendo a própria lei, confirme a vigente.</span></label>
 
     <fieldset style="border:0;padding:0;margin:0 0 1.1rem">
       <legend class="olho" style="padding:0">Via do inventário</legend>
@@ -54,7 +54,7 @@ import { ITCMD_ESTADOS, VIGENCIA } from "../../lib/tabelas.js";
       <h2>O que essa conta não mostra</h2>
       <p>
         O número acima é o custo. O problema costuma ser outro: o <strong>prazo</strong>.
-        Até a partilha sair, os bens ficam indisponíveis — não se vende o imóvel,
+        Até a partilha sair, os bens ficam indisponíveis, não se vende o imóvel,
         não se movimenta a conta, e a empresa segue sem quem assine por ela. O
         ITCMD, na maioria dos estados, tem prazo curto para ser pago sob pena de
         multa, e vence <em>antes</em> de a família ter acesso ao dinheiro que está
@@ -101,7 +101,7 @@ import { ITCMD_ESTADOS, VIGENCIA } from "../../lib/tabelas.js";
     definir(
       "r-frase",
       `São ${percentual(total / patrimonio, 1)} do patrimônio, em dinheiro, para a família receber o que já é dela. ` +
-        `Pela via ${via === "judicial" ? "judicial" : "extrajudicial"}, a estimativa é de ${anosEMeses(prazo)} até a partilha — ` +
+        `Pela via ${via === "judicial" ? "judicial" : "extrajudicial"}, a estimativa é de ${anosEMeses(prazo)} até a partilha, ` +
         `e nesse intervalo os bens ficam indisponíveis.`
     );
 

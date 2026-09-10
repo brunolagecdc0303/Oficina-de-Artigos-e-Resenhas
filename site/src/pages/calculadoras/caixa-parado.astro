@@ -82,8 +82,8 @@ import Calculadora from "../../layouts/Calculadora.astro";
     definir(
       "r-frase",
       ocioso <= 0
-        ? `Todo o caixa que você tem cabe dentro da reserva de ${moeda(reserva)} que você definiu. Não há dinheiro ocioso aqui — há seguro, e seguro tem preço.`
-        : `São ${moeda(ocioso)} acima da sua reserva de ${moeda(reserva)}. Rendendo ${percentual(rendimentoAtualPct, 2)} ao ano em vez dos ${percentual(cdiLiquido, 2)} do CDI líquido, você abre mão de ${moeda(custo)} no período. E, contra uma inflação de ${percentual(inflacao, 1)}, esse dinheiro perde ${moeda(perdaInflacao)} de poder de compra — o rendimento real é de ${percentual(real, 2)} ao ano.`
+        ? `Todo o caixa que você tem cabe dentro da reserva de ${moeda(reserva)} que você definiu. Não há dinheiro ocioso aqui, há seguro, e seguro tem preço.`
+        : `São ${moeda(ocioso)} acima da sua reserva de ${moeda(reserva)}. Rendendo ${percentual(rendimentoAtualPct, 2)} ao ano em vez dos ${percentual(cdiLiquido, 2)} do CDI líquido, você abre mão de ${moeda(custo)} no período. E, contra uma inflação de ${percentual(inflacao, 1)}, esse dinheiro perde ${moeda(perdaInflacao)} de poder de compra, o rendimento real é de ${percentual(real, 2)} ao ano.`
     );
 
     barras("r-barras", [

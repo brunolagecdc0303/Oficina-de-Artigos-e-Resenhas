@@ -21,7 +21,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
       <input id="curtoPrazo" type="number" value="450000" min="0" step="25000" /></label>
     <label class="campo"><span>Investimentos com carência ou baixa liquidez (R$)</span>
       <input id="ilíquidos" type="number" value="2000000" min="0" step="100000" />
-      <span class="ajuda">Fundos fechados, previdência, imóveis, participações. Não contam na autonomia — contam no que você perderia vendendo às pressas.</span></label>
+      <span class="ajuda">Fundos fechados, previdência, imóveis, participações. Não contam na autonomia, contam no que você perderia vendendo às pressas.</span></label>
     <label class="campo"><span>Deságio ao liquidar às pressas (%)</span>
       <input id="desagio" type="number" value="20" step="1" /></label>
 
@@ -63,10 +63,10 @@ import Calculadora from "../../layouts/Calculadora.astro";
     definir(
       "r-frase",
       queima <= 0
-        ? "Sua renda independente já cobre o custo de vida da família. A empresa deixou de ser o único sustento — que é exatamente o objetivo."
+        ? "Sua renda independente já cobre o custo de vida da família. A empresa deixou de ser o único sustento, que é exatamente o objetivo."
         : meses >= meta
         ? `Queimando ${moeda(queima)} por mês, você atravessa ${anosEMeses(meses)} sem depender de um centavo da empresa. Está acima da sua própria meta de ${meta} meses.`
-        : `Queimando ${moeda(queima)} por mês, o dinheiro acessível acaba em ${anosEMeses(meses)} — antes da sua meta de ${meta} meses. Para chegar lá faltam ${moeda(falta)}, e cobrir esse buraco vendendo ativos ilíquidos às pressas custaria cerca de ${moeda(perdaSeVender)} só de deságio.`
+        : `Queimando ${moeda(queima)} por mês, o dinheiro acessível acaba em ${anosEMeses(meses)}, antes da sua meta de ${meta} meses. Para chegar lá faltam ${moeda(falta)}, e cobrir esse buraco vendendo ativos ilíquidos às pressas custaria cerca de ${moeda(perdaSeVender)} só de deságio.`
     );
 
     barras("r-barras", [

@@ -6,12 +6,12 @@
 // ---------------------------------------------------------------------------
 
 export const VIGENCIA = {
-  irpf: "tabela de referência — confira a vigente antes de decidir",
-  itcmd: "alíquotas de referência por estado — ITCMD é lei estadual e muda",
+  irpf: "tabela de referência, confira a vigente antes de decidir",
+  itcmd: "alíquotas de referência por estado, ITCMD é lei estadual e muda",
   estateTax: "regra federal dos EUA para não residentes (non-resident alien)",
 };
 
-/** IRPF — tabela progressiva mensal. Faixas em R$, dedução em R$. */
+/** IRPF, tabela progressiva mensal. Faixas em R$, dedução em R$. */
 export const IRPF_MENSAL = [
   { ate: 2259.2, aliquota: 0, deducao: 0 },
   { ate: 2826.65, aliquota: 0.075, deducao: 169.44 },
@@ -28,7 +28,7 @@ export const INSS = {
 
 /**
  * Tributação de dividendos distribuídos a pessoa física.
- * A regra mudou com a reforma da tributação da renda — os valores abaixo são
+ * A regra mudou com a reforma da tributação da renda, os valores abaixo são
  * PADRÕES EDITÁVEIS na tela, não afirmação sobre a legislação vigente.
  */
 export const DIVIDENDOS = {
@@ -36,7 +36,7 @@ export const DIVIDENDOS = {
   isencaoMensal: 50000,
   nota:
     "A tributação de dividendos mudou recentemente. Os valores vêm preenchidos " +
-    "como referência e são editáveis — confirme a regra vigente com seu contador.",
+    "como referência e são editáveis, confirme a regra vigente com seu contador.",
 };
 
 /** Carga tributária típica da PJ, como percentual do faturamento. Editável. */
@@ -53,7 +53,7 @@ export const PJ_PRESUMIDO = {
 };
 
 /**
- * ITCMD — alíquotas de referência por estado.
+ * ITCMD, alíquotas de referência por estado.
  * A EC 132/2023 tornou a progressividade obrigatória, e vários estados estão
  * revendo as próprias leis. Use como ponto de partida; o campo é editável.
  */
@@ -96,7 +96,7 @@ export const CUSTOS_INVENTARIO = {
 };
 
 /**
- * Estate tax americano — tabela unificada do IRC §2001(c).
+ * Estate tax americano, tabela unificada do IRC §2001(c).
  * Não residentes têm isenção de US$ 60 mil (crédito unificado de US$ 13.000).
  * O Brasil não tem tratado com os EUA para evitar bitributação sobre herança.
  */

@@ -17,7 +17,7 @@ import { VIGENCIA } from "../../lib/tabelas.js";
     <p class="olho">O que normalmente fica fora</p>
     <label class="campo"><span>Ativos que você acredita estarem fora do alcance (US$)</span>
       <input id="fora" type="number" value="0" min="0" step="10000" />
-      <span class="ajuda">Depósitos bancários não vinculados a negócio nos EUA, títulos com <em>portfolio interest</em>, ETFs domiciliados na Irlanda e estruturas offshore costumam ficar fora — mas isso depende de análise caso a caso.</span></label>
+      <span class="ajuda">Depósitos bancários não vinculados a negócio nos EUA, títulos com <em>portfolio interest</em>, ETFs domiciliados na Irlanda e estruturas offshore costumam ficar fora, mas isso depende de análise caso a caso.</span></label>
 
     <hr style="margin:1.5rem 0" />
     <label class="campo"><span>Câmbio para conversão (R$/US$)</span>
@@ -39,14 +39,14 @@ import { VIGENCIA } from "../../lib/tabelas.js";
       <h2>Por que quase ninguém sabe disso</h2>
       <p>
         Um residente americano tem uma isenção de estate tax na casa dos milhões
-        de dólares. Um não residente — você — tem <strong>US$ 60 mil</strong>. O
+        de dólares. Um não residente, você, tem <strong>US$ 60 mil</strong>. O
         que passa disso entra numa tabela progressiva que chega a 40%.
       </p>
       <p>
         O Brasil não tem tratado com os Estados Unidos para evitar bitributação
         sobre herança, e o imposto americano é devido antes de a corretora
         liberar os ativos para os herdeiros. Na prática, a família descobre a
-        conta no pior momento — e descobre pela corretora, não pelo assessor.
+        conta no pior momento, e descobre pela corretora, não pelo assessor.
       </p>
       <p>
         Existem caminhos conhecidos para reduzir ou eliminar essa exposição, e
@@ -75,8 +75,8 @@ import { VIGENCIA } from "../../lib/tabelas.js";
     definir(
       "r-frase",
       expostos <= ESTATE_TAX_EUA.isencaoNaoResidente
-        ? `Abaixo da isenção de US$ 60 mil para não residentes, não há imposto a pagar. Revise esta conta a cada aporte — a isenção não sobe com o tempo.`
-        : `Equivale a ${moeda(imposto * cambio)} pelo câmbio de ${cambio.toFixed(2).replace(".", ",")}, ou ${percentual(efetiva, 1)} de tudo que você tem nos Estados Unidos. É devido nos EUA, em dólar, antes de a corretora liberar os ativos para os herdeiros — e além do ITCMD que o estado brasileiro vai cobrar sobre o mesmo patrimônio.`
+        ? `Abaixo da isenção de US$ 60 mil para não residentes, não há imposto a pagar. Revise esta conta a cada aporte, a isenção não sobe com o tempo.`
+        : `Equivale a ${moeda(imposto * cambio)} pelo câmbio de ${cambio.toFixed(2).replace(".", ",")}, ou ${percentual(efetiva, 1)} de tudo que você tem nos Estados Unidos. É devido nos EUA, em dólar, antes de a corretora liberar os ativos para os herdeiros, e além do ITCMD que o estado brasileiro vai cobrar sobre o mesmo patrimônio.`
     );
 
     barras("r-barras", [

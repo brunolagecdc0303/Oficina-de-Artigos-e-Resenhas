@@ -47,7 +47,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
       <h2>O que o come-cotas realmente faz</h2>
       <p>
         Duas vezes por ano, em maio e novembro, o fundo aberto recolhe imposto
-        sobre o rendimento do semestre — você não vendeu nada, não sacou nada, e
+        sobre o rendimento do semestre, você não vendeu nada, não sacou nada, e
         mesmo assim tem cotas a menos. A alíquota é a mesma que você pagaria no
         fim: 15% para fundos de longo prazo.
       </p>
@@ -59,7 +59,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
       </p>
       <p>
         Isso não torna todo fundo ruim nem todo ETF bom. Torna o come-cotas um
-        fator que precisa entrar na conta antes da decisão — e que quase nunca
+        fator que precisa entrar na conta antes da decisão, e que quase nunca
         entra.
       </p>
     </div>
@@ -86,7 +86,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
     definir(
       "r-frase",
       `O fundo entrega ${moeda(r.comComeCotas)} líquidos; o veículo sem come-cotas entrega ${moeda(r.semComeCotas)}. ` +
-        `A diferença de ${moeda(r.diferenca)} equivale a ${percentual(r.diferenca / principal, 0)} do que você aplicou — ` +
+        `A diferença de ${moeda(r.diferenca)} equivale a ${percentual(r.diferenca / principal, 0)} do que você aplicou, ` +
         `e ${moeda(r.impostoAntecipado)} disso é imposto que saiu do bolso antes da hora, deixando de render pelo resto do prazo.`
     );
 

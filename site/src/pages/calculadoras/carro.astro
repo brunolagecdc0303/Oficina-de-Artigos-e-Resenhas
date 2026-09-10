@@ -100,8 +100,8 @@ import Calculadora from "../../layouts/Calculadora.astro";
       Math.abs(diferenca) < 1
         ? `Empate técnico com a assinatura de ${moeda(mensalidade)}. A decisão passa a ser sobre o que você prefere: propriedade ou previsibilidade.`
         : diferenca > 0
-        ? `A assinatura de ${moeda(mensalidade)} sai ${moeda(diferenca)} mais barata por mês — ${moeda(diferenca * meses)} no período. A maior parte do custo de possuir não é a parcela: é a depreciação de ${moeda(depreciacaoTotal)}, que ninguém sente porque não sai da conta.`
-        : `Possuir sai ${moeda(-diferenca)} mais barato por mês que a assinatura de ${moeda(mensalidade)} — ${moeda(-diferenca * meses)} no período.`
+        ? `A assinatura de ${moeda(mensalidade)} sai ${moeda(diferenca)} mais barata por mês, ${moeda(diferenca * meses)} no período. A maior parte do custo de possuir não é a parcela: é a depreciação de ${moeda(depreciacaoTotal)}, que ninguém sente porque não sai da conta.`
+        : `Possuir sai ${moeda(-diferenca)} mais barato por mês que a assinatura de ${moeda(mensalidade)}, ${moeda(-diferenca * meses)} no período.`
     );
 
     barras("r-barras", [

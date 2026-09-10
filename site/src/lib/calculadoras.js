@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // CATÁLOGO DAS CALCULADORAS
 // Fonte única de verdade: alimenta a grade, as rotas, o painel de admin e o
-// sitemap. `liberadaPorPadrao` é só o estado inicial — quem manda é o painel.
+// sitemap. `liberadaPorPadrao` é só o estado inicial; quem manda é o painel.
 // ---------------------------------------------------------------------------
 
 export const DIMENSOES = {
@@ -23,7 +23,7 @@ export const CALCULADORAS = [
     dimensao: "fluxo",
     liberadaPorPadrao: true,
     resumo:
-      "Quanto falta para você parar — e, do outro lado, quanto dá para sacar por ano sem quebrar o patrimônio.",
+      "Quanto falta para você parar e, do outro lado, quanto dá para sacar por ano sem quebrar o patrimônio.",
     pergunta: "Seu dinheiro dura mais que você?",
     amostra: { rotulo: "Sua renda vitalícia estimada", valor: "R$ 27.400 / mês" },
   },
@@ -45,7 +45,7 @@ export const CALCULADORAS = [
     dimensao: "fluxo",
     liberadaPorPadrao: true,
     resumo:
-      "Depreciação, IPVA, seguro, manutenção e custo de oportunidade — o custo mensal real de cada caminho.",
+      "Depreciação, IPVA, seguro, manutenção e custo de oportunidade: o custo mensal real de cada caminho.",
     pergunta: "Quanto o seu carro custa de verdade por mês?",
     amostra: { rotulo: "Custo real de possuir", valor: "R$ 4.180 / mês" },
   },
@@ -56,7 +56,7 @@ export const CALCULADORAS = [
     dimensao: "sucessoria",
     liberadaPorPadrao: false,
     resumo:
-      "Quanto sua família precisaria desembolsar para receber o que já é dela — e em quanto tempo.",
+      "Quanto sua família precisaria desembolsar para receber o que já é dela, e em quanto tempo.",
     pergunta: "Quanto custa transferir o que você construiu?",
     amostra: { rotulo: "Custo total do inventário", valor: "R$ 641.500" },
   },
@@ -166,7 +166,7 @@ export const CALCULADORAS = [
     dimensao: "fluxo",
     liberadaPorPadrao: false,
     resumo:
-      "O que o dinheiro sem função definida deixou de render — e quanto disso é reserva legítima.",
+      "O que o dinheiro sem função definida deixou de render, e quanto disso é reserva legítima.",
     pergunta: "Quanto custa o seu conforto de deixar parado?",
     amostra: { rotulo: "Custo em 12 meses", valor: "R$ 58.400" },
   },

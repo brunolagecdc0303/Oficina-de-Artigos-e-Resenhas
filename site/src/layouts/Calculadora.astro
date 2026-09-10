@@ -10,7 +10,7 @@ if (!calc) throw new Error(`Calculadora desconhecida no catálogo: ${slug}`);
 const dim = DIMENSOES[calc.dimensao];
 const liberadaNoBuild = liberadasPorPadrao().includes(slug);
 ---
-<Base titulo={`${calc.nome} — calculadora`} descricao={calc.resumo}>
+<Base titulo={`${calc.nome}: calculadora`} descricao={calc.resumo}>
   <section class="secao" style="padding-bottom:2rem">
     <div class="wrap">
       <p class="pequeno" style="margin-bottom:1.5rem">

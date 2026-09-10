@@ -7,7 +7,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
       <input id="aporte" type="number" value="60000" min="0" step="5000" /></label>
     <label class="campo"><span>Renda anual tributável (R$)</span>
       <input id="renda" type="number" value="500000" min="0" step="10000" />
-      <span class="ajuda">O PGBL só compensa se você declara no modelo completo e tem renda tributável — o abatimento é limitado a 12% dela.</span></label>
+      <span class="ajuda">O PGBL só compensa se você declara no modelo completo e tem renda tributável, o abatimento é limitado a 12% dela.</span></label>
     <label class="campo"><span>Prazo até o resgate (anos)</span>
       <input id="anos" type="number" value="20" min="1" max="45" /></label>
     <label class="campo"><span>Retorno bruto esperado (% ao ano)</span>
@@ -93,9 +93,9 @@ import Calculadora from "../../layouts/Calculadora.astro";
     definir(
       "r-frase",
       aporteDedutivel < aporte
-        ? `Atenção: só ${moeda(aporteDedutivel)} do seu aporte anual são dedutíveis — o teto é 12% da renda tributável. O que passa disso está em PGBL sem benefício algum e vai ser tributado na saída sobre o valor total, o pior dos dois mundos. Nesta configuração, o ${nomeMelhor} entrega mais.`
+        ? `Atenção: só ${moeda(aporteDedutivel)} do seu aporte anual são dedutíveis, o teto é 12% da renda tributável. O que passa disso está em PGBL sem benefício algum e vai ser tributado na saída sobre o valor total, o pior dos dois mundos. Nesta configuração, o ${nomeMelhor} entrega mais.`
         : vantagem > 0
-        ? `Com ${anos} anos e alíquota final de ${percentual(aliquotaFinal, 0)}, o PGBL entrega ${moeda(totalPgbl)} líquidos — ${moeda(vantagem)} a mais que a melhor alternativa. Isso depende inteiramente de você declarar no modelo completo e reinvestir a restituição.`
+        ? `Com ${anos} anos e alíquota final de ${percentual(aliquotaFinal, 0)}, o PGBL entrega ${moeda(totalPgbl)} líquidos, ${moeda(vantagem)} a mais que a melhor alternativa. Isso depende inteiramente de você declarar no modelo completo e reinvestir a restituição.`
         : `Nesta configuração o ${nomeMelhor} entrega mais: ${moeda(melhor)} contra ${moeda(totalPgbl)} do PGBL.`
     );
 

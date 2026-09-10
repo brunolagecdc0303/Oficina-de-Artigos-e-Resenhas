@@ -25,7 +25,7 @@ import { VIGENCIA } from "../../lib/tabelas.js";
     <p class="olho">Do que a família dispõe hoje</p>
     <label class="campo"><span>Caixa e investimentos de liquidez imediata (R$)</span>
       <input id="caixa" type="number" value="350000" min="0" step="50000" />
-      <span class="ajuda">Só o que resgata em D+0 ou D+1. Fundo com carência longa não conta aqui — e, uma vez aberto o inventário, mesmo esse dinheiro pode ficar bloqueado.</span></label>
+      <span class="ajuda">Só o que resgata em D+0 ou D+1. Fundo com carência longa não conta aqui, e, uma vez aberto o inventário, mesmo esse dinheiro pode ficar bloqueado.</span></label>
     <label class="campo"><span>Capital segurado de vida (R$)</span>
       <input id="seguro" type="number" value="500000" min="0" step="100000" />
       <span class="ajuda">O seguro de vida não entra em inventário e costuma ser pago em semanas. É a única fonte de liquidez que chega antes do problema.</span></label>
@@ -74,7 +74,7 @@ import { VIGENCIA } from "../../lib/tabelas.js";
     definir(
       "r-frase",
       buraco > 0
-        ? `É o que faltaria em dinheiro, e a única saída seria vender algum bem às pressas — no pior momento possível e para o primeiro que aparecer. Descontado o inventário e as dívidas, o que sobra sustenta a família por ${anosEMeses(autonomia)}.`
+        ? `É o que faltaria em dinheiro, e a única saída seria vender algum bem às pressas, no pior momento possível e para o primeiro que aparecer. Descontado o inventário e as dívidas, o que sobra sustenta a família por ${anosEMeses(autonomia)}.`
         : `A família atravessaria o inventário sem vender nada às pressas, com ${moeda(-buraco)} de margem. Revise essa conta sempre que o patrimônio ou o padrão de vida mudar.`
     );
 

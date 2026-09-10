@@ -1,7 +1,7 @@
 ---
 import Calculadora from "../../layouts/Calculadora.astro";
 ---
-<Calculadora slug="imovel-pf-x-holding" vigencia="tabela progressiva do IRPF e regime de lucro presumido para locação — confirme com seu contador">
+<Calculadora slug="imovel-pf-x-holding" vigencia="tabela progressiva do IRPF e regime de lucro presumido para locação, confirme com seu contador">
   <form id="f" class="calc-painel" slot="entradas">
     <label class="campo"><span>Receita mensal de aluguéis (R$)</span>
       <input id="aluguel" type="number" value="45000" min="0" step="1000" /></label>
@@ -15,7 +15,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
     <p class="olho">A holding</p>
     <label class="campo"><span>Presunção de lucro sobre locação (%)</span>
       <input id="presuncao" type="number" value="32" step="1" />
-      <span class="ajuda">Trinta e dois por cento é a presunção usual quando a locação é a atividade da empresa. Há entendimento de 8% em casos específicos — pergunte ao seu contador qual é o seu.</span></label>
+      <span class="ajuda">Trinta e dois por cento é a presunção usual quando a locação é a atividade da empresa. Há entendimento de 8% em casos específicos, pergunte ao seu contador qual é o seu.</span></label>
     <label class="campo"><span>Custo anual de manutenção da holding (R$)</span>
       <input id="custoHolding" type="number" value="24000" min="0" step="2000" />
       <span class="ajuda">Contabilidade, obrigações acessórias e honorários recorrentes.</span></label>
@@ -50,9 +50,9 @@ import Calculadora from "../../layouts/Calculadora.astro";
         custo da estrutura? É a pergunta menos importante das três.
       </p>
       <p>
-        As outras duas são sucessórias — a holding facilita a partilha, permite
+        As outras duas são sucessórias, a holding facilita a partilha, permite
         doação de quotas em vida com reserva de usufruto e evita que cada imóvel
-        vire um processo — e societárias, porque o acordo entre herdeiros pode
+        vire um processo, e societárias, porque o acordo entre herdeiros pode
         ser escrito antes do conflito, não durante. Uma holding que só se paga no
         imposto costuma ser uma holding mal justificada.
       </p>
@@ -107,9 +107,9 @@ import Calculadora from "../../layouts/Calculadora.astro";
     definir(
       "r-frase",
       economiaAnual <= 0
-        ? `Neste cenário a holding sai mais cara que a pessoa física. Isso não a descarta — a justificativa dela pode ser sucessória e societária — mas descarta o argumento tributário, que costuma ser o único apresentado na venda.`
+        ? `Neste cenário a holding sai mais cara que a pessoa física. Isso não a descarta, a justificativa dela pode ser sucessória e societária, mas descarta o argumento tributário, que costuma ser o único apresentado na venda.`
         : payback > anos * 12
-        ? `A economia existe, mas os ${moeda(custoConstituicao)} de constituição levariam ${anosEMeses(payback)} para se pagar — mais do que o horizonte de ${anos} anos que você definiu. Só por imposto, não fecha.`
+        ? `A economia existe, mas os ${moeda(custoConstituicao)} de constituição levariam ${anosEMeses(payback)} para se pagar, mais do que o horizonte de ${anos} anos que você definiu. Só por imposto, não fecha.`
         : `Os ${moeda(custoConstituicao)} de constituição se pagam em ${anosEMeses(payback)}. Em ${anos} anos, o ganho acumulado é de ${moeda(ganhoPeriodo)}, já descontado tudo.`
     );
 

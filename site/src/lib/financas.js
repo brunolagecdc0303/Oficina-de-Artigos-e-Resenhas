@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // Motor financeiro compartilhado por todas as calculadoras.
-// Funções puras, sem DOM, sem dependência externa — testadas em test/.
+// Funções puras, sem DOM, sem dependência externa, testadas em test/.
 // Convenção: taxas sempre em decimal (0.12 = 12%), nunca em pontos percentuais.
 // ---------------------------------------------------------------------------
 

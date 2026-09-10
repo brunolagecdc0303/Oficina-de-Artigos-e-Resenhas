@@ -95,7 +95,7 @@ import Calculadora from "../../layouts/Calculadora.astro";
       "r-frase",
       amortizarGanha
         ? `Amortizar economiza ${moeda(jurosEconomizados)} de juros; investir os mesmos ${moeda(disponivel)} renderia ${moeda(rendimentoLiquido)} líquidos no mesmo prazo. Amortizar ganha por ${moeda(vantagem)}. A regra por trás é simples: seu financiamento custa ${percentual(jurosAno, 2)} e seu investimento rende ${percentual(retornoLiquido, 2)} depois do imposto.`
-        : `Investir rende ${moeda(rendimentoLiquido)} líquidos contra ${moeda(jurosEconomizados)} de juros economizados. Investir ganha por ${moeda(-vantagem)} — mas isso exige que você realmente invista e não gaste, e que o retorno de ${percentual(retornoAno, 2)} se confirme, o que ninguém garante. Os juros do financiamento, esses são certos.`
+        : `Investir rende ${moeda(rendimentoLiquido)} líquidos contra ${moeda(jurosEconomizados)} de juros economizados. Investir ganha por ${moeda(-vantagem)}, mas isso exige que você realmente invista e não gaste, e que o retorno de ${percentual(retornoAno, 2)} se confirme, o que ninguém garante. Os juros do financiamento, esses são certos.`
     );
 
     barras("r-barras", [

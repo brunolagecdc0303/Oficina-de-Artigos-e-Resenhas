@@ -2,7 +2,7 @@
 import Calculadora from "../../layouts/Calculadora.astro";
 import { DIVIDENDOS } from "../../lib/tabelas.js";
 ---
-<Calculadora slug="pro-labore-x-dividendos" vigencia="tabelas de referência editáveis nesta tela — confirme com seu contador">
+<Calculadora slug="pro-labore-x-dividendos" vigencia="tabelas de referência editáveis nesta tela, confirme com seu contador">
   <form id="f" class="calc-painel" slot="entradas">
     <p class="olho">A empresa</p>
     <label class="campo"><span>Faturamento mensal (R$)</span>
@@ -14,7 +14,7 @@ import { DIVIDENDOS } from "../../lib/tabelas.js";
       <legend class="olho" style="padding:0">Regime tributário</legend>
       <div class="escolhas">
         <label class="escolha"><input type="radio" name="regime" value="presumido" checked />
-          <span><b>Lucro Presumido — serviços</b><small>Presunção de 32%, com IRPJ, CSLL, PIS, COFINS e ISS</small></span></label>
+          <span><b>Lucro Presumido (serviços)</b><small>Presunção de 32%, com IRPJ, CSLL, PIS, COFINS e ISS</small></span></label>
         <label class="escolha"><input type="radio" name="regime" value="simples" />
           <span><b>Simples Nacional</b><small>Você informa a alíquota efetiva do seu anexo</small></span></label>
       </div>
@@ -124,7 +124,7 @@ import { DIVIDENDOS } from "../../lib/tabelas.js";
     definir(
       "r-frase",
       ganho > 50
-        ? `Com pró-labore de ${moeda(melhor.proLabore)} no lugar de ${moeda(atual.proLabore)}, sobrariam ${moeda(melhor.liquido)} — ${moeda(ganho)} a mais por mês, ${moeda(ganho * 12)} por ano. Antes de mudar, converse com seu contador: pró-labore menor significa INSS menor, e INSS menor significa benefício previdenciário menor.`
+        ? `Com pró-labore de ${moeda(melhor.proLabore)} no lugar de ${moeda(atual.proLabore)}, sobrariam ${moeda(melhor.liquido)}, ${moeda(ganho)} a mais por mês, ${moeda(ganho * 12)} por ano. Antes de mudar, converse com seu contador: pró-labore menor significa INSS menor, e INSS menor significa benefício previdenciário menor.`
         : `Seu pró-labore já está perto do ponto ótimo desta configuração. A carga tributária total é de ${percentual(atual.cargaTotal / faturamento, 1)} do faturamento.`
     );
 
