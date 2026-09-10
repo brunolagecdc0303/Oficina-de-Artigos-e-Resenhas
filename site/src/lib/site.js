@@ -51,13 +51,13 @@ export const SITE = {
 
   // ---------------------------------------------------------------------
   // VISIBILIDADE NOS BUSCADORES
-  // false = o site funciona normalmente para quem tem o link, mas pede aos
-  //         buscadores que não o indexem. É o estado certo enquanto o site
-  //         está em revisão pelo compliance.
-  // true  = libera a indexação. VIRE PARA true no dia do lançamento de
-  //         verdade, senão o site nunca aparece na busca do Google.
+  // true  = buscadores podem indexar o site (estado de lançamento).
+  // false = o site continua funcionando para quem tem o link, mas pede aos
+  //         buscadores que fiquem fora. Útil para voltar a esconder o site
+  //         durante uma revisão grande.
+  // O painel /admin nunca é indexado, independente desta chave.
   // ---------------------------------------------------------------------
-  indexavel: false,
+  indexavel: true,
 
   // Descrição padrão do site: aparece na busca do Google e ao compartilhar link.
   descricao:

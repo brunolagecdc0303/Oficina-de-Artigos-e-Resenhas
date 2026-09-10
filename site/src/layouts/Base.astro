@@ -10,6 +10,7 @@ const {
   imagem = "/og.png",
   tipo = "website",
   semRodape = false,
+  semIndexar = false,
 } = Astro.props;
 
 const tituloCompleto = titulo ? `${titulo} · ${SITE.marcaCurta}` : SITE.marca;
@@ -23,7 +24,7 @@ const canonica = new URL(Astro.url.pathname, Astro.site ?? "http://localhost");
     <title>{tituloCompleto}</title>
     <meta name="description" content={descricao} />
     <link rel="canonical" href={canonica} />
-    {!SITE.indexavel && <meta name="robots" content="noindex, nofollow" />}
+    {(semIndexar || !SITE.indexavel) && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:type" content={tipo} />
     <meta property="og:title" content={tituloCompleto} />
     <meta property="og:description" content={descricao} />
