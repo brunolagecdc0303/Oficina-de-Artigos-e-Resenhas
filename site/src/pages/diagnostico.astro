@@ -10,6 +10,26 @@ const temArtigos = (await getCollection("artigos")).some((a) => !a.data.rascunho
 // A landing trabalha com as frentes que o visitante reconhece sozinho.
 // O método completo, com as oito dimensões, está em /como-trabalho.
 const FRENTES = ["fluxo", "investimentos", "tributaria", "protecao", "sucessoria", "internacional"];
+
+// O que a pessoa leva para casa depois de enviar. São perguntas, não
+// recomendações: apontam para onde olhar sem dizer o que fazer.
+const perguntas = {
+  fluxo:
+    "Se a distribuição de lucros parasse amanhã e permanentemente, por quanto tempo o seu padrão de vida se sustentaria?",
+  investimentos:
+    "Pegue os cinco maiores ativos da sua carteira. Você consegue dizer, de cada um, qual objetivo ele serve e em que prazo?",
+  tributaria:
+    "Quanto você pagou de imposto sobre investimentos no último ano, e quanto disso seria evitável com o mesmo ativo em outro veículo?",
+  protecao:
+    "Se você não estivesse aqui amanhã, sua família teria dinheiro em conta para os próximos doze meses sem precisar vender nada?",
+  sucessoria:
+    "De onde sairia o dinheiro do ITCMD? Ele vence antes de a família ter acesso ao patrimônio que está sendo inventariado.",
+  internacional:
+    "Seus ativos nos Estados Unidos estão em conta direta? Acima de US$ 60 mil, isso expõe a família a imposto americano que chega a 40%.",
+};
+
+// Nome legível de cada frente, para montar o retorno no navegador.
+const nomesFrentes = Object.fromEntries(FRENTES.map((c) => [c, DIMENSOES[c].nome]));
 const dimensoes = FRENTES.map((chave) => [chave, DIMENSOES[chave]]);
 const sinais = {
   fluxo: "A renda sobe, o padrão sobe junto. Organizar é o que faz gastar certo.",
@@ -201,13 +221,31 @@ const sinais = {
         <p class="olho">Recebido</p>
         <h2 id="obrigado-titulo" style="margin-bottom:.5rem"></h2>
         <p id="obrigado-msg" class="lead"></p>
+        <div id="obrigado-perguntas" class="oculto" style="margin-top:1.75rem"></div>
         <p id="obrigado-acoes" style="margin-top:1.5rem;display:flex;gap:.6rem;flex-wrap:wrap"></p>
       </div>
     </div>
   </section>
 </Landing>
 
-<script define:vars={{ agenda: SITE.contato.agenda, email: SITE.contato.email, temArtigos }}>
+<style>
+  .pergunta-retorno {
+    border-left: 2px solid var(--accent);
+    padding: .1rem 0 .1rem 1rem;
+    margin-bottom: 1.1rem;
+  }
+  .pergunta-retorno:last-of-type { margin-bottom: 0; }
+  .pergunta-frente {
+    font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 .3rem;
+  }
+  .pergunta-texto {
+    font-family: var(--serif); font-size: 1.05rem; line-height: 1.4;
+    color: var(--ink); margin: 0;
+  }
+</style>
+
+<script define:vars={{ agenda: SITE.contato.agenda, email: SITE.contato.email, temArtigos, perguntas, nomesFrentes }}>
   const form = document.getElementById("form-lead");
   const erro = document.getElementById("erro-form");
   const botao = document.getElementById("btn-enviar");
@@ -263,6 +301,27 @@ const sinais = {
       painel.classList.remove("oculto");
       document.getElementById("obrigado-titulo").textContent = corpo.titulo;
       document.getElementById("obrigado-msg").textContent = corpo.mensagem;
+
+      // Devolve, para cada frente marcada, a pergunta que abre a conversa.
+      const marcadas = dados.dimensoes.filter((d) => perguntas[d]);
+      if (marcadas.length) {
+        const bloco = document.getElementById("obrigado-perguntas");
+        bloco.innerHTML =
+          '<p class="olho" style="margin-bottom:1rem">Comece pensando nisto</p>' +
+          marcadas
+            .map(
+              (d) =>
+                '<div class="pergunta-retorno">' +
+                `<p class="pergunta-frente">${nomesFrentes[d]}</p>` +
+                `<p class="pergunta-texto">${perguntas[d]}</p>` +
+                "</div>"
+            )
+            .join("") +
+          '<p class="nota" style="margin-top:1rem">' +
+          (marcadas.length === 1 ? "É a pergunta" : "São as perguntas") +
+          " por onde eu começaria na nossa conversa. Não precisa ter a resposta agora.</p>";
+        bloco.classList.remove("oculto");
+      }
 
       const acoes = document.getElementById("obrigado-acoes");
       const botoes = [];
