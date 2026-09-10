@@ -130,6 +130,18 @@ import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
     conteudo: { texto: "Conteúdo", cor: "var(--muted)" },
   };
 
+  /** Junta o que o lead digitou com o que a URL entregou. */
+  function origemLegivel(l) {
+    const r = l.rastreio ?? {};
+    const partes = [];
+    if (r.utmSource) partes.push(r.utmCampaign ? `${r.utmSource}/${r.utmCampaign}` : r.utmSource);
+    else if (r.referrer) {
+      try { partes.push(new URL(r.referrer).hostname.replace(/^www\./, "")); } catch { partes.push(r.referrer); }
+    }
+    if (l.origem) partes.push(`"${l.origem}"`);
+    return partes.join(" · ") || "direto";
+  }
+
   function desenharLeads(leads) {
     const alvo = document.getElementById("lista-leads");
     if (!leads.length) {
@@ -138,7 +150,7 @@ import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
     }
     alvo.innerHTML = `
       <table class="prosa" style="width:100%;max-width:none;margin:0">
-        <thead><tr><th>Quando</th><th>Quem</th><th>Perfil</th><th>Patrimônio</th><th>Prazo</th><th>Pontos</th><th>Faixa</th></tr></thead>
+        <thead><tr><th>Quando</th><th>Quem</th><th>Perfil</th><th>Patrimônio</th><th>Prazo</th><th>Origem</th><th>Pontos</th><th>Faixa</th></tr></thead>
         <tbody>
           ${leads
             .map((l) => {
@@ -150,6 +162,7 @@ import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
                 <td class="nota">${l.perfil ?? ""}</td>
                 <td class="nota">${l.patrimonio ?? ""}</td>
                 <td class="nota">${l.prazo ?? ""}</td>
+                <td class="nota">${origemLegivel(l)}</td>
                 <td class="num">${l.pontuacao ?? 0}</td>
                 <td class="pequeno" style="color:${faixa.cor}"><b>${faixa.texto}</b></td>
               </tr>`;

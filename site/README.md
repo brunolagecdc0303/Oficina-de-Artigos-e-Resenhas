@@ -119,6 +119,32 @@ diz isso explicitamente.
 
 ## A landing page de qualificação
 
+`/diagnostico` é uma **página de captação isolada**: usa um layout próprio, sem
+menu e sem links de saída além da política de privacidade. Cada item de navegação
+numa landing é uma porta pela qual o visitante sai antes de preencher — por isso
+ela não tem nenhum.
+
+Serve como fonte de lead por si só: pode ir na bio da rede social, em anúncio, em
+assinatura de e-mail ou numa mensagem de WhatsApp, sem depender do resto do site.
+
+**Links curtos** (configurados em `netlify.toml`):
+
+- `/d` → o mais curto, para bio e WhatsApp
+- `/diagnostico-patrimonial` → para quando o contexto pede clareza
+
+**Medição de origem.** A página captura automaticamente `utm_source`,
+`utm_medium`, `utm_campaign`, `utm_content` e o referenciador, e guarda tudo
+junto do lead. No painel isso vira a coluna "Origem", combinada com o que a
+pessoa digitou em "Como você chegou até aqui?". Use assim:
+
+```
+/d?utm_source=instagram&utm_medium=bio&utm_campaign=diagnostico-set
+/d?utm_source=whatsapp&utm_medium=mensagem&utm_campaign=carteira-atual
+```
+
+Sem esses parâmetros, a origem aparece como o domínio de onde a pessoa veio, ou
+"direto".
+
 `/diagnostico` recebe quem chega e pontua o lead por patrimônio, perfil,
 urgência e complexidade (a lógica está em `netlify/functions/leads.mjs`, com os
 pesos abertos e fáceis de ajustar). Três faixas:

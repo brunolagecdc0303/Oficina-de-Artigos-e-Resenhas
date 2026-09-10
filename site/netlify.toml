@@ -9,6 +9,20 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# Link curto para a landing do diagnóstico: cabe em bio de rede social,
+# em cartão e em mensagem de WhatsApp sem quebrar a linha.
+[[redirects]]
+  from = "/d"
+  to = "/diagnostico"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/diagnostico-patrimonial"
+  to = "/diagnostico"
+  status = 301
+  force = true
+
 [functions]
   node_bundler = "esbuild"
 

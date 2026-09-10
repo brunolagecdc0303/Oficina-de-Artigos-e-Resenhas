@@ -1,0 +1,107 @@
+---
+// Layout de página de captação: sem menu, sem links de saída.
+// Cada item de navegação numa landing é uma porta pela qual o visitante sai
+// antes de preencher. Aqui só sobrevive o que a regulação exige.
+import "../styles/global.css";
+import { SITE, DISCLAIMER_INSTITUCIONAL, DISCLAIMER_CURTO } from "../lib/site.js";
+
+const { titulo, descricao, imagem = "/og.png" } = Astro.props;
+const tituloCompleto = titulo ? `${titulo} · ${SITE.marcaCurta}` : SITE.marca;
+const canonica = new URL(Astro.url.pathname, Astro.site ?? "http://localhost");
+const ano = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descricao} />
+    <link rel="canonical" href={canonica} />
+    {!SITE.indexavel && <meta name="robots" content="noindex, nofollow" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:url" content={canonica} />
+    <meta property="og:image" content={new URL(imagem, canonica)} />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+    />
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem("tema");
+          if (!t) t = matchMedia("(prefers-color-scheme: dark)").matches ? "escuro" : "claro";
+          document.documentElement.dataset.tema = t;
+        } catch (e) {
+          document.documentElement.dataset.tema = "claro";
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="pular" href="#formulario">Pular para o formulário</a>
+
+    <header class="lp-topo">
+      <div class="wrap lp-topo-int">
+        <span class="marca">
+          {SITE.marcaCurta}
+          <small>Assessor de Investimento</small>
+        </span>
+        <a class="btn btn-primario pequeno nao-imprime" href="#formulario">Começar</a>
+      </div>
+    </header>
+
+    <main id="conteudo">
+      <slot />
+    </main>
+
+    <footer class="rodape nao-imprime" style="margin-top:0">
+      <div class="wrap">
+        <div class="legal" style="border-top:0;padding-top:0">
+          <p>
+            <strong>{SITE.profissional.nome}</strong> — {SITE.profissional.cargo}
+            {SITE.profissional.certificacoes.length > 0 && ` · ${SITE.profissional.certificacoes.join(" · ")}`}
+            {" "}· {SITE.profissional.cidade}.
+          </p>
+          <p>{DISCLAIMER_INSTITUCIONAL}</p>
+          <p>
+            {DISCLAIMER_CURTO} Esta página tem finalidade informativa e não
+            constitui oferta ou recomendação individualizada. Seus dados são
+            usados apenas para o retorno de contato, conforme a
+            <a href="/privacidade">política de privacidade</a>.
+          </p>
+          <p>© {ano} {SITE.marcaCurta}.</p>
+        </div>
+      </div>
+    </footer>
+
+    <style>
+      .lp-topo {
+        border-bottom: 1px solid var(--line);
+        background: var(--paper);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .lp-topo-int {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        height: 4rem;
+      }
+      .lp-topo .marca { font-family: var(--serif); font-weight: 600; font-size: 1.05rem; }
+      .lp-topo .marca small {
+        display: block; font-family: var(--sans); font-size: .62rem; font-weight: 500;
+        letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+      }
+    </style>
+  </body>
+</html>

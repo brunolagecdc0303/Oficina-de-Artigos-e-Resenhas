@@ -1,5 +1,5 @@
 ---
-import Base from "../layouts/Base.astro";
+import Landing from "../layouts/Landing.astro";
 import { SITE } from "../lib/site.js";
 import { DIMENSOES } from "../lib/calculadoras.js";
 import { getCollection } from "astro:content";
@@ -19,10 +19,9 @@ const sinais = {
   humana: "Herdeiros sem preparo e assunto nunca conversado em família",
 };
 ---
-<Base
+<Landing
   titulo="Diagnóstico patrimonial"
   descricao="Um retrato dos seus riscos patrimoniais em oito dimensões, sem recomendação de produto junto."
-  tipo="article"
 >
   <!-- Tensão -->
   <section class="secao" style="padding-bottom:0">
@@ -37,6 +36,10 @@ const sinais = {
       </p>
       <p class="lead">
         Não é descuido. É que ninguém nunca fez essas perguntas para você.
+      </p>
+      <p style="margin-top:2rem;display:flex;gap:.7rem;flex-wrap:wrap;align-items:center">
+        <a class="btn btn-primario" href="#formulario">Fazer o diagnóstico</a>
+        <span class="nota" style="margin:0">Sete perguntas. Sem proposta e sem compromisso.</span>
       </p>
     </div>
   </section>
@@ -201,7 +204,7 @@ const sinais = {
       </div>
     </div>
   </section>
-</Base>
+</Landing>
 
 <script define:vars={{ agenda: SITE.contato.agenda, email: SITE.contato.email, temArtigos }}>
   const form = document.getElementById("form-lead");
@@ -219,7 +222,19 @@ const sinais = {
     botao.disabled = true;
     botao.textContent = "Enviando…";
 
+    // De onde o visitante veio. Sem isto, "fonte de lead própria" não se mede.
+    const params = new URLSearchParams(location.search);
+    const rastreio = {
+      utmSource: params.get("utm_source") || "",
+      utmMedium: params.get("utm_medium") || "",
+      utmCampaign: params.get("utm_campaign") || "",
+      utmContent: params.get("utm_content") || "",
+      referrer: document.referrer || "",
+      pagina: location.pathname,
+    };
+
     const dados = {
+      rastreio,
       nome: document.getElementById("nome").value,
       email: document.getElementById("email").value,
       telefone: document.getElementById("telefone").value,
