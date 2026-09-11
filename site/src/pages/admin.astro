@@ -59,21 +59,34 @@ import { CAMPOS_TEXTO } from "../lib/textos.js";
             <a href="/diagnostico" target="_blank" rel="noopener">/diagnostico</a>.
           </p>
           <form id="form-textos">
-            {CAMPOS_TEXTO.map((campo) =>
-              campo.grupo ? (
-                <p class="olho" style="margin:2rem 0 1rem">{campo.grupo}</p>
-              ) : (
-                <label class="campo">
-                  <span>{campo.rotulo}</span>
-                  {campo.linhas > 1 ? (
-                    <textarea data-texto={campo.chave} rows={campo.linhas}></textarea>
-                  ) : (
-                    <input data-texto={campo.chave} type="text" />
-                  )}
-                  {campo.ajuda && <span class="ajuda">{campo.ajuda}</span>}
-                </label>
-              )
-            )}
+            {(() => {
+              // Agrupa os campos para render em seções que abrem e fecham.
+              const secoes = [];
+              for (const campo of CAMPOS_TEXTO) {
+                if (campo.grupo) secoes.push({ ...campo, campos: [] });
+                else secoes[secoes.length - 1]?.campos.push(campo);
+              }
+              return secoes.map((secao, i) => (
+                <details class="secao-textos" open={i === 0}>
+                  <summary>
+                    {secao.grupo}
+                    <span class="conta">{secao.campos.length}</span>
+                  </summary>
+                  {secao.nota && <p class="nota" style="margin:.2rem 0 1rem">{secao.nota}</p>}
+                  {secao.campos.map((campo) => (
+                    <label class="campo">
+                      <span>{campo.rotulo}</span>
+                      {campo.linhas > 1 ? (
+                        <textarea data-texto={campo.chave} rows={campo.linhas}></textarea>
+                      ) : (
+                        <input data-texto={campo.chave} type="text" />
+                      )}
+                      {campo.ajuda && <span class="ajuda">{campo.ajuda}</span>}
+                    </label>
+                  ))}
+                </details>
+              ));
+            })()}
             <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.5rem">
               <button class="btn btn-primario" type="submit">Salvar textos</button>
               <button class="btn btn-secundario" type="button" id="btn-restaurar">Restaurar tudo ao padrão</button>
@@ -98,6 +111,37 @@ import { CAMPOS_TEXTO } from "../lib/textos.js";
     </div>
   </section>
 </Base>
+
+<style>
+  .secao-textos {
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 0 1rem;
+    margin-bottom: .6rem;
+  }
+  .secao-textos[open] { padding-bottom: 1rem; }
+  .secao-textos summary {
+    cursor: pointer;
+    padding: .85rem 0;
+    font-size: .74rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .secao-textos summary::marker { color: var(--muted); }
+  .secao-textos .conta {
+    font-size: .68rem;
+    letter-spacing: 0;
+    color: var(--muted);
+    background: var(--surface-2);
+    border-radius: 99px;
+    padding: .1rem .45rem;
+  }
+</style>
 
 <script define:vars={{ CAMPOS_TEXTO, catalogo: CALCULADORAS.map((c) => ({ slug: c.slug, nome: c.nome, subtitulo: c.subtitulo, dimensao: c.dimensao })), dimensoes: DIMENSOES }}>
   let pin = null;

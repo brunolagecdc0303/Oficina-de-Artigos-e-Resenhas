@@ -28,34 +28,26 @@ const temArtigos = (await getCollection("artigos")).some((a) => !a.data.rascunho
 // O método completo, com as oito dimensões, está em /como-trabalho.
 const FRENTES = ["fluxo", "investimentos", "tributaria", "protecao", "sucessoria", "internacional"];
 
-// O que a pessoa leva para casa depois de enviar. São perguntas, não
-// recomendações: apontam para onde olhar sem dizer o que fazer.
-const perguntas = {
-  fluxo:
-    "Se a distribuição de lucros parasse amanhã e permanentemente, por quanto tempo o seu padrão de vida se sustentaria?",
-  investimentos:
-    "Pegue os cinco maiores ativos da sua carteira. Você consegue dizer, de cada um, qual objetivo ele serve e em que prazo?",
-  tributaria:
-    "Quanto você pagou de imposto sobre investimentos no último ano, e quanto disso seria evitável com o mesmo ativo em outro veículo?",
-  protecao:
-    "Se você não estivesse aqui amanhã, sua família teria dinheiro em conta para os próximos doze meses sem precisar vender nada?",
-  sucessoria:
-    "De onde sairia o dinheiro do ITCMD? Ele vence antes de a família ter acesso ao patrimônio que está sendo inventariado.",
-  internacional:
-    "Seus ativos nos Estados Unidos estão em conta direta? Acima de US$ 60 mil, isso expõe a família a imposto americano que chega a 40%.",
-};
 
 // Nome legível de cada frente, para montar o retorno no navegador.
 const nomesFrentes = Object.fromEntries(FRENTES.map((c) => [c, DIMENSOES[c].nome]));
 const dimensoes = FRENTES.map((chave) => [chave, DIMENSOES[chave]]);
-const sinais = {
-  fluxo: "A renda sobe, o padrão sobe junto. Organizar é o que faz gastar certo.",
-  investimentos: "A famosa carteira colcha de retalhos: vários ativos, nenhum com objetivo definido.",
-  tributaria: "Não aproveita as poucas concessões que o governo dá.",
-  protecao: "Quase ninguém pensa nisso. É uma ponta solta barata demais para ficar solta.",
-  sucessoria: "Sem organização e sem instrumento formal, vira briga de família.",
-  internacional: "Ou não tem, ou está feito errado: sem estrutura fiscal e sem proteção.",
+// Chave de cada frente nos textos editáveis. O sufixo casa com o nome do
+// campo em textos.js, então acrescentar uma frente nova exige mexer nos dois.
+const SUFIXO = {
+  fluxo: "Fluxo",
+  investimentos: "Investimentos",
+  tributaria: "Tributaria",
+  protecao: "Protecao",
+  sucessoria: "Sucessoria",
+  internacional: "Internacional",
 };
+const sinais = Object.fromEntries(
+  Object.entries(SUFIXO).map(([chave, sufixo]) => [chave, t[`frente${sufixo}`]])
+);
+const perguntas = Object.fromEntries(
+  Object.entries(SUFIXO).map(([chave, sufixo]) => [chave, t[`pergunta${sufixo}`]])
+);
 
 ---
 <Landing
@@ -100,13 +92,8 @@ const sinais = {
       <p>{t.metodoParagrafo}</p>
 
       <ol class="empilha" style="--gap:1rem;list-style:none;padding:0;margin:2rem 0 0;counter-reset:passo">
-        {[
-          { t: "Descoberta", d: "Noventa minutos. Eu pergunto e escuto, sobre a família, a empresa e o que te tira o sono. Em 48 horas você recebe por escrito o resumo do que eu entendi." },
-          { t: "Coleta e análise", d: "Você me manda os documentos de uma lista objetiva. Eu mapeio cada frente e consolido tudo em um mapa patrimonial único." },
-          { t: "Diagnóstico", d: "Sessenta minutos. Eu apresento o retrato atual com os riscos priorizados. Você sai sabendo exatamente onde está." },
-          { t: "Plano", d: "Noventa minutos. Recomendações priorizadas e sequenciadas, com responsável e prazo, em uma página. Inclusive o que não vamos fazer, e por quê." },
-          { t: "Decisão", d: "É aqui que você decide. Com o diagnóstico e o plano na mão, eu apresento a proposta: o que eu executo, como funciona o acompanhamento e quanto custa. Fechando, as primeiras ações saem com data na mesma semana." },
-        ].map((p, i) => (
+        {[1, 2, 3, 4, 5].map((n) => ({ t: t[`etapa${n}Titulo`], d: t[`etapa${n}Texto`] }))
+        .map((p, i) => (
           <li class="cartao" style="display:flex;gap:1rem;align-items:flex-start">
             <span class="serif" style="font-size:1.6rem;color:var(--accent);line-height:1;min-width:1.5rem">{i + 1}</span>
             <span>
