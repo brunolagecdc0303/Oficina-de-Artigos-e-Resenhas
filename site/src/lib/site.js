@@ -5,10 +5,9 @@
 // ---------------------------------------------------------------------------
 
 export const SITE = {
-  // Troque para "https://lageinvestimentos.com.br" SOMENTE depois que o domínio
-  // estiver respondendo na Netlify. Antes disso, canônicas, sitemap e RSS
-  // apontariam para um endereço que ainda não existe.
-  url: "https://bruno-lage-assessoria.netlify.app",
+  // Endereço oficial do site. É daqui que saem as URLs canônicas, o sitemap e
+  // o RSS, então ele precisa ser sempre o domínio que você divulga.
+  url: "https://lageinvestimentos.com.br",
 
   // Res. CVM 178: a expressão "Assessor de Investimento" acompanha o nome.
   marca: "Bruno Lage, Assessor de Investimento",
