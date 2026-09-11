@@ -161,6 +161,34 @@ para o mais antigo. Para o botão "escolher um horário" aparecer, preencha
 
 ---
 
+## Editando os textos sem passar por deploy
+
+O painel `/admin` tem a seção **Textos da landing do diagnóstico**, com dezessete
+campos: título, parágrafos, texto do botão, títulos de bloco, o rodapé do
+formulário e a descrição que aparece no Google.
+
+O que você salvar ali **vale na hora**. Não precisa de novo deploy, não gasta
+minuto de build. Campo em branco volta ao texto padrão, e o botão "Restaurar
+tudo ao padrão" limpa de uma vez.
+
+Isso funciona porque a landing é a única página do site renderizada no servidor:
+a cada visita ela lê os textos salvos antes de montar o HTML. O resto do site
+continua estático. Os padrões de fábrica ficam em `src/lib/textos.js`, e mexer
+neles exige deploy; mexer no painel, não.
+
+### A sua foto
+
+No mesmo painel, em **Sua foto**, cole o endereço de uma imagem. Duas formas:
+
+- **Arquivo no projeto:** suba a imagem para `site/public/img/` (dá para fazer
+  pelo próprio GitHub, em *Add file → Upload files*) e use o caminho
+  `/img/nome-do-arquivo.jpg`. Exige um deploy, mas só uma vez.
+- **Endereço externo:** qualquer URL pública de imagem funciona, sem deploy
+  nenhum.
+
+Campo em branco não mostra foto, e nada quebra. A foto aparece junto ao
+formulário, com seu nome e certificação, identificando quem vai responder.
+
 ## O blog
 
 Artigos em Markdown, em `src/content/artigos/`. Um arquivo por artigo, com este

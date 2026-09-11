@@ -1,5 +1,6 @@
 import { getStore } from "@netlify/blobs";
 import { CALCULADORAS, liberadasPorPadrao } from "../../src/lib/calculadoras.js";
+import { TEXTOS_PADRAO, mesclarTextos } from "../../src/lib/textos.js";
 
 const ADMIN_PIN = process.env.ADMIN_PIN;
 const TODAS = CALCULADORAS.map((c) => c.slug);
@@ -84,6 +85,25 @@ export default async (req) => {
       const codigo = String(body.codigo ?? "").trim();
       const registro = await gravar({ ...estado, codigoCliente: codigo || null });
       return Response.json({ ok: true, ...registro });
+    }
+
+    case "textos": {
+      const salvos = (await store.get("textos", { type: "json" })) ?? {};
+      return Response.json({ textos: mesclarTextos(salvos), salvos });
+    }
+
+    case "salvarTextos": {
+      const recebidos = body.textos ?? {};
+      const limpos = {};
+      for (const chave of Object.keys(TEXTOS_PADRAO)) {
+        const valor = recebidos[chave];
+        // Campo vazio significa "voltar ao padrão": não guardamos nada.
+        if (typeof valor === "string" && valor.trim()) {
+          limpos[chave] = valor.trim().slice(0, 2000);
+        }
+      }
+      await store.setJSON("textos", { ...limpos, atualizadoEm: new Date().toISOString() });
+      return Response.json({ ok: true, textos: mesclarTextos(limpos) });
     }
 
     case "leads": {

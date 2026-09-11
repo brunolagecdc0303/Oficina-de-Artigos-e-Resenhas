@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
+import { CAMPOS_TEXTO } from "../lib/textos.js";
 ---
 <Base titulo="Administração" descricao="Painel de controle do site." semIndexar={true}>
   <section class="secao">
@@ -49,6 +50,38 @@ import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
           <p id="status-codigo" class="pequeno oculto" style="margin-top:.8rem" role="status"></p>
         </div>
 
+        <!-- Textos da landing -->
+        <div class="cartao" style="margin-top:1.5rem">
+          <h2 style="font-size:1.3rem;margin:0 0 .5rem">Textos da landing do diagnóstico</h2>
+          <p class="nota" style="margin:0 0 1.5rem">
+            O que você salvar aqui vale na hora, sem novo deploy. Campo em branco
+            volta ao texto padrão. Veja o resultado em
+            <a href="/diagnostico" target="_blank" rel="noopener">/diagnostico</a>.
+          </p>
+          <form id="form-textos">
+            {CAMPOS_TEXTO.map((campo) =>
+              campo.grupo ? (
+                <p class="olho" style="margin:2rem 0 1rem">{campo.grupo}</p>
+              ) : (
+                <label class="campo">
+                  <span>{campo.rotulo}</span>
+                  {campo.linhas > 1 ? (
+                    <textarea data-texto={campo.chave} rows={campo.linhas}></textarea>
+                  ) : (
+                    <input data-texto={campo.chave} type="text" />
+                  )}
+                  {campo.ajuda && <span class="ajuda">{campo.ajuda}</span>}
+                </label>
+              )
+            )}
+            <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.5rem">
+              <button class="btn btn-primario" type="submit">Salvar textos</button>
+              <button class="btn btn-secundario" type="button" id="btn-restaurar">Restaurar tudo ao padrão</button>
+            </div>
+            <p id="status-textos" class="pequeno oculto" style="margin-top:.8rem" role="status"></p>
+          </form>
+        </div>
+
         <!-- Leads -->
         <div class="cartao" style="margin-top:1.5rem">
           <div style="display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap">
@@ -66,7 +99,7 @@ import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
   </section>
 </Base>
 
-<script define:vars={{ catalogo: CALCULADORAS.map((c) => ({ slug: c.slug, nome: c.nome, subtitulo: c.subtitulo, dimensao: c.dimensao })), dimensoes: DIMENSOES }}>
+<script define:vars={{ CAMPOS_TEXTO, catalogo: CALCULADORAS.map((c) => ({ slug: c.slug, nome: c.nome, subtitulo: c.subtitulo, dimensao: c.dimensao })), dimensoes: DIMENSOES }}>
   let pin = null;
 
   const api = async (corpo) => {
@@ -181,6 +214,7 @@ import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
       document.getElementById("painel").classList.remove("oculto");
       desenharCalculadoras(dados.liberadas);
       document.getElementById("codigo-cliente").value = dados.codigoCliente ?? "";
+      await carregarTextos();
       const leads = await api({ action: "leads" });
       desenharLeads(leads.leads ?? []);
     } catch (erro) {
@@ -210,6 +244,44 @@ import { CALCULADORAS, DIMENSOES } from "../lib/calculadoras.js";
       aviso("status-codigo", "Código salvo. O anterior parou de valer.", false);
     } catch (erro) {
       aviso("status-codigo", erro.message, true);
+    }
+  });
+
+  // ---- Textos da landing ----
+  const camposTexto = () => [...document.querySelectorAll("[data-texto]")];
+
+  function preencherTextos(textos) {
+    for (const campo of camposTexto()) {
+      campo.value = textos[campo.dataset.texto] ?? "";
+    }
+  }
+
+  async function carregarTextos() {
+    const dados = await api({ action: "textos" });
+    preencherTextos(dados.textos ?? {});
+  }
+
+  document.getElementById("form-textos").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const textos = {};
+    for (const campo of camposTexto()) textos[campo.dataset.texto] = campo.value;
+    try {
+      const dados = await api({ action: "salvarTextos", textos });
+      preencherTextos(dados.textos ?? {});
+      aviso("status-textos", "Salvo. A landing já está com os textos novos.", false);
+    } catch (erro) {
+      aviso("status-textos", erro.message, true);
+    }
+  });
+
+  document.getElementById("btn-restaurar").addEventListener("click", async () => {
+    if (!confirm("Isso apaga todos os textos personalizados e volta aos padrões. Continuar?")) return;
+    try {
+      const dados = await api({ action: "salvarTextos", textos: {} });
+      preencherTextos(dados.textos ?? {});
+      aviso("status-textos", "Textos restaurados ao padrão.", false);
+    } catch (erro) {
+      aviso("status-textos", erro.message, true);
     }
   });
 

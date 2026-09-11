@@ -3,6 +3,23 @@ import Landing from "../layouts/Landing.astro";
 import { SITE } from "../lib/site.js";
 import { DIMENSOES } from "../lib/calculadoras.js";
 import { getCollection } from "astro:content";
+import { mesclarTextos } from "../lib/textos.js";
+
+// Renderizada a cada visita, para pegar os textos editados no painel sem
+// precisar de novo deploy. O resto do site continua estático.
+export const prerender = false;
+
+/** Lê os textos salvos. Se o armazenamento não responder, usa os padrões. */
+async function carregarTextos() {
+  try {
+    const { getStore } = await import("@netlify/blobs");
+    const salvos = await getStore("config-site").get("textos", { type: "json" });
+    return mesclarTextos(salvos);
+  } catch {
+    return mesclarTextos(null);
+  }
+}
+const t = await carregarTextos();
 
 // O bloco de agradecimento só oferece o blog quando há artigo publicado.
 const temArtigos = (await getCollection("artigos")).some((a) => !a.data.rascunho);
@@ -48,20 +65,13 @@ const sinais = {
   <!-- Tensão -->
   <section class="secao" style="padding-bottom:0">
     <div class="wrap wrap-estreito">
-      <p class="olho">Diagnóstico patrimonial</p>
-      <h1>Se algo acontecesse com você esta noite, quem ligaria para quem?</h1>
-      <p class="lead">
-        A maioria das pessoas com patrimônio relevante consegue responder quanto
-        tem. Quase nenhuma consegue responder o que acontece depois: quem assina
-        pela empresa, de onde sai o dinheiro do imposto, quanto tempo a família
-        atravessa sem vender nada às pressas.
-      </p>
-      <p class="lead">
-        Não é descuido. É que ninguém nunca fez essas perguntas para você.
-      </p>
+      <p class="olho">{t.heroOlho}</p>
+      <h1>{t.heroTitulo}</h1>
+      <p class="lead">{t.heroParagrafo1}</p>
+      <p class="lead">{t.heroParagrafo2}</p>
       <p style="margin-top:2rem;display:flex;gap:.7rem;flex-wrap:wrap;align-items:center">
-        <a class="btn btn-primario" href="#formulario">Fazer o diagnóstico</a>
-        <span class="nota" style="margin:0">Leva três minutos.</span>
+        <a class="btn btn-primario" href="#formulario">{t.heroBotao}</a>
+        <span class="nota" style="margin:0">{t.heroNota}</span>
       </p>
     </div>
   </section>
@@ -69,12 +79,8 @@ const sinais = {
   <!-- Custo -->
   <section class="secao">
     <div class="wrap wrap-estreito">
-      <h2>O que costuma estar caro sem aparecer</h2>
-      <p>
-        Investimento é só uma das frentes de um patrimônio, e raramente é a que
-        mais custa. As outras não aparecem em extrato, não têm rentabilidade
-        mensal e ninguém liga para te avisar sobre elas.
-      </p>
+      <h2>{t.custoTitulo}</h2>
+      <p>{t.custoParagrafo}</p>
       <div class="grade grade-2" style="margin-top:2rem">
         {dimensoes.map(([chave, dim]) => (
           <div class="cartao">
@@ -90,12 +96,8 @@ const sinais = {
   <section class="secao secao-linha">
     <div class="wrap wrap-estreito">
       <p class="olho">Como funciona</p>
-      <h2>Diagnóstico primeiro</h2>
-      <p>
-        Quase todo mundo no mercado inverte essa ordem: chega com a solução antes
-        de você ter entendido o problema. Eu separo as duas coisas de propósito,
-        e essa é a decisão de método que mais muda o resultado.
-      </p>
+      <h2>{t.metodoTitulo}</h2>
+      <p>{t.metodoParagrafo}</p>
 
       <ol class="empilha" style="--gap:1rem;list-style:none;padding:0;margin:2rem 0 0;counter-reset:passo">
         {[
@@ -115,11 +117,7 @@ const sinais = {
         ))}
       </ol>
 
-      <p style="margin-top:2rem">
-        É esse o trabalho, e é assim que ele começa. Do primeiro encontro ao
-        plano na sua mão costumam ser uma a duas semanas. A proposta só aparece
-        na quinta etapa, depois de eu conhecer o seu caso.
-      </p>
+      <p style="margin-top:2rem">{t.metodoFecho}</p>
     </div>
   </section>
 
@@ -127,11 +125,22 @@ const sinais = {
   <section class="secao secao-linha" id="formulario">
     <div class="wrap wrap-estreito">
       <p class="olho">Começar</p>
-      <h2>Sete perguntas antes da conversa</h2>
-      <p class="lead">
-        Servem para eu chegar na nossa conversa já preparado, com hipótese em vez
-        de pergunta genérica.
-      </p>
+      <h2>{t.formTitulo}</h2>
+      <p class="lead">{t.formLead}</p>
+
+      {t.fotoUrl && (
+        <div class="cartao-autor">
+          <img src={t.fotoUrl} alt={`Foto de ${SITE.profissional.nome}`} width="88" height="88" loading="lazy" />
+          <div>
+            <p class="cartao-autor-nome">{SITE.profissional.nome}</p>
+            <p class="cartao-autor-cargo">
+              {SITE.profissional.cargo}
+              {SITE.profissional.certificacoes.length > 0 && ` · ${SITE.profissional.certificacoes.join(" · ")}`}
+            </p>
+            {t.fotoLegenda && <p class="cartao-autor-legenda">{t.fotoLegenda}</p>}
+          </div>
+        </div>
+      )}
 
       <!--
         Formulário fantasma: a Netlify precisa enxergar um <form> com estes
@@ -234,7 +243,7 @@ const sinais = {
 
         <button class="btn btn-primario btn-bloco" type="submit" id="btn-enviar">Enviar</button>
         <p class="nota" style="margin-top:.8rem;text-align:center">
-          Respondo pessoalmente em até dois dias úteis. Sem robôs por aqui.
+          {t.formRodape}
         </p>
         <p id="erro-form" class="pequeno oculto" style="color:var(--alerta);margin-top:.8rem" role="alert"></p>
       </form>
@@ -251,6 +260,20 @@ const sinais = {
 </Landing>
 
 <style>
+  .cartao-autor {
+    display: flex; gap: 1rem; align-items: center;
+    border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--surface); padding: 1rem 1.15rem; margin-top: 1.75rem;
+  }
+  .cartao-autor img {
+    width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
+    object-position: center top; flex: none;
+    border: 1px solid var(--line-forte);
+  }
+  .cartao-autor-nome { font-family: var(--serif); font-size: 1.05rem; font-weight: 600; margin: 0; }
+  .cartao-autor-cargo { font-size: .78rem; color: var(--muted); margin: .15rem 0 0; }
+  .cartao-autor-legenda { font-size: .85rem; color: var(--ink-2); margin: .5rem 0 0; line-height: 1.45; }
+
   .pergunta-retorno {
     border-left: 2px solid var(--accent);
     padding: .1rem 0 .1rem 1rem;
