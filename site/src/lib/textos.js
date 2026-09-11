@@ -28,7 +28,7 @@ export const TEXTOS_PADRAO = {
   formLead:
     "Servem para eu chegar na nossa conversa já preparado, com hipótese em vez de pergunta genérica.",
   formRodape: "Respondo pessoalmente em até dois dias úteis. Sem robôs por aqui.",
-  fotoUrl: "",
+  fotoUrl: "/img/bruno-lage.jpg",
   fotoLegenda: "Quem lê e responde o seu formulário.",
 };
 
@@ -51,7 +51,7 @@ export const CAMPOS_TEXTO = [
     rotulo: "Endereço da foto",
     linhas: 1,
     ajuda:
-      "Cole o endereço de uma imagem pública, ou o caminho de um arquivo que esteja em site/public/img (exemplo: /img/bruno.jpg). Deixe em branco para não mostrar foto nenhuma.",
+      "Funciona melhor com foto em pé. Use o caminho de um arquivo em site/public/img (exemplo: /img/bruno-lage.jpg) ou o endereço de uma imagem pública. Link do Google Drive não funciona: o Drive devolve uma página, não a imagem. Deixe em branco para não mostrar foto nenhuma.",
   },
   { chave: "fotoLegenda", rotulo: "Legenda abaixo da foto", linhas: 2 },
 

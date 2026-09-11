@@ -130,7 +130,7 @@ const sinais = {
 
       {t.fotoUrl && (
         <div class="cartao-autor">
-          <img src={t.fotoUrl} alt={`Foto de ${SITE.profissional.nome}`} width="88" height="88" loading="lazy" />
+          <img src={t.fotoUrl} alt={`Foto de ${SITE.profissional.nome}`} width="104" height="139" loading="lazy" />
           <div>
             <p class="cartao-autor-nome">{SITE.profissional.nome}</p>
             <p class="cartao-autor-cargo">
@@ -266,9 +266,13 @@ const sinais = {
     background: var(--surface); padding: 1rem 1.15rem; margin-top: 1.75rem;
   }
   .cartao-autor img {
-    width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
-    object-position: center top; flex: none;
-    border: 1px solid var(--line-forte);
+    width: 104px; height: auto; aspect-ratio: 3 / 4;
+    border-radius: var(--r-sm); object-fit: cover; object-position: center;
+    flex: none; border: 1px solid var(--line-forte);
+  }
+  @media (max-width: 420px) {
+    .cartao-autor { flex-direction: column; align-items: flex-start; }
+    .cartao-autor img { width: 88px; }
   }
   .cartao-autor-nome { font-family: var(--serif); font-size: 1.05rem; font-weight: 600; margin: 0; }
   .cartao-autor-cargo { font-size: .78rem; color: var(--muted); margin: .15rem 0 0; }
