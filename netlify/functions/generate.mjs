@@ -47,7 +47,7 @@ function buildUserPrompt(body) {
 
   return `Escreva ${tipoDesc}, a partir das respostas do associado abaixo.
 
-Tamanho desejado: ${tamanho || "600 a 900 palavras"}.
+Tamanho desejado: ${tamanho || "600 a 900 palavras"} (contando só o corpo do texto, sem os títulos alternativos e os pontos de revisão). Atinja essa extensão desenvolvendo com profundidade os argumentos, exemplos e contrapontos que o associado deu — sem encher linguiça e sem inventar conteúdo; onde faltar material para chegar ao tamanho, use marcações [REVISAR: ...] pedindo que ele aprofunde.
 Tom desejado: ${tom || "pessoal e direto"}.
 
 RESPOSTAS DO ASSOCIADO (única fonte permitida de conteúdo):
@@ -56,6 +56,26 @@ ${linhas}
 
 Produza o rascunho seguindo rigorosamente as regras do seu papel.`;
 }
+
+// Pedido de continuação: usado quando a resposta anterior foi cortada
+// (limite de tempo da function do Netlify ou de tokens).
+function buildContinuacaoPrompt(body) {
+  return `${buildUserPrompt(body)}
+
+---
+
+Você já começou a escrever este rascunho, mas a resposta foi interrompida. Eis tudo o que foi escrito até agora, entre as marcas <parcial> e </parcial>:
+
+<parcial>
+${body.continuar}
+</parcial>
+
+Continue EXATAMENTE do ponto onde o texto parou — se parou no meio de uma palavra ou frase, complete-a. Escreva SOMENTE a continuação: não repita nada do que já foi escrito, não comente, não recomece. Mantenha as mesmas regras, o mesmo tom e o tamanho total pedido, e termine com o bloco após "---" se ele ainda não tiver sido escrito.`;
+}
+
+// Marca enviada no fim de uma resposta completa. Se o navegador não a
+// receber, sabe que o texto foi cortado e pede a continuação.
+const FIM = "\u0003FIM:";
 
 export default async (req) => {
   if (req.method !== "POST") {
@@ -90,19 +110,33 @@ export default async (req) => {
     );
   }
 
+  // As functions do Netlify têm limite de tempo; textos longos podem ser
+  // cortados no meio. Por isso o navegador pode pedir a continuação
+  // (body.continuar = texto já recebido). Na continuação não há "thinking",
+  // para o texto voltar a sair imediatamente (o mesmo vale para uma nova
+  // tentativa após uma resposta que não chegou a produzir texto).
+  const continuando = typeof body.continuar === "string" && body.continuar.trim().length > 0;
   const stream = client.messages.stream({
     model: "claude-sonnet-5",
     max_tokens: 16000,
-    thinking: { type: "adaptive" },
+    ...(continuando || body.semReflexao ? {} : { thinking: { type: "adaptive" } }),
     system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: buildUserPrompt(body) }],
+    messages: [
+      { role: "user", content: continuando ? buildContinuacaoPrompt(body) : buildUserPrompt(body) },
+    ],
   });
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream({
     start(controller) {
       stream.on("text", (t) => controller.enqueue(encoder.encode(t)));
-      stream.on("end", () => controller.close());
+      stream
+        .finalMessage()
+        .then((msg) => {
+          controller.enqueue(encoder.encode(FIM + (msg.stop_reason || "")));
+          controller.close();
+        })
+        .catch(() => {}); // erros tratados no handler "error" abaixo
       stream.on("error", (e) => {
         console.error("Erro na API Claude:", e);
         controller.error(e);
