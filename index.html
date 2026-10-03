@@ -190,6 +190,8 @@
               <option value="400 a 600 palavras">Curto (400–600 palavras)</option>
               <option value="600 a 900 palavras" selected>Médio (600–900 palavras)</option>
               <option value="900 a 1200 palavras">Longo (900–1200 palavras)</option>
+              <option value="1200 a 1600 palavras">Extenso (1200–1600 palavras · ~3 páginas)</option>
+              <option value="1600 a 2000 palavras">Muito extenso (1600–2000 palavras · até 4 páginas)</option>
             </select>
           </div>
         </div>
@@ -501,28 +503,50 @@ async function gerar(){
   area.scrollIntoView({behavior:'smooth'});
 
   try{
-    const resp = await fetch('/api/gerar', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        tipo: tipoAtual,
-        tom: document.getElementById('selTom').value,
-        tamanho: document.getElementById('selTamanho').value,
-        respostas
-      })
-    });
-    if(!resp.ok){
-      const msg = await resp.text();
-      throw new Error(msg || ('Erro ' + resp.status));
-    }
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
     textoGerado = '';
-    while(true){
-      const {done, value} = await reader.read();
-      if(done) break;
-      textoGerado += decoder.decode(value, {stream:true});
+    const FIM = '\u0003FIM:';
+    const MAX_CONTINUACOES = 8;
+    // A function do Netlify tem limite de tempo; em textos longos a resposta
+    // pode ser cortada. O servidor só envia a marca FIM quando termina de
+    // verdade — se ela não chegar, pedimos a continuação do ponto onde parou.
+    for(let tentativa = 0; ; tentativa++){
+      const resp = await fetch('/api/gerar', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          tipo: tipoAtual,
+          tom: document.getElementById('selTom').value,
+          tamanho: document.getElementById('selTamanho').value,
+          respostas,
+          continuar: textoGerado || undefined,
+          semReflexao: tentativa > 0
+        })
+      });
+      if(!resp.ok){
+        const msg = await resp.text();
+        throw new Error(msg || ('Erro ' + resp.status));
+      }
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let trecho = '';
+      try{
+        while(true){
+          const {done, value} = await reader.read();
+          if(done) break;
+          trecho += decoder.decode(value, {stream:true});
+          previa.textContent = textoGerado + trecho.split(FIM)[0];
+        }
+      }catch(e){ /* conexão cortada: tratada como texto incompleto */ }
+      const k = trecho.indexOf(FIM);
+      const motivo = k >= 0 ? trecho.slice(k + FIM.length) : null;
+      textoGerado += k >= 0 ? trecho.slice(0, k) : trecho.replace(/\u0003[\s\S]*$/, '');
       previa.textContent = textoGerado;
+      const completo = motivo !== null && motivo !== 'max_tokens';
+      if(completo) break;
+      if(tentativa >= MAX_CONTINUACOES){
+        throw new Error('a resposta foi interrompida antes do fim. Tente gerar novamente.');
+      }
+      btn.textContent = 'Continuando o texto…';
     }
     previa.classList.remove('gerando');
     finalizarGeracao();
